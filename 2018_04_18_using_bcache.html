@@ -22,11 +22,11 @@
 
 
 <meta name="author" content="YOUNG HO CHA" />
-<meta name="description" content="linux bcache를 이용해 sshd 만들기" />
+<meta name="description" content="linux bcache를 이용해 sshd 만들기" />
 <meta name="keywords" content="linux, performance, ssd, hdd">
 <meta property="og:site_name" content="Ganachoco's Blog"/>
-<meta property="og:title" content="bcache 사용하기"/>
-<meta property="og:description" content="linux bcache를 이용해 sshd 만들기"/>
+<meta property="og:title" content="bcache 사용하기"/>
+<meta property="og:description" content="linux bcache를 이용해 sshd 만들기"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="http://ganadist.github.io/2018_04_18_using_bcache.html"/>
 <meta property="og:type" content="article"/>
@@ -40,7 +40,7 @@
 <meta property="article:tag" content="hdd"/>
 <meta property="og:image" content="">
 
-  <title>Ganachoco's Blog &ndash; bcache 사용하기</title>
+  <title>Ganachoco's Blog &ndash; bcache 사용하기</title>
 
 </head>
 <body>
@@ -66,7 +66,7 @@
 
 <article class="single">
   <header>
-    <h1 id="2018_04_18_using_bcache">bcache 사용하기</h1>
+    <h1 id="2018_04_18_using_bcache">bcache&nbsp;사용하기</h1>
     <p>
           Posted on 수 18 4월 2018 in <a href="http://ganadist.github.io/category/tech.html">tech</a>
 
@@ -76,10 +76,10 @@
 
 
   <div>
-    <p>bcache 는 ssd와 hdd를 조합해서 <a href="https://en.wikipedia.org/wiki/Hybrid_drive">sshd(hybrid drive)</a>를 소프트웨어 적으로 구현하는 리눅스 커널의 기능입니다.</p>
-<p>일반적으로 ssd는 hdd보다 전송 속도 및 반응 속도가 빨라서 입출력이 많은 작업에 사용하기 좋지만, 가격이 비싸기 때문에 대용량의 데이터를 보관하는데 적합하지 않습니다. 하지만 빠른 반응속도를 가진 용량 작은 ssd(Intel Optane Memory등)와 적당한 가격의 큰 hdd를 bcache로 엮어주면 가성비가 괜찮은 sshd를 임의로 만들 수 있습니다.</p>
-<p>먼저 bcache를 구성하려면 데이터가 비어있는 ssd 파티션과 마찬가지로 데이터가 비어있는 hdd 파티션이 필요합니다.</p>
-<p>먼저 ssd 파티션을 bcache의 cache 장치로 등록합니다.</p>
+    <p>bcache 는 ssd와 hdd를 조합해서 <a href="https://en.wikipedia.org/wiki/Hybrid_drive">sshd(hybrid drive)</a>를 소프트웨어 적으로 구현하는 리눅스 커널의&nbsp;기능입니다.</p>
+<p>일반적으로 ssd는 hdd보다 전송 속도 및 반응 속도가 빨라서 입출력이 많은 작업에 사용하기 좋지만, 가격이 비싸기 때문에 대용량의 데이터를 보관하는데 적합하지 않습니다. 하지만 빠른 반응속도를 가진 용량 작은 ssd(Intel Optane Memory등)와 적당한 가격의 큰 hdd를 bcache로 엮어주면 가성비가 괜찮은 sshd를 임의로 만들 수&nbsp;있습니다.</p>
+<p>먼저 bcache를 구성하려면 데이터가 비어있는 ssd 파티션과 마찬가지로 데이터가 비어있는 hdd 파티션이&nbsp;필요합니다.</p>
+<p>먼저 ssd 파티션을 bcache의 cache 장치로&nbsp;등록합니다.</p>
 <div class="highlight"><pre><span></span>$ sudo make-bcache -C --block <span class="m">512</span> --bucket 2M --wipe-bcache /dev/nvme0n1p3
 UUID:            29373e97-cb10-4474-8ab2-2d99917da727
 Set UUID:        7701c988-810e-4603-be15-a122c670975e
@@ -93,10 +93,10 @@ first_bucket:    <span class="m">1</span>
 </pre></div>
 
 
-<p>--block 옵션은 연동할 hdd의 블럭단위크기로 설정하고, --bucket 옵션은 ssd의 작업단위크기로 설정하면 됩니다.</p>
-<p>단 --bucket 옵션의 크기를 너무 크게 주면 등록이 되지 않기 때문에 오류가 발생하면 dmesg 명령으로 커널 메세지를 확인하시기 바랍니다.</p>
-<p>위와 같이 cache 장치로 등록하면 "Set UUID"를 주의깊게 기억하고 있다가 hdd를 등록할 때 사용하면 됩니다.</p>
-<p>이미 등록된 ssd의 set uuid는 다음과 같이 확인해볼 수 있습니다.</p>
+<p>&#8212;block 옵션은 연동할 hdd의 블럭단위크기로 설정하고, &#8212;bucket 옵션은 ssd의 작업단위크기로 설정하면&nbsp;됩니다.</p>
+<p>단 &#8212;bucket 옵션의 크기를 너무 크게 주면 등록이 되지 않기 때문에 오류가 발생하면 dmesg 명령으로 커널 메세지를 확인하시기&nbsp;바랍니다.</p>
+<p>위와 같이 cache 장치로 등록하면 &#8220;Set <span class="caps">UUID</span>&#8221;를 주의깊게 기억하고 있다가 hdd를 등록할 때 사용하면&nbsp;됩니다.</p>
+<p>이미 등록된 ssd의 set uuid는 다음과 같이 확인해볼 수&nbsp;있습니다.</p>
 <div class="highlight"><pre><span></span>$ ls -l /sys/fs/bcache
 drwxr-xr-x <span class="m">7</span> root root    <span class="m">0</span>  4월 <span class="m">18</span> <span class="m">15</span>:34 7701c988-810e-4603-be15-a122c670975e
 --w------- <span class="m">1</span> root root <span class="m">4096</span>  4월 <span class="m">18</span> <span class="m">14</span>:36 register
@@ -104,7 +104,7 @@ drwxr-xr-x <span class="m">7</span> root root    <span class="m">0</span>  4월 
 </pre></div>
 
 
-<p>또는 다음 명령의 출력 결과 중 cset.uuid 를 확인해도 됩니다.</p>
+<p>또는 다음 명령의 출력 결과 중 cset.uuid 를 확인해도&nbsp;됩니다.</p>
 <div class="highlight"><pre><span></span><span class="err">$</span> <span class="n">sudo</span> <span class="n">bcache</span><span class="o">-</span><span class="nb">super</span><span class="o">-</span><span class="n">show</span> <span class="o">/</span><span class="n">dev</span><span class="o">/</span><span class="n">nvme0n1p3</span>
 <span class="n">sb</span><span class="p">.</span><span class="n">magic</span>           <span class="n">ok</span>
 <span class="n">sb</span><span class="p">.</span><span class="n">first_sector</span>    <span class="mi">8</span> <span class="p">[</span><span class="n">match</span><span class="p">]</span>
@@ -127,42 +127,42 @@ drwxr-xr-x <span class="m">7</span> root root    <span class="m">0</span>  4월 
 </pre></div>
 
 
-<p>ssd가 구성되면, backing partition으로 사용될 hdd 를 초기화 합니다. 다음 옵션중 --cset-uuid 의 인자는 위에서 확인했던 set uuid를 입력하면 됩니다.</p>
+<p>ssd가 구성되면, backing partition으로 사용될 hdd 를 초기화 합니다. 다음 옵션중 &#8212;cset-uuid 의 인자는 위에서 확인했던 set uuid를 입력하면&nbsp;됩니다.</p>
 <div class="highlight"><pre><span></span>$ <span class="nb">export</span> <span class="nv">CSET_UUID</span><span class="o">=</span>7701c988-810e-4603-be15-a122c670975e
 $ sudo make-bcache -B  --writeback --cset-uuid <span class="nv">$CSET_UUID</span> /dev/sdb2
 </pre></div>
 
 
-<p>이렇게 명령을 수행하면 bcache0 장치가 등록되는데, 커널 메세지로 확인이 가능합니다.</p>
+<p>이렇게 명령을 수행하면 bcache0 장치가 등록되는데, 커널 메세지로 확인이&nbsp;가능합니다.</p>
 <div class="highlight"><pre><span></span><span class="n">bcache</span><span class="o">:</span> <span class="n">register_cache</span><span class="o">()</span> <span class="n">registered</span> <span class="n">cache</span> <span class="n">device</span> <span class="n">nvme0n1p3</span>
 <span class="n">bcache</span><span class="o">:</span> <span class="n">register_bdev</span><span class="o">()</span> <span class="n">registered</span> <span class="n">backing</span> <span class="n">device</span> <span class="n">sdb2</span>
 <span class="n">bcache</span><span class="o">:</span> <span class="n">bch_cached_dev_attach</span><span class="o">()</span> <span class="n">Caching</span> <span class="n">sdb2</span> <span class="k">as</span> <span class="n">bcache0</span> <span class="n">on</span> <span class="kd">set</span> <span class="mi">7701</span><span class="n">c988</span><span class="o">-</span><span class="mi">810</span><span class="n">e</span><span class="o">-</span><span class="mi">4603</span><span class="o">-</span><span class="n">be15</span><span class="o">-</span><span class="n">a122c670975e</span>
 </pre></div>
 
 
-<p>이렇게 생성된 bcache 장치에 파일시스템을 구성 후 mount 하고 사용하면 됩니다.</p>
+<p>이렇게 생성된 bcache 장치에 파일시스템을 구성 후 mount 하고 사용하면&nbsp;됩니다.</p>
 <div class="highlight"><pre><span></span>$ sudo mkfs.ext4 -L BUILD_OUT /dev/bcache0
 $ sudo mount /dev/bcache0 /srv/build/out
 </pre></div>
 
 
-<p>그리고 용도에 따라서 cache mode를 변경할 수 있습니다.</p>
+<p>그리고 용도에 따라서 cache mode를 변경할 수&nbsp;있습니다.</p>
 <ul>
 <li>
-<p>writeback : write 에 대해 cache 가 됩니다. 시스템이 비정상적으로 종료되거나, 갑작스런 전원공급 중단이 발생할 경우 데이터가 유실될 가능성이 있습니다만, 빠른 write속도가 제공됩니다.</p>
+<p>writeback : write 에 대해 cache 가 됩니다. 시스템이 비정상적으로 종료되거나, 갑작스런 전원공급 중단이 발생할 경우 데이터가 유실될 가능성이 있습니다만, 빠른 write속도가&nbsp;제공됩니다.</p>
 </li>
 <li>
-<p>writethrough: ssd와 hdd에 동시에 write를 합니다.</p>
+<p>writethrough: ssd와 hdd에 동시에 write를&nbsp;합니다.</p>
 </li>
-<li>writearound: write cache가 동작하지 않습니다.</li>
+<li>writearound: write cache가 동작하지&nbsp;않습니다.</li>
 </ul>
-<p>아래 2가지 모드에서는 writeback보다 write속도가 떨어지지만, 그만큼 안정성은 올라갑니다. 저장장치의 용도에 따라 적합한 cache mode를 선택해서 사용하면 됩니다.</p>
+<p>아래 2가지 모드에서는 writeback보다 write속도가 떨어지지만, 그만큼 안정성은 올라갑니다. 저장장치의 용도에 따라 적합한 cache mode를 선택해서 사용하면&nbsp;됩니다.</p>
 <p>참고:</p>
 <ul>
-<li><a href="https://bcache.evilpiepirate.org/">공식 홈페이지</a></li>
-<li><a href="https://github.com/torvalds/linux/blob/master/Documentation/bcache.txt">커널 문서</a>    </li>
-<li><a href="https://wiki.archlinux.org/index.php/Bcache">Arch Linux 문서</a></li>
-<li><a href="https://wiki.ubuntu.com/ServerTeam/Bcache">Ubuntu 문서</a></li>
+<li><a href="https://bcache.evilpiepirate.org/">공식&nbsp;홈페이지</a></li>
+<li><a href="https://github.com/torvalds/linux/blob/master/Documentation/bcache.txt">커널&nbsp;문서</a>    </li>
+<li><a href="https://wiki.archlinux.org/index.php/Bcache">Arch Linux&nbsp;문서</a></li>
+<li><a href="https://wiki.ubuntu.com/ServerTeam/Bcache">Ubuntu&nbsp;문서</a></li>
 </ul>
   </div>
   <div class="tag-cloud">
