@@ -68,7 +68,7 @@
   <header>
     <h1 id="2018_04_18_using_bcache">bcache&nbsp;사용하기</h1>
     <p>
-          Posted on 수 18 4월 2018 in <a href="http://ganadist.github.io/category/tech.html">tech</a>
+          Posted on 04/18/2018 in <a href="http://ganadist.github.io/category/tech.html">tech</a>
 
 
     </p>
@@ -157,6 +157,15 @@ $ sudo mount /dev/bcache0 /srv/build/out
 <li>writearound: write cache가 동작하지&nbsp;않습니다.</li>
 </ul>
 <p>아래 2가지 모드에서는 writeback보다 write속도가 떨어지지만, 그만큼 안정성은 올라갑니다. 저장장치의 용도에 따라 적합한 cache mode를 선택해서 사용하면&nbsp;됩니다.</p>
+<div class="highlight"><pre><span></span>$ cat /sys/block/bcache0/bcache/cache_mode
+writethrough writeback <span class="o">[</span>writearound<span class="o">]</span> none
+$ <span class="nb">echo</span> writeback <span class="p">|</span> sudo tee /sys/block/bcache0/bcache/cache_mode
+writeback
+$ cat /sys/block/bcache0/bcache/cache_mode
+writethrough <span class="o">[</span>writeback<span class="o">]</span> writearound none
+</pre></div>
+
+
 <p>참고:</p>
 <ul>
 <li><a href="https://bcache.evilpiepirate.org/">공식&nbsp;홈페이지</a></li>

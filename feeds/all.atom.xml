@@ -84,6 +84,15 @@ $ sudo mount /dev/bcache0 /srv/build/out
 &lt;li&gt;writearound: write cache가 동작하지&amp;nbsp;않습니다.&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;아래 2가지 모드에서는 writeback보다 write속도가 떨어지지만, 그만큼 안정성은 올라갑니다. 저장장치의 용도에 따라 적합한 cache mode를 선택해서 사용하면&amp;nbsp;됩니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ cat /sys/block/bcache0/bcache/cache_mode
+writethrough writeback &lt;span class="o"&gt;[&lt;/span&gt;writearound&lt;span class="o"&gt;]&lt;/span&gt; none
+$ &lt;span class="nb"&gt;echo&lt;/span&gt; writeback &lt;span class="p"&gt;|&lt;/span&gt; sudo tee /sys/block/bcache0/bcache/cache_mode
+writeback
+$ cat /sys/block/bcache0/bcache/cache_mode
+writethrough &lt;span class="o"&gt;[&lt;/span&gt;writeback&lt;span class="o"&gt;]&lt;/span&gt; writearound none
+&lt;/pre&gt;&lt;/div&gt;
+
+
 &lt;p&gt;참고:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://bcache.evilpiepirate.org/"&gt;공식&amp;nbsp;홈페이지&lt;/a&gt;&lt;/li&gt;
