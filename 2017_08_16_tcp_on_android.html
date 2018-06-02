@@ -1,0 +1,184 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/stylesheet/style.min.css">
+
+  <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/pygments/github.min.css">
+  <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/font-awesome/css/font-awesome.min.css">
+
+
+    <link href="http://ganadist.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Ganachoco's Blog Atom">
+
+
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+
+
+<meta name="author" content="YOUNG HO CHA" />
+<meta name="description" content="Android Framework에서 소켓권한 제어 방법" />
+<meta name="keywords" content="android network">
+<meta property="og:site_name" content="Ganachoco's Blog"/>
+<meta property="og:title" content="TCP access control in Android Frameworks"/>
+<meta property="og:description" content="Android Framework에서 소켓권한 제어 방법"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="http://ganadist.github.io/2017_08_16_tcp_on_android.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2017-08-16 19:00:00+09:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="http://ganadist.github.io/author/young-ho-cha.html">
+<meta property="article:section" content="tech"/>
+<meta property="article:tag" content="android network"/>
+<meta property="og:image" content="">
+
+  <title>Ganachoco's Blog &ndash; TCP access control in Android Frameworks</title>
+
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="http://ganadist.github.io">
+        <img src="http://ganadist.github.io/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href="http://ganadist.github.io"></a></h1>
+
+
+      <nav>
+        <ul class="list">
+
+          <li><a href="/" target="_blank">Top</a></li>
+        </ul>
+      </nav>
+
+      <ul class="social">
+        <li><a class="sc-github" href="http://github.com/ganadist" target="_blank"><i class="fa fa-github"></i></a></li>
+        <li><a class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+      </ul>
+    </div>
+
+
+  </aside>
+  <main>
+
+
+<article class="single">
+  <header>
+    <h1 id="2017_08_16_tcp_on_android">TCP access control in Android Frameworks</h1>
+    <p>
+          Posted on 수 16 8월 2017 in <a href="http://ganadist.github.io/category/tech.html">tech</a>
+
+
+    </p>
+  </header>
+
+
+  <div>
+    <p>2년 전에 완전정복 했었다고 믿었건만, 지나가면 새까맣게 잊어먹는 습성때문에 기록으로 남깁니다.</p>
+<h1>Android 1.0 ~ Android 4.4</h1>
+<p>TCP 소켓을 생성할 때는 리눅스 커널의 <a href="http://man7.org/linux/man-pages/man2/socket.2.html">socket 이라는 시스템콜</a>을 이용해 생성하게 되어 있는데,  android의 리눅스 커널에는 특정 그룹(AID_INET, AID_NET_RAW)이나 특정 capability(CAP_NET_RAW)를 가지고 있는 process에 대해서만 socket 시스템 콜을 호출할 수 있는 <a href="https://android.googlesource.com/kernel/common/+/fd64bbf28e28526f608df0061175829338ee94cc%5E%21/">변경사항을 포함</a>하고 있습니다.</p>
+<p>그리고 앱에 <a href="https://developer.android.com/reference/android/Manifest.permission.html#INTERNET">INTERNET 이라는 퍼미션</a>을 포함하고 있으면, 해당 <a href="https://android.googlesource.com/platform/frameworks/base/+/lollipop-mr1-release/data/etc/platform.xml#53">앱의 group에 inet 을 포함</a>시켜줍니다.</p>
+<p>따라서 해당 퍼미션을 가지고 있지 않은 daemon이나 앱에서는 socket을 생성할 때 EACCESS(퍼미션 없음) 오류를 발생하게 됩니다.</p>
+<h1>Android 5.0 ~</h1>
+<p>새로운 <a href="https://developer.android.com/about/versions/android-5.0.html#Multinetwork">connectivity api</a> 로 인해 socket 퍼미션을 동적으로 관리하기 위해서 <a href="https://android.googlesource.com/platform/system/netd/+/android-7.1.1_r50">netd 라는 daemon이 완전히 개비</a>되었습니다. (<a href="https://android.googlesource.com/platform/system/netd/+/kitkat-dev">킷캣 이전에도 netd는 존재</a>했지만 테터링이나 vpn등의 제한된 기능만 제공했습니다.)</p>
+<p>c 라이브러리(bionic)의 socket 관련 시스템 콜(<a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/socket.cpp">socket</a>, <a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/accept4.cpp">accept4</a>, <a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/connect.cpp">connect</a>) 래퍼는 직접 커널에서 제공되는 시스템콜을 호출하지 않고, <a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/NetdClient.cpp">netd 에서 제공되는 래퍼 함수를 호출</a>합니다.</p>
+<p>그리고 각 socket관련 시스템 콜을 호출할 때는 <a href="https://android.googlesource.com/platform/system/netd/+/android-7.1.1_r50/server/FwmarkServer.cpp#207">각 socket에 대해 fwmark(Firewall Mark)라는 것을 설정</a>하고, 라우팅 테이블에서 fwmark를 이용해 해당 패킷을 실제로 교환할 지 결정합니다.</p>
+<div class="highlight"><pre><span></span>mako:/ # ip rule
+0:      from all lookup local
+10000:  from all fwmark 0xc0000/0xd0000 lookup legacy_system
+10500:  from all oif dummy0 uidrange 0-0 lookup dummy0
+10500:  from all oif wlan0 uidrange 0-0 lookup wlan0
+13000:  from all fwmark 0x10063/0x1ffff lookup local_network
+13000:  from all fwmark 0x10064/0x1ffff lookup wlan0
+14000:  from all oif dummy0 lookup dummy0
+14000:  from all oif wlan0 lookup wlan0
+15000:  from all fwmark 0x0/0x10000 lookup legacy_system
+16000:  from all fwmark 0x0/0x10000 lookup legacy_network
+17000:  from all fwmark 0x0/0x10000 lookup local_network
+19000:  from all fwmark 0x64/0x1ffff lookup wlan0
+22000:  from all fwmark 0x0/0xffff lookup wlan0
+23000:  from all fwmark 0x0/0xffff uidrange 0-0 lookup main
+32000:  from all unreachable
+</pre></div>
+
+
+<p>따라서 퍼미션을 가지지 않는 데몬이나 앱이 tcp연결을 시도하면, 킷캣 미만처럼 EACCESS오류가 발생하는 것이 아니라,  송신용 소켓일 경우에는  ENETUNREACH(Network is unreachable)이 발생하며, 수신용 소켓일 경우에는 라우팅이 되지 않아 아예 패킷 수신이 되지 않습니다.</p>
+<p>또한 네트워크 인터페이스가 netd 및 connectivity service에 등록되지 않은 상태이면, 마찬가지로 라우팅 테이블에서 해당 패킷을 처리하지 않게 되므로, 패킷 송수신이 불가능한 상태가 됩니다.</p>
+<p>임의로 네트워크 인터페이스를 netd에 등록하려면 다음 명령을 미리 실행해 놓습니다.</p>
+<div class="highlight"><pre><span></span>mako:/ # ndc network create 100
+mako:/ # ndc network default set 100
+mako:/ # ndc network interface add 100 eth0
+mako:/ # dumpsys netd
+
+  NetworkController
+    Default network: 100
+
+    Networks:
+      51 DUMMY dummy0
+        No DNS servers defined
+        No search domains defined
+
+      99 LOCAL
+        No DNS servers defined
+        No search domains defined
+
+      100 PHYSICAL eth0,wlan0
+        Required permission: NONE
+        DNS servers: # IP (total, successes, errors, timeouts, internal errors, RTT avg, last sample)
+          168.126.63.1 (38, 38, 0, 0, 0, 47ms, 562s)
+          168.126.63.2 &lt;no data&gt;
+        No search domains defined
+        DNS parameters: sample validity = 1800s, success threshold = 25%, samples (min, max) = (8, 64)
+</pre></div>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="http://ganadist.github.io/tag/android-network.html">android network</a>
+    </p>
+  </div>
+
+
+
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'ganadist-github-io';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+        Please enable JavaScript to view comments.
+
+</noscript>
+</article>
+
+    <footer>
+<p>&copy; YOUNG HO CHA </p>
+<p>    Powered by <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a>
+</p>    </footer>
+  </main>
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Ganachoco's Blog ",
+  "url" : "http://ganadist.github.io",
+  "image": "",
+  "description": ""
+}
+</script>
+</body>
+</html>

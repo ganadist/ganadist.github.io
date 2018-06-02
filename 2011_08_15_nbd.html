@@ -1,0 +1,181 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/stylesheet/style.min.css">
+
+  <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/pygments/github.min.css">
+  <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/font-awesome/css/font-awesome.min.css">
+
+
+    <link href="http://ganadist.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Ganachoco's Blog Atom">
+
+
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+
+
+<meta name="author" content="YOUNG HO CHA" />
+<meta name="description" content="nbd 사용방법" />
+<meta name="keywords" content="linux">
+<meta property="og:site_name" content="Ganachoco's Blog"/>
+<meta property="og:title" content="간단하게 뜯어보는 nbd(network block device)"/>
+<meta property="og:description" content="nbd 사용방법"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="http://ganadist.github.io/2011_08_15_nbd.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2011-08-15 12:00:00+09:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="http://ganadist.github.io/author/young-ho-cha.html">
+<meta property="article:section" content="tech"/>
+<meta property="article:tag" content="linux"/>
+<meta property="og:image" content="">
+
+  <title>Ganachoco's Blog &ndash; 간단하게 뜯어보는 nbd(network block device)</title>
+
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="http://ganadist.github.io">
+        <img src="http://ganadist.github.io/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href="http://ganadist.github.io"></a></h1>
+
+
+      <nav>
+        <ul class="list">
+
+          <li><a href="/" target="_blank">Top</a></li>
+        </ul>
+      </nav>
+
+      <ul class="social">
+        <li><a class="sc-github" href="http://github.com/ganadist" target="_blank"><i class="fa fa-github"></i></a></li>
+        <li><a class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+      </ul>
+    </div>
+
+
+  </aside>
+  <main>
+
+
+<article class="single">
+  <header>
+    <h1 id="2011_08_15_nbd">간단하게 뜯어보는 nbd(network block device)</h1>
+    <p>
+          Posted on 월 15 8월 2011 in <a href="http://ganadist.github.io/category/tech.html">tech</a>
+
+
+    </p>
+  </header>
+
+
+  <div>
+    <p>nbd는 소켓을 이용해서 저멀리 떨어져있는 기계의 block장치를 현재 컴퓨터의 block장치처럼 쓰게 하는 리눅스의 기능이다.</p>
+<p>물론 꼭 저 멀리 떨어져있을 필요는 없으며, 꼭 block장치여야 한다는 법은 없다.</p>
+<p>특정한 위치에서 특정한 길이의 데이터를 read하거나 write할 수만 있으면 상관없다.</p>
+<p>nbd를 구성하려면 3개의 컴퍼넌트가 필요하다.</p>
+<ul>
+<li>nbd 커널드라이버</li>
+<li>nbd 서버</li>
+<li>nbd 클라이언트</li>
+</ul>
+<h2>nbd 커널드라이버</h2>
+<p>커널의 block devices 설정에 포함되어으며, 이 설정을 켜놓으면 /dev/nbd[0-7] 또는 /dev/block/nbd[0-7] 장치로 유저스페이스에 노출된다.</p>
+<h2>nbd 클라이언트</h2>
+<p>nbd서버와 연결한 소켓을 nbd device 장치와 연결해주는 역할을 한다.</p>
+<p>그외에 블럭장치의 특성(block 장치의 크기, block size, timeout, 등)을 설정해야 한다.</p>
+<p>해당 설정은 <a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/nbd.h?h=v4.16#n21">ioctl 명령</a> 을 참조.</p>
+<h2>nbd 서버</h2>
+<p>nbd 드라이버에서 보낸 요청을 처리하는 서버</p>
+<p>nbd의 요청은 <a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/nbd.h?h=v4.16#n66">다음과 같은 형태</a>로 전달된다.</p>
+<p>각각의 의미는 다음과 같다.</p>
+<ul>
+<li>
+<p>magic: nbd request의 시작. NBD_REQUEST_MAGIC값과 동일해야 한다. 이 값이 틀리면 깨지거나 잘못된 패킷이다.</p>
+</li>
+<li>
+<p>type: 읽기/쓰기 요청의 구분</p>
+</li>
+<li>
+<p>handle: 각 요청을 구분하기 위한 값. nbd_reply에 이 값을 복사해서 응답해야 한다.</p>
+</li>
+<li>
+<p>from: 읽기/쓰기를 시작할 offset</p>
+</li>
+<li>
+<p>len: 읽기/쓰기를 할 길이</p>
+</li>
+</ul>
+<p>쓰기 request일 경우, 위 요청 패킷 바로 뒤에 len에 해당하는 길이의 데이터가 덧붙여 따라온다.</p>
+<p>nbd의 요청에 대한 응답은 다음과 같다.</p>
+<ul>
+<li>
+<p>magic: nbd reply의 시작. NBD_REPLY_MAGIC값을 채워야 한다.</p>
+</li>
+<li>
+<p>error: 오류 발생시 적절한 errno를 채운다. (보통은 EIO). 에러가 없을 때는 0을 채운다.</p>
+</li>
+<li>
+<p>handle: nbd_request의 handle값을 복사한다.</p>
+</li>
+</ul>
+<p>읽기 request일 경우, 위 응답 패킷을 보낸 후 요청 길이만큼 데이터를 덧붙여 보내면 된다.</p>
+<p>위의 모든 값은 모두 Network byte order로 변환해서 처리해야 한다.</p>
+<p>자세한건 <a href="http://nbd.sourceforge.net">nbd 홈페이지</a>의 client/server 코드를 참조.</p>
+<p>그리고 위의 server/client는 TCP/IP 소켓으로 구현되어 있지만, 리눅스에서 지원하는 SOCK_STREAM 타입의 소켓이라면 어느것이라도 지원된다. (유닉스 도메인 소켓이나 블루투스, IRDA 등등) </p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="http://ganadist.github.io/tag/linux.html">linux</a>
+    </p>
+  </div>
+
+
+
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'ganadist-github-io';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+        Please enable JavaScript to view comments.
+
+</noscript>
+</article>
+
+    <footer>
+<p>&copy; YOUNG HO CHA </p>
+<p>    Powered by <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a>
+</p>    </footer>
+  </main>
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Ganachoco's Blog ",
+  "url" : "http://ganadist.github.io",
+  "image": "",
+  "description": ""
+}
+</script>
+</body>
+</html>

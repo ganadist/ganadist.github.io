@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Ganachoco's Blog - tech</title><link href="http://ganadist.github.io/" rel="alternate"></link><link href="http://ganadist.github.io/feeds/tech.atom.xml" rel="self"></link><id>http://ganadist.github.io/</id><updated>2018-05-20T19:26:00+09:00</updated><entry><title>python 용 gerrit rest api binding</title><link href="http://ganadist.github.io/2018_05_20_pygerrit.html" rel="alternate"></link><published>2018-05-20T19:26:00+09:00</published><updated>2018-05-20T19:26:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-05-20:/2018_05_20_pygerrit.html</id><summary type="html">&lt;p&gt;gerrit rest api binding for python&lt;/p&gt;</summary><content type="html">&lt;p&gt;회사에서 운영하던 고대의 &lt;a href="https://www.gerritcodereview.com/"&gt;gerrit 서비스&lt;/a&gt;를 새로운 기계로 이전하기 위해, 2주동안 신나게(?) &lt;a href="https://gerrit-review.googlesource.com/Documentation/cmd-index.html"&gt;ssh 스크립팅&lt;/a&gt;과 &lt;a href="https://gerrit.googlesource.com/plugins/importer/+/stable-2.15/src/main/resources/Documentation/about.md"&gt;importer plugin 을 이용&lt;/a&gt;해 겨우겨우 완료했습니다.&lt;/p&gt;
+&lt;p&gt;결국 이전은 완료했건만, ssh 스크립팅은 확장성이 부족해서 재사용이 거의 불가능해 보이길래, 제대로된 gerrit api wrapper 를 찾아봤는데 그나마 멀쩡하게 생긴 넘이 sony 개발자가 만든 &lt;a href="https://github.com/dpursehouse/pygerrit2"&gt;pygerrit2 라는 물건&lt;/a&gt;이 보이네요.&lt;/p&gt;
+&lt;p&gt;대략 코드를 살펴봤는데, 그렇게 길지는 않지만.. 그닥 python 개발자를 만족시키기에는 2% 부족해 보여서 결국 &lt;a href="https://www.lesstif.com/pages/viewpage.action?pageId=29590364"&gt;야크털깍기 시작&lt;/a&gt;..(..)&lt;/p&gt;
+&lt;p&gt;해서 &lt;a href="https://github.com/ganadist/pygerrit"&gt;결과물&lt;/a&gt;이 나왔습니다.&lt;/p&gt;
+&lt;p&gt;나름 대로의 바램을 &lt;a href="https://github.com/ganadist/pygerrit/blob/master/gerrit.py#L29"&gt;Feature에 정리&lt;/a&gt;하긴 했는데 계속 유지할 수 있을지는 미지수..(..)&lt;/p&gt;</content><category term="gerrit python rest misc opensource"></category></entry><entry><title>TCP access control in Android Frameworks</title><link href="http://ganadist.github.io/2017_08_16_tcp_on_android.html" rel="alternate"></link><published>2017-08-16T19:00:00+09:00</published><updated>2017-08-16T19:00:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2017-08-16:/2017_08_16_tcp_on_android.html</id><summary type="html">&lt;p&gt;Android Framework에서 소켓권한 제어 방법&lt;/p&gt;</summary><content type="html">&lt;p&gt;2년 전에 완전정복 했었다고 믿었건만, 지나가면 새까맣게 잊어먹는 습성때문에 기록으로 남깁니다.&lt;/p&gt;
+&lt;h1&gt;Android 1.0 ~ Android 4.4&lt;/h1&gt;
+&lt;p&gt;TCP 소켓을 생성할 때는 리눅스 커널의 &lt;a href="http://man7.org/linux/man-pages/man2/socket.2.html"&gt;socket 이라는 시스템콜&lt;/a&gt;을 이용해 생성하게 되어 있는데,  android의 리눅스 커널에는 특정 그룹(AID_INET, AID_NET_RAW)이나 특정 capability(CAP_NET_RAW)를 가지고 있는 process에 대해서만 socket 시스템 콜을 호출할 수 있는 &lt;a href="https://android.googlesource.com/kernel/common/+/fd64bbf28e28526f608df0061175829338ee94cc%5E%21/"&gt;변경사항을 포함&lt;/a&gt;하고 있습니다.&lt;/p&gt;
+&lt;p&gt;그리고 앱에 &lt;a href="https://developer.android.com/reference/android/Manifest.permission.html#INTERNET"&gt;INTERNET 이라는 퍼미션&lt;/a&gt;을 포함하고 있으면, 해당 &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/lollipop-mr1-release/data/etc/platform.xml#53"&gt;앱의 group에 inet 을 포함&lt;/a&gt;시켜줍니다.&lt;/p&gt;
+&lt;p&gt;따라서 해당 퍼미션을 가지고 있지 않은 daemon이나 앱에서는 socket을 생성할 때 EACCESS(퍼미션 없음) 오류를 발생하게 됩니다.&lt;/p&gt;
+&lt;h1&gt;Android 5.0 ~&lt;/h1&gt;
+&lt;p&gt;새로운 &lt;a href="https://developer.android.com/about/versions/android-5.0.html#Multinetwork"&gt;connectivity api&lt;/a&gt; 로 인해 socket 퍼미션을 동적으로 관리하기 위해서 &lt;a href="https://android.googlesource.com/platform/system/netd/+/android-7.1.1_r50"&gt;netd 라는 daemon이 완전히 개비&lt;/a&gt;되었습니다. (&lt;a href="https://android.googlesource.com/platform/system/netd/+/kitkat-dev"&gt;킷캣 이전에도 netd는 존재&lt;/a&gt;했지만 테터링이나 vpn등의 제한된 기능만 제공했습니다.)&lt;/p&gt;
+&lt;p&gt;c 라이브러리(bionic)의 socket 관련 시스템 콜(&lt;a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/socket.cpp"&gt;socket&lt;/a&gt;, &lt;a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/accept4.cpp"&gt;accept4&lt;/a&gt;, &lt;a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/connect.cpp"&gt;connect&lt;/a&gt;) 래퍼는 직접 커널에서 제공되는 시스템콜을 호출하지 않고, &lt;a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/NetdClient.cpp"&gt;netd 에서 제공되는 래퍼 함수를 호출&lt;/a&gt;합니다.&lt;/p&gt;
+&lt;p&gt;그리고 각 socket관련 시스템 콜을 호출할 때는 &lt;a href="https://android.googlesource.com/platform/system/netd/+/android-7.1.1_r50/server/FwmarkServer.cpp#207"&gt;각 socket에 대해 fwmark(Firewall Mark)라는 것을 설정&lt;/a&gt;하고, 라우팅 테이블에서 fwmark를 이용해 해당 패킷을 실제로 교환할 지 결정합니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mako:/ # ip rule
+0:      from all lookup local
+10000:  from all fwmark 0xc0000/0xd0000 lookup legacy_system
+10500:  from all oif dummy0 uidrange 0-0 lookup dummy0
+10500:  from all oif wlan0 uidrange 0-0 lookup wlan0
+13000:  from all fwmark 0x10063/0x1ffff lookup local_network
+13000:  from all fwmark 0x10064/0x1ffff lookup wlan0
+14000:  from all oif dummy0 lookup dummy0
+14000:  from all oif wlan0 lookup wlan0
+15000:  from all fwmark 0x0/0x10000 lookup legacy_system
+16000:  from all fwmark 0x0/0x10000 lookup legacy_network
+17000:  from all fwmark 0x0/0x10000 lookup local_network
+19000:  from all fwmark 0x64/0x1ffff lookup wlan0
+22000:  from all fwmark 0x0/0xffff lookup wlan0
+23000:  from all fwmark 0x0/0xffff uidrange 0-0 lookup main
+32000:  from all unreachable
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;따라서 퍼미션을 가지지 않는 데몬이나 앱이 tcp연결을 시도하면, 킷캣 미만처럼 EACCESS오류가 발생하는 것이 아니라,  송신용 소켓일 경우에는  ENETUNREACH(Network is unreachable)이 발생하며, 수신용 소켓일 경우에는 라우팅이 되지 않아 아예 패킷 수신이 되지 않습니다.&lt;/p&gt;
+&lt;p&gt;또한 네트워크 인터페이스가 netd 및 connectivity service에 등록되지 않은 상태이면, 마찬가지로 라우팅 테이블에서 해당 패킷을 처리하지 않게 되므로, 패킷 송수신이 불가능한 상태가 됩니다.&lt;/p&gt;
+&lt;p&gt;임의로 네트워크 인터페이스를 netd에 등록하려면 다음 명령을 미리 실행해 놓습니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;mako:/ # ndc network create 100
+mako:/ # ndc network default set 100
+mako:/ # ndc network interface add 100 eth0
+mako:/ # dumpsys netd
+
+  NetworkController
+    Default network: 100
+
+    Networks:
+      51 DUMMY dummy0
+        No DNS servers defined
+        No search domains defined
+
+      99 LOCAL
+        No DNS servers defined
+        No search domains defined
+
+      100 PHYSICAL eth0,wlan0
+        Required permission: NONE
+        DNS servers: # IP (total, successes, errors, timeouts, internal errors, RTT avg, last sample)
+          168.126.63.1 (38, 38, 0, 0, 0, 47ms, 562s)
+          168.126.63.2 &amp;lt;no data&amp;gt;
+        No search domains defined
+        DNS parameters: sample validity = 1800s, success threshold = 25%, samples (min, max) = (8, 64)
+&lt;/pre&gt;&lt;/div&gt;</content><category term="android network"></category></entry><entry><title>repo mirror 를 이용해 git 저장용량을 절약하기</title><link href="http://ganadist.github.io/2017_01_24_repo_mirror.html" rel="alternate"></link><published>2017-01-24T19:00:00+09:00</published><updated>2017-01-24T19:00:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2017-01-24:/2017_01_24_repo_mirror.html</id><summary type="html">&lt;p&gt;repo init의 --reference 옵션 사용하기&lt;/p&gt;</summary><content type="html">&lt;p&gt;회사에서 하는 작업의 특성상, 대 여섯이상의 안드로이드 버젼 소스를 동시에 다루는 때가 많다. 하지만 그때마다 안드로이드 버젼의 소스를 그때그때 구성하는 것은 무지막지한 자원 낭비다.&lt;/p&gt;
+&lt;p&gt;현재 안드로이드 소스에 등록(manifest.xml)된 git repo 개수는 529개, 소스 용량은 대략 6G 가량 된다. 이걸 필요할 때마다 &lt;a href="https://android.googlesource.com/"&gt;구글 서버&lt;/a&gt;로 부터 소스를 전송받아 구성하는 것은 여러모로 불합리해보여서 로컬네트워크에 &lt;a href="https://android.googlesource.com/mirror/manifest/"&gt;미러서버를 구성&lt;/a&gt;해보기도 했으나, 네트워크가 여전히 병목인 것은 변함이 없었다. 그래서 아예 PC에다가 mirror를 마련하고 사용하기도 했다.&lt;/p&gt;
+&lt;p&gt;하지만 PC에다가 mirror를 마련하니 소스를 구성하는데 필요한 시간은 조금 줄어들었지만, 미러주기 사이에 달라진 변경사항에 대해서는 바로바로 확인이 불가능한 단점이 발생하였다. 게다가 더 큰 문제는 소스와 더불어 git 저장소까지 복제가 되다보니 PC의 저장장소 부족현상에 허덕이게 되었다. 그렇게 고민이 깊어가던 중..(..)&lt;/p&gt;
+&lt;p&gt;어느날 repo 명령어 도움말을 보다가 repo init 명령에 &lt;a href="https://gerrit.googlesource.com/git-repo/+/8844338%5E%21/"&gt;--reference 옵션&lt;/a&gt;이 추가된 것을 발견. 구현은 아주 간단하다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;repo init를 수행할 때 &lt;a href="https://gerrit.googlesource.com/git-repo/+/v1.12.37/subcmds/init.py#209"&gt;.repo/manifests 의 git config에 repo.reference 값을 지정한 디렉토리로 설정&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;repo sync를 최초로 수행할 때, &lt;a href="https://gerrit.googlesource.com/git-repo/+/v1.12.37/project.py#2287"&gt;각 repo project에 대한 저장소를 생성하면서 .git/object/info/alternatives 를 .repo/manifests 에 등록했던 repo.reference값으로 채움&lt;/a&gt;&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;git 문서를 확인해보니 .git/object/info/alternatives 파일을 이용하면, &lt;a href="https://git-scm.com/docs/gitrepository-layout#gitrepository-layout-objects"&gt;git의 object를 복사하지 않고 지정된 디렉토리에서 찾는다&lt;/a&gt;고 한다.&lt;/p&gt;
+&lt;p&gt;이 방식으로 repo init 명령을 이용해 안드로이드 소스 작업환경을 구성하면, git object를 복사할 필요가 없어져서 환경구성에 필요한 디스크공간도 절약과 함께, 소요되는 시간도 짧아진다.&lt;/p&gt;
+&lt;p&gt;뱀발: --reference 옵션을 이용할 때 디렉토리 위치를 절대경로로 지정해야 했지만, &lt;a href="https://gerrit-review.googlesource.com/#/c/95310/"&gt;최근 수정에 의해 상대경로도 정상적으로 동작&lt;/a&gt;하도록 변경되었다.&lt;/p&gt;</content><category term="android gerrit git repo"></category></entry><entry><title>어플리케이션 Crash 처리하기</title><link href="http://ganadist.github.io/2016_06_22_handle_crash.html" rel="alternate"></link><published>2016-06-22T19:00:00+09:00</published><updated>2016-06-22T19:00:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2016-06-22:/2016_06_22_handle_crash.html</id><summary type="html">&lt;p&gt;리눅스에서 어플리케이션 crash가 처리되는 방법&lt;/p&gt;</summary><content type="html">&lt;p&gt;최근 리눅스 배포판들은 c 런타임에서 어플리케이션의 버그나 이상동작으로 인해 중단될 때, crash report 설비를 이용해서 어떤 어플리케이션이 무슨 이유로 인해 중단되었는지 확인할 수 있게 해준다.
+crash report 처리기들이 어떠한 방식으로 데이터를 구동되는지 대충 살펴보도록 하자.&lt;/p&gt;
+&lt;h1&gt;&lt;a href="https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/sysctl/kernel.txt?h=v4.4#n182"&gt;/proc/sys/kernel/core_pattern&lt;/a&gt; 이용하기&lt;/h1&gt;
+&lt;p&gt;core_pattern 은 프로그램이 오류가 발생했을 때 생성할 메모리 덤프파일의 이름 형식을 지정할 때 사용한다. 하지만 &lt;a href="https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/fs/coredump.c?h=v4.4#n561"&gt;파일이름을 등록할 때 맨 앞에 ‘|’ 로 시작&lt;/a&gt;하면 저장할 파일이름 대신 ‘|’ 뒤를 실행파일로 취급하고 표준입력으로 메모리 내용을 건네준다.
+이를 이용해서 동작하는 프로그램은 다음과 같다.&lt;/p&gt;
+&lt;h2&gt;systemd: &lt;a href="https://www.freedesktop.org/software/systemd/man/systemd-coredump.html"&gt;systemd-coredump&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;systemd를 사용하는 시스템에서는 &lt;a href="https://github.com/systemd/systemd/blob/master/sysctl.d/50-coredump.conf.in"&gt;sysctl을 이용해 systemd-coredump를 core_pattern에 등록&lt;/a&gt;한다. 그리고 오류가 발생하면, 해당 프로세스의 스택은 물론, systemd 에 의존적인 정보까지 추가해서 기록한다.
+이렇게 기록된 정보는 아래의 명령을 이용해서 확인할 수 있다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ coredumpctl info
+           PID: &lt;span class="m"&gt;1849&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;nautilus&lt;span class="o"&gt;)&lt;/span&gt;
+           UID: &lt;span class="m"&gt;1000&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;ganadist&lt;span class="o"&gt;)&lt;/span&gt;
+           GID: &lt;span class="m"&gt;100&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;users&lt;span class="o"&gt;)&lt;/span&gt;
+        Signal: &lt;span class="m"&gt;6&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;ABRT&lt;span class="o"&gt;)&lt;/span&gt;
+     Timestamp: 일 &lt;span class="m"&gt;2016&lt;/span&gt;-04-24 &lt;span class="m"&gt;16&lt;/span&gt;:07:38 KST &lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; months &lt;span class="m"&gt;27&lt;/span&gt; days ago&lt;span class="o"&gt;)&lt;/span&gt;
+  Command Line: nautilus -n
+    Executable: /usr/bin/nautilus
+ Control Group: /user.slice/user-1000.slice/session-c4.scope
+          Unit: session-c4.scope
+         Slice: user-1000.slice
+       Session: c4
+     Owner UID: &lt;span class="m"&gt;1000&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;ganadist&lt;span class="o"&gt;)&lt;/span&gt;
+       Boot ID: f83aada45fed429299c962af79ea736d
+    Machine ID: 3cfa38b6a39d4190be174d821f3d8e30
+      Hostname: ganadist
+       Message: Process &lt;span class="m"&gt;1849&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;nautilus&lt;span class="o"&gt;)&lt;/span&gt; of user &lt;span class="m"&gt;1000&lt;/span&gt; dumped core.
+
+                Stack trace of thread &lt;span class="m"&gt;1849&lt;/span&gt;:
+                &lt;span class="c1"&gt;#0  0x00007fe516a212a8 raise (libc.so.6)&lt;/span&gt;
+                &lt;span class="c1"&gt;#1  0x00007fe516a2272a abort (libc.so.6)&lt;/span&gt;
+                &lt;span class="c1"&gt;#2  0x00007fe51789eb25 g_assertion_message (libglib-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#3  0x00007fe51789ebba g_assertion_message_expr (libglib-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#4  0x0000000000488a01 n/a (nautilus)&lt;/span&gt;
+                &lt;span class="c1"&gt;#5  0x000000000048bba7 n/a (nautilus)&lt;/span&gt;
+                &lt;span class="c1"&gt;#6  0x0000000000435288 n/a (nautilus)&lt;/span&gt;
+                &lt;span class="c1"&gt;#7  0x0000000000436333 n/a (nautilus)&lt;/span&gt;
+                &lt;span class="c1"&gt;#8  0x00007fe517b51518 g_cclosure_marshal_VOID__ENUMv (libgobject-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#9  0x00007fe517b4f1d4 n/a (libgobject-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#10 0x00007fe517b699d6 g_signal_emit_valist (libgobject-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#11 0x00007fe517b6a0bf g_signal_emit (libgobject-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#12 0x0000000000444fac n/a (nautilus)&lt;/span&gt;
+                &lt;span class="c1"&gt;#13 0x000000000044526f n/a (nautilus)&lt;/span&gt;
+                &lt;span class="c1"&gt;#14 0x00007fe517879823 n/a (libglib-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#15 0x00007fe517878dba g_main_context_dispatch (libglib-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#16 0x00007fe517879160 n/a (libglib-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#17 0x00007fe51787920c g_main_context_iteration (libglib-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#18 0x00007fe517e3eafd g_application_run (libgio-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#19 0x00000000004294e7 n/a (nautilus)&lt;/span&gt;
+                &lt;span class="c1"&gt;#20 0x00007fe516a0e710 __libc_start_main (libc.so.6)&lt;/span&gt;
+                &lt;span class="c1"&gt;#21 0x0000000000429549 n/a (nautilus)&lt;/span&gt;
+
+                Stack trace of thread &lt;span class="m"&gt;1933&lt;/span&gt;:
+                &lt;span class="c1"&gt;#0  0x00007fe516ad17f9 syscall (libc.so.6)&lt;/span&gt;
+                &lt;span class="c1"&gt;#1  0x00007fe5178bdafa g_cond_wait_until (libglib-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#2  0x00007fe51784d929 n/a (libglib-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#3  0x00007fe5178a02e6 n/a (libglib-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#4  0x00007fe51789f975 n/a (libglib-2.0.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#5  0x00007fe516d96424 start_thread (libpthread.so.0)&lt;/span&gt;
+                &lt;span class="c1"&gt;#6  0x00007fe516ad5cbd __clone (libc.so.6)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;&lt;a href="https://wiki.ubuntu.com/Apport"&gt;Apport&lt;/a&gt;&lt;/h2&gt;
+&lt;p&gt;우분투 리눅스에서는 apport 라고하는 crash report 도구가 존재하며, &lt;a href="http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu/xenial/apport/ubuntu/view/head:/etc/init.d/apport#L52"&gt;init 스크립트에서 core_pattern에 등록&lt;/a&gt;한다. 또한 apport에는 몇가지 추가동작을 하게 되는데 다음과 같다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;오류 동작시 &lt;a href="http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu/xenial/apport/ubuntu/view/head:/bin/apport-bug#L57"&gt;실행환경을 분석&lt;/a&gt;하여, gnome, kde 또는 cli 에 해당하는 UI를 보여줌&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;c 런타임에서 발생하는 메모리 오류 이외에 여러가지 상황에 대한 오류분석이 추가되어 있다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;python 해석기에서 예외가 발생할 때 처리할 수 있는 &lt;a href="http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu/xenial/apport/ubuntu/view/head:/apport_python_hook.py#L200"&gt;예외 처리기가 포함&lt;/a&gt;되어 있다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;&lt;a href="http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu/xenial/apport/ubuntu/view/head:/udev/50-apport.rules"&gt;intel wifi 드라이버에서 오류가 발생&lt;/a&gt;할 경우, &lt;a href="http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu/xenial/apport/ubuntu/view/head:/data/iwlwifi_error_dump"&gt;오류를 수집 분석&lt;/a&gt;한다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;뭔가 자바쪽도 bootclasspath에 등록할 것 같은데 귀찮아서 못뒤벼보겠..(..)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;그외 오류 패턴별로 우분투의 이슈추적시스템인 launchpad에 등록된 것과 일치하는 것을 뒤벼주는 것도 포함되어 있다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;당연히 오류를 launchpad에 업로드 하는 기능도 있다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;어쨌든 본인은 우분투를 사용하지 않는다... (먼산)&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h1&gt;Android에서 Crash 처리하기&lt;/h1&gt;
+&lt;h2&gt;c 런타임의 오류 처리&lt;/h2&gt;
+&lt;p&gt;Android에서는 리눅스에서 제공하는 core_pattern 대신 &lt;a href="https://android.googlesource.com/platform/bionic/+/android-6.0.1_r46/linker/debugger.cpp#296"&gt;linker에서 어플리케이션을 실행할 때 signal handler를 등록&lt;/a&gt;한다.&lt;/p&gt;
+&lt;p&gt;그리고 오류가 발생할 때 커널에서 보내는 여러가지 &lt;a href="https://android.googlesource.com/platform/bionic/+/android-6.0.1_r46/linker/debugger.cpp#257"&gt;signal(SIGABRT, SIGFPE, SIGSEGV, SIGBUS, SIGTRAP) 등을 받아서&lt;/a&gt; &lt;a href="https://android.googlesource.com/platform/bionic/+/android-6.0.1_r46/linker/debugger.cpp#206"&gt;debuggerd에게 처리해달라고 요청&lt;/a&gt;하게 되고, debuggerd는 요청한 프로세스에 대해 &lt;a href="https://android.googlesource.com/platform/system/core/+/android-6.0.1_r46/debuggerd/tombstone.cpp#783"&gt;tombstone 이라는 형식으로 프로세스의 스택에 대한 정보를 파일로 저장&lt;/a&gt;하게 된다. 그리고 이렇게 저장된 tombstone 형식의 파일은 &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/server/BootReceiver.java#63"&gt;안드로이드가 다음 부팅&lt;/a&gt;될 때 &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/server/BootReceiver.java#153"&gt;dropbox 라고 하는 android os의  로그 서비스 저장소&lt;/a&gt;로 옮겨지게 된다.&lt;/p&gt;
+&lt;h2&gt;dalvik 런타임의 오류 처리&lt;/h2&gt;
+&lt;p&gt;&lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/internal/os/RuntimeInit.java#256"&gt;Zygote 가 초기화&lt;/a&gt; 될 때 &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/internal/os/RuntimeInit.java#89"&gt;ActivityManagerService 에서 crash를 처리&lt;/a&gt;할 수 있는 &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/internal/os/RuntimeInit.java#64"&gt;기본 예외 처리기&lt;/a&gt;를 &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/internal/os/RuntimeInit.java#109"&gt;등록&lt;/a&gt;하게 된다.&lt;/p&gt;
+&lt;p&gt;ActivityManagerService에서는 &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12127"&gt;dropbox에 crash 정보를 저장&lt;/a&gt;하고,  &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/android/app/ApplicationErrorReport.java#159"&gt;os 에 지정된 crash report 어플리케이션&lt;/a&gt;이 있으며, &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/AppErrorDialog.java#66"&gt;사용자가 해당 앱을 사용하겠다고 선택&lt;/a&gt;하면, &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12648"&gt;해당 앱을 이용해 오류정보를 전송&lt;/a&gt;하게 된다.&lt;/p&gt;
+&lt;h2&gt;dropbox에 저장된 오류 확인하기&lt;/h2&gt;
+&lt;p&gt;아래의 &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/server/BootReceiver.java#157"&gt;SYSTEM_TOMBSTONE&lt;/a&gt; 옵션은 tombstone 에 대한 오류에 대해 조회하는 명령이며, app crash는 앱의 설치 위치에 따라 &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12436"&gt;system_app&lt;/a&gt;_crash, 또는 &lt;a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12439"&gt;data_app&lt;/a&gt;_crash 등의 옵션으로 조회가 가능하다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ adb shell dumpsys dropbox --print SYSTEM_TOMBSTONE
+Drop box contents: &lt;span class="m"&gt;634&lt;/span&gt; entries
+Searching &lt;span class="k"&gt;for&lt;/span&gt;: &lt;span class="nv"&gt;SYSTEM_TOMBSTONE&lt;/span&gt;
+
+&lt;span class="o"&gt;========================================&lt;/span&gt;
+&lt;span class="m"&gt;2016&lt;/span&gt;-06-21 &lt;span class="m"&gt;18&lt;/span&gt;:21:15 SYSTEM_TOMBSTONE &lt;span class="o"&gt;(&lt;/span&gt;compressed text, &lt;span class="m"&gt;6361&lt;/span&gt; bytes&lt;span class="o"&gt;)&lt;/span&gt;
+Build: google/hammerhead/hammerhead:6.0.1/MOB30M/2862625:user/release-keys
+Hardware: hammerhead
+Revision: &lt;span class="m"&gt;11&lt;/span&gt;
+Bootloader: HHZ20f
+Radio: unknown
+Kernel: Linux version &lt;span class="m"&gt;3&lt;/span&gt;.4.0-g6a99a02 &lt;span class="o"&gt;(&lt;/span&gt;android-build@wpdt13.hot.corp.google.com&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;gcc version &lt;span class="m"&gt;4&lt;/span&gt;.8 &lt;span class="o"&gt;(&lt;/span&gt;GCC&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;#1 SMP PREEMPT Wed Apr 20 00:08:32 UTC 2016&lt;/span&gt;
+
+*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+Build fingerprint: &lt;span class="s1"&gt;&amp;#39;google/hammerhead/hammerhead:6.0.1/MOB30M/2862625:user/release-keys&amp;#39;&lt;/span&gt;
+Revision: &lt;span class="s1"&gt;&amp;#39;11&amp;#39;&lt;/span&gt;
+ABI: &lt;span class="s1"&gt;&amp;#39;arm&amp;#39;&lt;/span&gt;
+pid: &lt;span class="m"&gt;224&lt;/span&gt;, tid: &lt;span class="m"&gt;224&lt;/span&gt;, name: mm-qcamera-daem  &amp;gt;&amp;gt;&amp;gt; /system/bin/mm-qcamera-daemon &lt;span class="o"&gt;&amp;lt;&amp;lt;&amp;lt;&lt;/span&gt;
+signal &lt;span class="m"&gt;11&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;SIGSEGV&lt;span class="o"&gt;)&lt;/span&gt;, code &lt;span class="m"&gt;1&lt;/span&gt; &lt;span class="o"&gt;(&lt;/span&gt;SEGV_MAPERR&lt;span class="o"&gt;)&lt;/span&gt;, fault addr 0x357b9a70
+    r0 000000a8  r1 b48c1290  r2 &lt;span class="m"&gt;00800000&lt;/span&gt;  r3 b48c1299
+    r4 b48c1298  r5 357b9a60  r6 b6b55300  r7 b48c1298
+    r8 b48c0000  r9 000000a7  sl 000000a3  fp b48c1538
+    ip &lt;span class="m"&gt;00000038&lt;/span&gt;  sp bedae540  lr b6d78920  pc b6d42128  cpsr 800f0030
+    d0  2064656c69616620  d1  735f74696e695f73
+    d2  &lt;span class="m"&gt;0000000000000073&lt;/span&gt;  d3  &lt;span class="m"&gt;0000000000000069&lt;/span&gt;
+    d4  &lt;span class="m"&gt;0000000600000001&lt;/span&gt;  d5  c01e33f0c300a020
+    d6  c11a644000000000  d7  c300bd20c300bd64
+    d8  &lt;span class="m"&gt;0000000000000000&lt;/span&gt;  d9  &lt;span class="m"&gt;0000000000000000&lt;/span&gt;
+    d10 &lt;span class="m"&gt;0000000000000000&lt;/span&gt;  d11 &lt;span class="m"&gt;0000000000000000&lt;/span&gt;
+    d12 &lt;span class="m"&gt;0000000000000000&lt;/span&gt;  d13 &lt;span class="m"&gt;0000000000000000&lt;/span&gt;
+    d14 &lt;span class="m"&gt;0000000000000000&lt;/span&gt;  d15 &lt;span class="m"&gt;0000000000000000&lt;/span&gt;
+    d16 &lt;span class="m"&gt;0000000000000000&lt;/span&gt;  d17 &lt;span class="m"&gt;0000000000000000&lt;/span&gt;
+    d18 3fe0000000000000  d19 3fe0000000000000
+    d20 3fe0000000000000  d21 bfe0000000000000
+    d22 4053bd6de0000000  d23 3fe0000000000000
+    d24 4053dd6de0000000  d25 3ff30a3d70a3d70a
+    d26 3ff6a0902de00d1b  d27 40a65cae7d566cf4
+    d28 40b13c51eb851eb9  d29 406d038366516db1
+    d30 40ad038366516db1  d31 4072d11eb851eb85
+    scr &lt;span class="m"&gt;20000011&lt;/span&gt;
+
+backtrace:
+    &lt;span class="c1"&gt;#00 pc 0004b128  /system/lib/libc.so (arena_dalloc_bin_locked_impl.isra.27+299)&lt;/span&gt;
+    &lt;span class="c1"&gt;#01 pc 0005c32f  /system/lib/libc.so (je_tcache_bin_flush_small+206)&lt;/span&gt;
+    &lt;span class="c1"&gt;#02 pc 000553cb  /system/lib/libc.so (ifree+290)&lt;/span&gt;
+    &lt;span class="c1"&gt;#03 pc 00058257  /system/lib/libc.so (je_free+374)&lt;/span&gt;
+    &lt;span class="c1"&gt;#04 pc 000034d7  /system/vendor/lib/libmmcamera2_sensor_modules.so&lt;/span&gt;
+    &lt;span class="c1"&gt;#05 pc 00005853  /system/vendor/lib/libmmcamera2_sensor_modules.so&lt;/span&gt;
+    &lt;span class="c1"&gt;#06 pc 00007189  /system/vendor/lib/liboemcamera.so (mct_list_traverse+26)&lt;/span&gt;
+    &lt;span class="c1"&gt;#07 pc 00004d55  /system/vendor/lib/liboemcamera.so (mct_pipeline_start_session+16)&lt;/span&gt;
+    &lt;span class="c1"&gt;#08 pc 00002b3f  /system/vendor/lib/liboemcamera.so (mct_controller_new+50)&lt;/span&gt;
+    &lt;span class="c1"&gt;#09 pc 000016b3  /system/bin/mm-qcamera-daemon&lt;/span&gt;
+    &lt;span class="c1"&gt;#10 pc 00001205  /system/bin/mm-qcamera-daemon (main+520)&lt;/span&gt;
+    &lt;span class="c1"&gt;#11 pc 00017359  /system/lib/libc.so (__libc_init+44)&lt;/span&gt;
+    &lt;span class="c1"&gt;#12 pc 0000148c  /system/bin/mm-qcamera-daemon&lt;/span&gt;
+
+stack:
+         bedae500  bedae4e4  &lt;span class="o"&gt;[&lt;/span&gt;stack&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae504  bedae4e4  &lt;span class="o"&gt;[&lt;/span&gt;stack&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae508  b6680000
+         bedae50c  b6d792f0
+         bedae510  b6d792e0
+         bedae514  &lt;span class="m"&gt;00100000&lt;/span&gt;
+         bedae518  &lt;span class="m"&gt;00000000&lt;/span&gt;
+         bedae51c  &lt;span class="m"&gt;00000002&lt;/span&gt;
+         bedae520  b6b556f8  &lt;span class="o"&gt;[&lt;/span&gt;anon:libc_malloc&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae524  b6b55300  &lt;span class="o"&gt;[&lt;/span&gt;anon:libc_malloc&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae528  b48c1394  &lt;span class="o"&gt;[&lt;/span&gt;anon:libc_malloc&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae52c  b48c0000  &lt;span class="o"&gt;[&lt;/span&gt;anon:libc_malloc&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae530  b6b556f8  &lt;span class="o"&gt;[&lt;/span&gt;anon:libc_malloc&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae534  &lt;span class="m"&gt;00000000&lt;/span&gt;
+         bedae538  &lt;span class="m"&gt;00000002&lt;/span&gt;
+         bedae53c  b6d421f7  /system/lib/libc.so &lt;span class="o"&gt;(&lt;/span&gt;arena_dalloc_bin_locked_impl.isra.27+506&lt;span class="o"&gt;)&lt;/span&gt;
+    &lt;span class="c1"&gt;#00  bedae540  00000001&lt;/span&gt;
+         bedae544  b6d7c0e8  /system/lib/libc++.so
+         bedae548  b48fa048  &lt;span class="o"&gt;[&lt;/span&gt;anon:libc_malloc&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae54c  b6b02048  &lt;span class="o"&gt;[&lt;/span&gt;anon:libc_malloc&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae550  &lt;span class="m"&gt;00000004&lt;/span&gt;
+         bedae554  b6b40140  &lt;span class="o"&gt;[&lt;/span&gt;anon:libc_malloc&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae558  &lt;span class="m"&gt;00000004&lt;/span&gt;
+         bedae55c  &lt;span class="m"&gt;00000001&lt;/span&gt;
+         bedae560  &lt;span class="m"&gt;00000003&lt;/span&gt;
+         bedae564  b6b55300  &lt;span class="o"&gt;[&lt;/span&gt;anon:libc_malloc&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae568  b6b556f8  &lt;span class="o"&gt;[&lt;/span&gt;anon:libc_malloc&lt;span class="o"&gt;]&lt;/span&gt;
+         bedae56c  b6d53333  /system/lib/libc.so &lt;span class="o"&gt;(&lt;/span&gt;je_tcache_bin_flush_small+210&lt;span class="o"&gt;)&lt;/span&gt;
+
+Tombstone written to: /data/tombstones/tombstone_09
+&lt;/pre&gt;&lt;/div&gt;</content><category term="linux ubuntu android"></category></entry><entry><title>간단하게 뜯어보는 nbd(network block device)</title><link href="http://ganadist.github.io/2011_08_15_nbd.html" rel="alternate"></link><published>2011-08-15T12:00:00+09:00</published><updated>2011-08-15T12:00:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2011-08-15:/2011_08_15_nbd.html</id><summary type="html">&lt;p&gt;nbd 사용방법&lt;/p&gt;</summary><content type="html">&lt;p&gt;nbd는 소켓을 이용해서 저멀리 떨어져있는 기계의 block장치를 현재 컴퓨터의 block장치처럼 쓰게 하는 리눅스의 기능이다.&lt;/p&gt;
+&lt;p&gt;물론 꼭 저 멀리 떨어져있을 필요는 없으며, 꼭 block장치여야 한다는 법은 없다.&lt;/p&gt;
+&lt;p&gt;특정한 위치에서 특정한 길이의 데이터를 read하거나 write할 수만 있으면 상관없다.&lt;/p&gt;
+&lt;p&gt;nbd를 구성하려면 3개의 컴퍼넌트가 필요하다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;nbd 커널드라이버&lt;/li&gt;
+&lt;li&gt;nbd 서버&lt;/li&gt;
+&lt;li&gt;nbd 클라이언트&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;nbd 커널드라이버&lt;/h2&gt;
+&lt;p&gt;커널의 block devices 설정에 포함되어으며, 이 설정을 켜놓으면 /dev/nbd[0-7] 또는 /dev/block/nbd[0-7] 장치로 유저스페이스에 노출된다.&lt;/p&gt;
+&lt;h2&gt;nbd 클라이언트&lt;/h2&gt;
+&lt;p&gt;nbd서버와 연결한 소켓을 nbd device 장치와 연결해주는 역할을 한다.&lt;/p&gt;
+&lt;p&gt;그외에 블럭장치의 특성(block 장치의 크기, block size, timeout, 등)을 설정해야 한다.&lt;/p&gt;
+&lt;p&gt;해당 설정은 &lt;a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/nbd.h?h=v4.16#n21"&gt;ioctl 명령&lt;/a&gt; 을 참조.&lt;/p&gt;
+&lt;h2&gt;nbd 서버&lt;/h2&gt;
+&lt;p&gt;nbd 드라이버에서 보낸 요청을 처리하는 서버&lt;/p&gt;
+&lt;p&gt;nbd의 요청은 &lt;a href="https://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git/tree/include/uapi/linux/nbd.h?h=v4.16#n66"&gt;다음과 같은 형태&lt;/a&gt;로 전달된다.&lt;/p&gt;
+&lt;p&gt;각각의 의미는 다음과 같다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;magic: nbd request의 시작. NBD_REQUEST_MAGIC값과 동일해야 한다. 이 값이 틀리면 깨지거나 잘못된 패킷이다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;type: 읽기/쓰기 요청의 구분&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;handle: 각 요청을 구분하기 위한 값. nbd_reply에 이 값을 복사해서 응답해야 한다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;from: 읽기/쓰기를 시작할 offset&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;len: 읽기/쓰기를 할 길이&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;쓰기 request일 경우, 위 요청 패킷 바로 뒤에 len에 해당하는 길이의 데이터가 덧붙여 따라온다.&lt;/p&gt;
+&lt;p&gt;nbd의 요청에 대한 응답은 다음과 같다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;
+&lt;p&gt;magic: nbd reply의 시작. NBD_REPLY_MAGIC값을 채워야 한다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;error: 오류 발생시 적절한 errno를 채운다. (보통은 EIO). 에러가 없을 때는 0을 채운다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;handle: nbd_request의 handle값을 복사한다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;읽기 request일 경우, 위 응답 패킷을 보낸 후 요청 길이만큼 데이터를 덧붙여 보내면 된다.&lt;/p&gt;
+&lt;p&gt;위의 모든 값은 모두 Network byte order로 변환해서 처리해야 한다.&lt;/p&gt;
+&lt;p&gt;자세한건 &lt;a href="http://nbd.sourceforge.net"&gt;nbd 홈페이지&lt;/a&gt;의 client/server 코드를 참조.&lt;/p&gt;
+&lt;p&gt;그리고 위의 server/client는 TCP/IP 소켓으로 구현되어 있지만, 리눅스에서 지원하는 SOCK_STREAM 타입의 소켓이라면 어느것이라도 지원된다. (유닉스 도메인 소켓이나 블루투스, IRDA 등등) &lt;/p&gt;</content><category term="linux"></category></entry></feed>

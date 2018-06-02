@@ -1,0 +1,314 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/stylesheet/style.min.css">
+
+  <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/pygments/github.min.css">
+  <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/font-awesome/css/font-awesome.min.css">
+
+
+    <link href="http://ganadist.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Ganachoco's Blog Atom">
+
+
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+
+
+<meta name="author" content="YOUNG HO CHA" />
+<meta name="description" content="리눅스에서 어플리케이션 crash가 처리되는 방법" />
+<meta name="keywords" content="linux ubuntu android">
+<meta property="og:site_name" content="Ganachoco's Blog"/>
+<meta property="og:title" content="어플리케이션 Crash 처리하기"/>
+<meta property="og:description" content="리눅스에서 어플리케이션 crash가 처리되는 방법"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="http://ganadist.github.io/2016_06_22_handle_crash.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-06-22 19:00:00+09:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="http://ganadist.github.io/author/young-ho-cha.html">
+<meta property="article:section" content="tech"/>
+<meta property="article:tag" content="linux ubuntu android"/>
+<meta property="og:image" content="">
+
+  <title>Ganachoco's Blog &ndash; 어플리케이션 Crash 처리하기</title>
+
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="http://ganadist.github.io">
+        <img src="http://ganadist.github.io/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href="http://ganadist.github.io"></a></h1>
+
+
+      <nav>
+        <ul class="list">
+
+          <li><a href="/" target="_blank">Top</a></li>
+        </ul>
+      </nav>
+
+      <ul class="social">
+        <li><a class="sc-github" href="http://github.com/ganadist" target="_blank"><i class="fa fa-github"></i></a></li>
+        <li><a class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+      </ul>
+    </div>
+
+
+  </aside>
+  <main>
+
+
+<article class="single">
+  <header>
+    <h1 id="2016_06_22_handle_crash">어플리케이션 Crash 처리하기</h1>
+    <p>
+          Posted on 수 22 6월 2016 in <a href="http://ganadist.github.io/category/tech.html">tech</a>
+
+
+    </p>
+  </header>
+
+
+  <div>
+    <p>최근 리눅스 배포판들은 c 런타임에서 어플리케이션의 버그나 이상동작으로 인해 중단될 때, crash report 설비를 이용해서 어떤 어플리케이션이 무슨 이유로 인해 중단되었는지 확인할 수 있게 해준다.
+crash report 처리기들이 어떠한 방식으로 데이터를 구동되는지 대충 살펴보도록 하자.</p>
+<h1><a href="https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/Documentation/sysctl/kernel.txt?h=v4.4#n182">/proc/sys/kernel/core_pattern</a> 이용하기</h1>
+<p>core_pattern 은 프로그램이 오류가 발생했을 때 생성할 메모리 덤프파일의 이름 형식을 지정할 때 사용한다. 하지만 <a href="https://git.kernel.org/cgit/linux/kernel/git/torvalds/linux.git/tree/fs/coredump.c?h=v4.4#n561">파일이름을 등록할 때 맨 앞에 ‘|’ 로 시작</a>하면 저장할 파일이름 대신 ‘|’ 뒤를 실행파일로 취급하고 표준입력으로 메모리 내용을 건네준다.
+이를 이용해서 동작하는 프로그램은 다음과 같다.</p>
+<h2>systemd: <a href="https://www.freedesktop.org/software/systemd/man/systemd-coredump.html">systemd-coredump</a></h2>
+<p>systemd를 사용하는 시스템에서는 <a href="https://github.com/systemd/systemd/blob/master/sysctl.d/50-coredump.conf.in">sysctl을 이용해 systemd-coredump를 core_pattern에 등록</a>한다. 그리고 오류가 발생하면, 해당 프로세스의 스택은 물론, systemd 에 의존적인 정보까지 추가해서 기록한다.
+이렇게 기록된 정보는 아래의 명령을 이용해서 확인할 수 있다.</p>
+<div class="highlight"><pre><span></span>$ coredumpctl info
+           PID: <span class="m">1849</span> <span class="o">(</span>nautilus<span class="o">)</span>
+           UID: <span class="m">1000</span> <span class="o">(</span>ganadist<span class="o">)</span>
+           GID: <span class="m">100</span> <span class="o">(</span>users<span class="o">)</span>
+        Signal: <span class="m">6</span> <span class="o">(</span>ABRT<span class="o">)</span>
+     Timestamp: 일 <span class="m">2016</span>-04-24 <span class="m">16</span>:07:38 KST <span class="o">(</span><span class="m">1</span> months <span class="m">27</span> days ago<span class="o">)</span>
+  Command Line: nautilus -n
+    Executable: /usr/bin/nautilus
+ Control Group: /user.slice/user-1000.slice/session-c4.scope
+          Unit: session-c4.scope
+         Slice: user-1000.slice
+       Session: c4
+     Owner UID: <span class="m">1000</span> <span class="o">(</span>ganadist<span class="o">)</span>
+       Boot ID: f83aada45fed429299c962af79ea736d
+    Machine ID: 3cfa38b6a39d4190be174d821f3d8e30
+      Hostname: ganadist
+       Message: Process <span class="m">1849</span> <span class="o">(</span>nautilus<span class="o">)</span> of user <span class="m">1000</span> dumped core.
+
+                Stack trace of thread <span class="m">1849</span>:
+                <span class="c1">#0  0x00007fe516a212a8 raise (libc.so.6)</span>
+                <span class="c1">#1  0x00007fe516a2272a abort (libc.so.6)</span>
+                <span class="c1">#2  0x00007fe51789eb25 g_assertion_message (libglib-2.0.so.0)</span>
+                <span class="c1">#3  0x00007fe51789ebba g_assertion_message_expr (libglib-2.0.so.0)</span>
+                <span class="c1">#4  0x0000000000488a01 n/a (nautilus)</span>
+                <span class="c1">#5  0x000000000048bba7 n/a (nautilus)</span>
+                <span class="c1">#6  0x0000000000435288 n/a (nautilus)</span>
+                <span class="c1">#7  0x0000000000436333 n/a (nautilus)</span>
+                <span class="c1">#8  0x00007fe517b51518 g_cclosure_marshal_VOID__ENUMv (libgobject-2.0.so.0)</span>
+                <span class="c1">#9  0x00007fe517b4f1d4 n/a (libgobject-2.0.so.0)</span>
+                <span class="c1">#10 0x00007fe517b699d6 g_signal_emit_valist (libgobject-2.0.so.0)</span>
+                <span class="c1">#11 0x00007fe517b6a0bf g_signal_emit (libgobject-2.0.so.0)</span>
+                <span class="c1">#12 0x0000000000444fac n/a (nautilus)</span>
+                <span class="c1">#13 0x000000000044526f n/a (nautilus)</span>
+                <span class="c1">#14 0x00007fe517879823 n/a (libglib-2.0.so.0)</span>
+                <span class="c1">#15 0x00007fe517878dba g_main_context_dispatch (libglib-2.0.so.0)</span>
+                <span class="c1">#16 0x00007fe517879160 n/a (libglib-2.0.so.0)</span>
+                <span class="c1">#17 0x00007fe51787920c g_main_context_iteration (libglib-2.0.so.0)</span>
+                <span class="c1">#18 0x00007fe517e3eafd g_application_run (libgio-2.0.so.0)</span>
+                <span class="c1">#19 0x00000000004294e7 n/a (nautilus)</span>
+                <span class="c1">#20 0x00007fe516a0e710 __libc_start_main (libc.so.6)</span>
+                <span class="c1">#21 0x0000000000429549 n/a (nautilus)</span>
+
+                Stack trace of thread <span class="m">1933</span>:
+                <span class="c1">#0  0x00007fe516ad17f9 syscall (libc.so.6)</span>
+                <span class="c1">#1  0x00007fe5178bdafa g_cond_wait_until (libglib-2.0.so.0)</span>
+                <span class="c1">#2  0x00007fe51784d929 n/a (libglib-2.0.so.0)</span>
+                <span class="c1">#3  0x00007fe5178a02e6 n/a (libglib-2.0.so.0)</span>
+                <span class="c1">#4  0x00007fe51789f975 n/a (libglib-2.0.so.0)</span>
+                <span class="c1">#5  0x00007fe516d96424 start_thread (libpthread.so.0)</span>
+                <span class="c1">#6  0x00007fe516ad5cbd __clone (libc.so.6)</span>
+</pre></div>
+
+
+<h2><a href="https://wiki.ubuntu.com/Apport">Apport</a></h2>
+<p>우분투 리눅스에서는 apport 라고하는 crash report 도구가 존재하며, <a href="http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu/xenial/apport/ubuntu/view/head:/etc/init.d/apport#L52">init 스크립트에서 core_pattern에 등록</a>한다. 또한 apport에는 몇가지 추가동작을 하게 되는데 다음과 같다.</p>
+<ul>
+<li>
+<p>오류 동작시 <a href="http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu/xenial/apport/ubuntu/view/head:/bin/apport-bug#L57">실행환경을 분석</a>하여, gnome, kde 또는 cli 에 해당하는 UI를 보여줌</p>
+</li>
+<li>
+<p>c 런타임에서 발생하는 메모리 오류 이외에 여러가지 상황에 대한 오류분석이 추가되어 있다.</p>
+</li>
+<li>
+<p>python 해석기에서 예외가 발생할 때 처리할 수 있는 <a href="http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu/xenial/apport/ubuntu/view/head:/apport_python_hook.py#L200">예외 처리기가 포함</a>되어 있다.</p>
+</li>
+<li>
+<p><a href="http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu/xenial/apport/ubuntu/view/head:/udev/50-apport.rules">intel wifi 드라이버에서 오류가 발생</a>할 경우, <a href="http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu/xenial/apport/ubuntu/view/head:/data/iwlwifi_error_dump">오류를 수집 분석</a>한다.</p>
+</li>
+<li>
+<p>뭔가 자바쪽도 bootclasspath에 등록할 것 같은데 귀찮아서 못뒤벼보겠..(..)</p>
+</li>
+<li>
+<p>그외 오류 패턴별로 우분투의 이슈추적시스템인 launchpad에 등록된 것과 일치하는 것을 뒤벼주는 것도 포함되어 있다.</p>
+</li>
+<li>
+<p>당연히 오류를 launchpad에 업로드 하는 기능도 있다.</p>
+</li>
+<li>
+<p>어쨌든 본인은 우분투를 사용하지 않는다... (먼산)</p>
+</li>
+</ul>
+<h1>Android에서 Crash 처리하기</h1>
+<h2>c 런타임의 오류 처리</h2>
+<p>Android에서는 리눅스에서 제공하는 core_pattern 대신 <a href="https://android.googlesource.com/platform/bionic/+/android-6.0.1_r46/linker/debugger.cpp#296">linker에서 어플리케이션을 실행할 때 signal handler를 등록</a>한다.</p>
+<p>그리고 오류가 발생할 때 커널에서 보내는 여러가지 <a href="https://android.googlesource.com/platform/bionic/+/android-6.0.1_r46/linker/debugger.cpp#257">signal(SIGABRT, SIGFPE, SIGSEGV, SIGBUS, SIGTRAP) 등을 받아서</a> <a href="https://android.googlesource.com/platform/bionic/+/android-6.0.1_r46/linker/debugger.cpp#206">debuggerd에게 처리해달라고 요청</a>하게 되고, debuggerd는 요청한 프로세스에 대해 <a href="https://android.googlesource.com/platform/system/core/+/android-6.0.1_r46/debuggerd/tombstone.cpp#783">tombstone 이라는 형식으로 프로세스의 스택에 대한 정보를 파일로 저장</a>하게 된다. 그리고 이렇게 저장된 tombstone 형식의 파일은 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/server/BootReceiver.java#63">안드로이드가 다음 부팅</a>될 때 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/server/BootReceiver.java#153">dropbox 라고 하는 android os의  로그 서비스 저장소</a>로 옮겨지게 된다.</p>
+<h2>dalvik 런타임의 오류 처리</h2>
+<p><a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/internal/os/RuntimeInit.java#256">Zygote 가 초기화</a> 될 때 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/internal/os/RuntimeInit.java#89">ActivityManagerService 에서 crash를 처리</a>할 수 있는 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/internal/os/RuntimeInit.java#64">기본 예외 처리기</a>를 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/internal/os/RuntimeInit.java#109">등록</a>하게 된다.</p>
+<p>ActivityManagerService에서는 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12127">dropbox에 crash 정보를 저장</a>하고,  <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/android/app/ApplicationErrorReport.java#159">os 에 지정된 crash report 어플리케이션</a>이 있으며, <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/AppErrorDialog.java#66">사용자가 해당 앱을 사용하겠다고 선택</a>하면, <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12648">해당 앱을 이용해 오류정보를 전송</a>하게 된다.</p>
+<h2>dropbox에 저장된 오류 확인하기</h2>
+<p>아래의 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/server/BootReceiver.java#157">SYSTEM_TOMBSTONE</a> 옵션은 tombstone 에 대한 오류에 대해 조회하는 명령이며, app crash는 앱의 설치 위치에 따라 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12436">system_app</a>_crash, 또는 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12439">data_app</a>_crash 등의 옵션으로 조회가 가능하다.</p>
+<div class="highlight"><pre><span></span>$ adb shell dumpsys dropbox --print SYSTEM_TOMBSTONE
+Drop box contents: <span class="m">634</span> entries
+Searching <span class="k">for</span>: <span class="nv">SYSTEM_TOMBSTONE</span>
+
+<span class="o">========================================</span>
+<span class="m">2016</span>-06-21 <span class="m">18</span>:21:15 SYSTEM_TOMBSTONE <span class="o">(</span>compressed text, <span class="m">6361</span> bytes<span class="o">)</span>
+Build: google/hammerhead/hammerhead:6.0.1/MOB30M/2862625:user/release-keys
+Hardware: hammerhead
+Revision: <span class="m">11</span>
+Bootloader: HHZ20f
+Radio: unknown
+Kernel: Linux version <span class="m">3</span>.4.0-g6a99a02 <span class="o">(</span>android-build@wpdt13.hot.corp.google.com<span class="o">)</span> <span class="o">(</span>gcc version <span class="m">4</span>.8 <span class="o">(</span>GCC<span class="o">)</span> <span class="o">)</span> <span class="c1">#1 SMP PREEMPT Wed Apr 20 00:08:32 UTC 2016</span>
+
+*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
+Build fingerprint: <span class="s1">&#39;google/hammerhead/hammerhead:6.0.1/MOB30M/2862625:user/release-keys&#39;</span>
+Revision: <span class="s1">&#39;11&#39;</span>
+ABI: <span class="s1">&#39;arm&#39;</span>
+pid: <span class="m">224</span>, tid: <span class="m">224</span>, name: mm-qcamera-daem  &gt;&gt;&gt; /system/bin/mm-qcamera-daemon <span class="o">&lt;&lt;&lt;</span>
+signal <span class="m">11</span> <span class="o">(</span>SIGSEGV<span class="o">)</span>, code <span class="m">1</span> <span class="o">(</span>SEGV_MAPERR<span class="o">)</span>, fault addr 0x357b9a70
+    r0 000000a8  r1 b48c1290  r2 <span class="m">00800000</span>  r3 b48c1299
+    r4 b48c1298  r5 357b9a60  r6 b6b55300  r7 b48c1298
+    r8 b48c0000  r9 000000a7  sl 000000a3  fp b48c1538
+    ip <span class="m">00000038</span>  sp bedae540  lr b6d78920  pc b6d42128  cpsr 800f0030
+    d0  2064656c69616620  d1  735f74696e695f73
+    d2  <span class="m">0000000000000073</span>  d3  <span class="m">0000000000000069</span>
+    d4  <span class="m">0000000600000001</span>  d5  c01e33f0c300a020
+    d6  c11a644000000000  d7  c300bd20c300bd64
+    d8  <span class="m">0000000000000000</span>  d9  <span class="m">0000000000000000</span>
+    d10 <span class="m">0000000000000000</span>  d11 <span class="m">0000000000000000</span>
+    d12 <span class="m">0000000000000000</span>  d13 <span class="m">0000000000000000</span>
+    d14 <span class="m">0000000000000000</span>  d15 <span class="m">0000000000000000</span>
+    d16 <span class="m">0000000000000000</span>  d17 <span class="m">0000000000000000</span>
+    d18 3fe0000000000000  d19 3fe0000000000000
+    d20 3fe0000000000000  d21 bfe0000000000000
+    d22 4053bd6de0000000  d23 3fe0000000000000
+    d24 4053dd6de0000000  d25 3ff30a3d70a3d70a
+    d26 3ff6a0902de00d1b  d27 40a65cae7d566cf4
+    d28 40b13c51eb851eb9  d29 406d038366516db1
+    d30 40ad038366516db1  d31 4072d11eb851eb85
+    scr <span class="m">20000011</span>
+
+backtrace:
+    <span class="c1">#00 pc 0004b128  /system/lib/libc.so (arena_dalloc_bin_locked_impl.isra.27+299)</span>
+    <span class="c1">#01 pc 0005c32f  /system/lib/libc.so (je_tcache_bin_flush_small+206)</span>
+    <span class="c1">#02 pc 000553cb  /system/lib/libc.so (ifree+290)</span>
+    <span class="c1">#03 pc 00058257  /system/lib/libc.so (je_free+374)</span>
+    <span class="c1">#04 pc 000034d7  /system/vendor/lib/libmmcamera2_sensor_modules.so</span>
+    <span class="c1">#05 pc 00005853  /system/vendor/lib/libmmcamera2_sensor_modules.so</span>
+    <span class="c1">#06 pc 00007189  /system/vendor/lib/liboemcamera.so (mct_list_traverse+26)</span>
+    <span class="c1">#07 pc 00004d55  /system/vendor/lib/liboemcamera.so (mct_pipeline_start_session+16)</span>
+    <span class="c1">#08 pc 00002b3f  /system/vendor/lib/liboemcamera.so (mct_controller_new+50)</span>
+    <span class="c1">#09 pc 000016b3  /system/bin/mm-qcamera-daemon</span>
+    <span class="c1">#10 pc 00001205  /system/bin/mm-qcamera-daemon (main+520)</span>
+    <span class="c1">#11 pc 00017359  /system/lib/libc.so (__libc_init+44)</span>
+    <span class="c1">#12 pc 0000148c  /system/bin/mm-qcamera-daemon</span>
+
+stack:
+         bedae500  bedae4e4  <span class="o">[</span>stack<span class="o">]</span>
+         bedae504  bedae4e4  <span class="o">[</span>stack<span class="o">]</span>
+         bedae508  b6680000
+         bedae50c  b6d792f0
+         bedae510  b6d792e0
+         bedae514  <span class="m">00100000</span>
+         bedae518  <span class="m">00000000</span>
+         bedae51c  <span class="m">00000002</span>
+         bedae520  b6b556f8  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
+         bedae524  b6b55300  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
+         bedae528  b48c1394  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
+         bedae52c  b48c0000  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
+         bedae530  b6b556f8  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
+         bedae534  <span class="m">00000000</span>
+         bedae538  <span class="m">00000002</span>
+         bedae53c  b6d421f7  /system/lib/libc.so <span class="o">(</span>arena_dalloc_bin_locked_impl.isra.27+506<span class="o">)</span>
+    <span class="c1">#00  bedae540  00000001</span>
+         bedae544  b6d7c0e8  /system/lib/libc++.so
+         bedae548  b48fa048  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
+         bedae54c  b6b02048  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
+         bedae550  <span class="m">00000004</span>
+         bedae554  b6b40140  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
+         bedae558  <span class="m">00000004</span>
+         bedae55c  <span class="m">00000001</span>
+         bedae560  <span class="m">00000003</span>
+         bedae564  b6b55300  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
+         bedae568  b6b556f8  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
+         bedae56c  b6d53333  /system/lib/libc.so <span class="o">(</span>je_tcache_bin_flush_small+210<span class="o">)</span>
+
+Tombstone written to: /data/tombstones/tombstone_09
+</pre></div>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="http://ganadist.github.io/tag/linux-ubuntu-android.html">linux ubuntu android</a>
+    </p>
+  </div>
+
+
+
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'ganadist-github-io';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+        Please enable JavaScript to view comments.
+
+</noscript>
+</article>
+
+    <footer>
+<p>&copy; YOUNG HO CHA </p>
+<p>    Powered by <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a>
+</p>    </footer>
+  </main>
+
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Ganachoco's Blog ",
+  "url" : "http://ganadist.github.io",
+  "image": "",
+  "description": ""
+}
+</script>
+</body>
+</html>
