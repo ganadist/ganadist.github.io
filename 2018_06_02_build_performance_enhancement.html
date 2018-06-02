@@ -88,7 +88,7 @@
 <li><span class="caps">HDD</span>: <a href="https://www.hgst.com/products/hard-drives/nas-desktop-drive-kit"><span class="caps">HGST</span> <span class="caps">HDN726040AL</span>&nbsp;4Tb</a></li>
 </ul>
 <p>HP나 Dell등과 같은 서버 벤더에서 구입하는 장비들은 가성비도 안나오고, 게다가 굳이 서비스 받을 일도 없어서, PC부품 조립하는 것과 유사한 사양으로 뽑았습니다. 그리고 ubuntu 18.04 server 를 설치 후 작업중인 소프트웨어 빌드(Android 8.1)를&nbsp;수행해보았습니다.</p>
-<p>개인 작업 <span class="caps">PC</span>(i7-7700k, 64Gb)에서 2시간 반 가량 걸리던 작업이 1시간 가량으로 줄어들었습니다만 만족할만한 수준은 되지&nbsp;않았습니다.</p>
+<p>개인 작업 <span class="caps">PC</span>(i7-7700k, 64Gb)에서 <strong>2시간 반</strong> 가량 걸리던 작업이 <strong>1시간</strong> 가량으로 줄어들었습니다만 만족할만한 수준은 되지&nbsp;않았습니다.</p>
 <p>그래서 고려해야할 사항을 나누어서 tuning을&nbsp;해보았습니다.</p>
 <h2>cpu&nbsp;governor</h2>
 <p>최근 intel cpu들은 <a href="https://www.kernel.org/doc/Documentation/cpu-freq/intel-pstate.txt">작업 유무에 따라 자동으로 clock이 조정</a>되는데 기본값으로는 어떻게든 전원을 적게 사용하게 되어 있어서 기본성능이 충분히 나오지 않습니다.
@@ -142,7 +142,7 @@ $ make -j48 droid <span class="nv">OUT_DIR_COMMON_BASE</span><span class="o">=</
 <li>리눅스의 <a href="https://wiki.archlinux.org/index.php/Overlay_filesystem">overlayfs는 여러 개의 디렉토리를 엮어서 하나의 디렉토리처럼 표현</a>해주며, <a href="https://docs.docker.com/storage/storagedriver/overlayfs-driver/">docker에서 파일시스템 스냅샷 구현</a>등에&nbsp;이용됩니다.</li>
 <li>nightly build의 결과를 스냅샷으로 이용하고, 변경된 부분만 zram에 저장되게&nbsp;합니다.</li>
 </ul>
-<p>이러한 최적화를 수행한 후 clean build는 기존의 1시간에서 14분으로 줄어 들었고, incremental build는 3분만에 완료할 수 있게&nbsp;되었습니다.</p>
+<p>이러한 최적화를 수행한 후 clean build는 기존의 <strong>1시간</strong>에서 <strong>14분</strong>으로 줄어 들었고, incremental build는 <strong>3분</strong>만에 완료할 수 있게&nbsp;되었습니다.</p>
   </div>
   <div class="tag-cloud">
     <p>
