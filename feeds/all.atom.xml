@@ -58,7 +58,7 @@ $ make -j48 droid &lt;span class="nv"&gt;OUT_DIR_COMMON_BASE&lt;/span&gt;&lt;spa
 &lt;ul&gt;
 &lt;li&gt;nightly build 는 항상 clean&amp;nbsp;build&lt;/li&gt;
 &lt;li&gt;clean build가 끝나면 /dev/bcache0 : /srv/workspace 디렉토리 아래의 지정된 위치에&amp;nbsp;복사&lt;/li&gt;
-&lt;li&gt;nightly build는 작업 시간이 오래 걸려도 상관이&amp;nbsp;없습니다.&lt;/li&gt;
+&lt;li&gt;nightly build 완료 이후, 추가 작업의 경우에는 빌드서버의 이용자가 없을 것이기 때문에, 작업 시간이 오래 걸려도 상관이&amp;nbsp;없습니다.&lt;/li&gt;
 &lt;li&gt;incremental build 할 때는 nightly build 에서 빌드한 후 /srv/workspace 디렉토리로 옮겼던 작업 결과를 overlayfs 를 이용해&amp;nbsp;재활용&lt;/li&gt;
 &lt;li&gt;리눅스의 &lt;a href="https://wiki.archlinux.org/index.php/Overlay_filesystem"&gt;overlayfs는 여러 개의 디렉토리를 엮어서 하나의 디렉토리처럼 표현&lt;/a&gt;해주며, &lt;a href="https://docs.docker.com/storage/storagedriver/overlayfs-driver/"&gt;docker에서 파일시스템 스냅샷 구현&lt;/a&gt;등에&amp;nbsp;이용됩니다.&lt;/li&gt;
 &lt;li&gt;nightly build의 결과를 스냅샷으로 이용하고, 변경된 부분만 zram에 저장되게&amp;nbsp;합니다.&lt;/li&gt;
