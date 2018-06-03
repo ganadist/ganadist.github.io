@@ -23,6 +23,11 @@ AUTHOR_FEED_RSS = None
 
 # Blogroll
 LINKS = (
+        ('b.android.com', 'http://b.android.com'),
+        ('d.android.com', 'https://d.android.com'),
+        ('r.android.com', 'https://r.android.com'),
+        ('s.android.com', 'https://s.android.com'),
+        ('Andy Figure', 'https://shop.deadzebra.com/andy-green-edition-by-android-foundry/'),
 )
 
 # Social widget
@@ -46,3 +51,7 @@ DEFAULT_DATE_FORMAT = '%m/%d/%Y'
 #DEFAULT_DATE_FORMAT = '%c'
 GOOGLE_ANALYTICS = 'UA-120269954-1'
 
+PLUGIN_PATHS = ['pelican-plugins']
+PLUGINS = ['cjk-auto-spacing', ]
+
+CJK_AUTO_SPACING_TITLE = True
