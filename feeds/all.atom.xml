@@ -56,12 +56,16 @@ $ make -j48 droid &lt;span class="nv"&gt;OUT_DIR_COMMON_BASE&lt;/span&gt;&lt;spa
 &lt;p&gt;그렇다고 build 결과물을 빌드할 때마다 복사하는 것은 빌드 시간보다 더 오래 걸리는 작업입니다. (build 결과물 130Gb 옮기는데 대략 10분&amp;nbsp;걸림)&lt;/p&gt;
 &lt;p&gt;그래서 다음과 같은 빌드 전략을&amp;nbsp;세웠습니다.&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;nightly build 는 항상 clean&amp;nbsp;build&lt;/li&gt;
+&lt;li&gt;nightly build 는 항상 clean build&lt;ul&gt;
 &lt;li&gt;clean build가 끝나면 /dev/bcache0 : /srv/workspace 디렉토리 아래의 지정된 위치에&amp;nbsp;복사&lt;/li&gt;
 &lt;li&gt;nightly build 완료 이후, 추가 작업의 경우에는 빌드 서버의 이용자가 없을 것이기 때문에, 작업 시간이 오래 걸려도 상관이&amp;nbsp;없습니다.&lt;/li&gt;
-&lt;li&gt;incremental build 할 때는 nightly build 에서 빌드한 후 /srv/workspace 디렉토리로 옮겼던 작업 결과를 overlayfs 를 이용해&amp;nbsp;재활용&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;incremental build 할 때는 nightly build 에서 빌드한 후 /srv/workspace 디렉토리로 옮겼던 작업 결과를 overlayfs 를 이용해 재활용&lt;ul&gt;
 &lt;li&gt;리눅스의 &lt;a href="https://wiki.archlinux.org/index.php/Overlay_filesystem"&gt;overlayfs는 여러 개의 디렉토리를 엮어서 하나의 디렉토리처럼 표현&lt;/a&gt;해주며, &lt;a href="https://docs.docker.com/storage/storagedriver/overlayfs-driver/"&gt;docker에서 파일시스템 스냅샷 구현&lt;/a&gt;등에&amp;nbsp;이용됩니다.&lt;/li&gt;
 &lt;li&gt;nightly build의 결과를 스냅샷으로 이용하고, 변경된 부분만 zram에 저장되게&amp;nbsp;합니다.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
 &lt;/ul&gt;
 &lt;p&gt;이러한 최적화를 수행한 후 clean build는 기존의 &lt;strong&gt;1시간&lt;/strong&gt;에서 &lt;strong&gt;14분&lt;/strong&gt;으로 줄어 들었고, incremental build는 &lt;strong&gt;3분&lt;/strong&gt;만에 완료할 수 있게&amp;nbsp;되었습니다.&lt;/p&gt;</content><category term="software"></category><category term="continuous integration"></category><category term="performance"></category><category term="linux"></category></entry><entry><title>python 용 gerrit rest api binding</title><link href="http://ganadist.github.io/2018_05_20_pygerrit.html" rel="alternate"></link><published>2018-05-20T19:26:00+09:00</published><updated>2018-05-20T19:26:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-05-20:/2018_05_20_pygerrit.html</id><summary type="html">&lt;p&gt;gerrit rest api binding for&amp;nbsp;python&lt;/p&gt;</summary><content type="html">&lt;p&gt;회사에서 운영하던 고대의 &lt;a href="https://www.gerritcodereview.com/"&gt;gerrit 서비스&lt;/a&gt;를 새로운 기계로 이전하기 위해, 2주동안 신나게(?) &lt;a href="https://gerrit-review.googlesource.com/Documentation/cmd-index.html"&gt;ssh 스크립팅&lt;/a&gt;과 &lt;a href="https://gerrit.googlesource.com/plugins/importer/+/stable-2.15/src/main/resources/Documentation/about.md"&gt;importer plugin 을 이용&lt;/a&gt;해 겨우겨우&amp;nbsp;완료했습니다.&lt;/p&gt;
 &lt;p&gt;결국 이전은 완료했건만, ssh 스크립팅은 확장성이 부족해서 재사용이 거의 불가능해 보이길래, 제대로된 gerrit api wrapper 를 찾아봤는데 그나마 멀쩡하게 생긴 넘이 sony 개발자가 만든 &lt;a href="https://github.com/dpursehouse/pygerrit2"&gt;pygerrit2 라는 물건&lt;/a&gt;이&amp;nbsp;보이네요.&lt;/p&gt;
