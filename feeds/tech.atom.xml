@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Ganachoco's Blog - tech</title><link href="http://ganadist.github.io/" rel="alternate"></link><link href="http://ganadist.github.io/feeds/tech.atom.xml" rel="self"></link><id>http://ganadist.github.io/</id><updated>2018-06-02T23:30:00+09:00</updated><entry><title>빌드 속도 향상시키기</title><link href="http://ganadist.github.io/2018_06_02_build_performance_enhancement.html" rel="alternate"></link><published>2018-06-02T23:30:00+09:00</published><updated>2018-06-02T23:30:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-06-02:/2018_06_02_build_performance_enhancement.html</id><summary type="html">&lt;p&gt;빌드 속도&amp;nbsp;향상시키기&lt;/p&gt;</summary><content type="html">&lt;p&gt;최근에 덩치가 큰 소프트웨어 작업을 진행하면서, 제대로 된 CI서버가 없어서 고단하던 참에, 때 마침 CI서버 구입승인이 나면서 새롭게 구성했습니다.
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Ganachoco's Blog - tech</title><link href="http://ganadist.github.io/" rel="alternate"></link><link href="http://ganadist.github.io/feeds/tech.atom.xml" rel="self"></link><id>http://ganadist.github.io/</id><updated>2018-06-02T23:30:00+09:00</updated><entry><title>Android 플랫폼 빌드 속도 향상시키기</title><link href="http://ganadist.github.io/2018_06_02_build_performance_enhancement.html" rel="alternate"></link><published>2018-06-02T23:30:00+09:00</published><updated>2018-06-02T23:30:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-06-02:/2018_06_02_build_performance_enhancement.html</id><summary type="html">&lt;p&gt;빌드 속도 올리기 팁&amp;nbsp;모음&lt;/p&gt;</summary><content type="html">&lt;p&gt;최근에 덩치가 큰 소프트웨어 작업을 진행하면서, 제대로 된 CI서버가 없어서 고단하던 참에, 때 마침 CI서버 구입 승인이 나면서 새롭게 구성했습니다.
 대략적인 서버 사양은 다음과&amp;nbsp;같습니다.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;span class="caps"&gt;CPU&lt;/span&gt;: &lt;a href="https://ark.intel.com/products/126699/Intel-Core-i9-7980XE-Extreme-Edition-Processor-24_75M-Cache-up-to-4_20-GHz"&gt;Intel i9-7980 &lt;span class="caps"&gt;XE&lt;/span&gt;&lt;/a&gt; 18 Core 36 Thread&amp;nbsp;3.8GHz&lt;/li&gt;
@@ -8,32 +8,32 @@
 &lt;li&gt;&lt;span class="caps"&gt;SSD&lt;/span&gt;: &lt;a href="https://ark.intel.com/products/125024/Intel-SSD-545s-Series-1_024TB-2_5in-SATA-6Gbs-3D2-TLC"&gt;Intel 545s&amp;nbsp;1Tb&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;span class="caps"&gt;HDD&lt;/span&gt;: &lt;a href="https://www.hgst.com/products/hard-drives/nas-desktop-drive-kit"&gt;&lt;span class="caps"&gt;HGST&lt;/span&gt; &lt;span class="caps"&gt;HDN726040AL&lt;/span&gt;&amp;nbsp;4Tb&lt;/a&gt;&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;HP나 Dell등과 같은 서버 벤더에서 구입하는 장비들은 가성비도 안나오고, 게다가 굳이 서비스 받을 일도 없어서, PC부품 조립하는 것과 유사한 사양으로 뽑았습니다. 그리고 ubuntu 18.04 server 를 설치 후 작업중인 소프트웨어 빌드(Android 8.1)를&amp;nbsp;수행해보았습니다.&lt;/p&gt;
-&lt;p&gt;개인 작업 &lt;span class="caps"&gt;PC&lt;/span&gt;(i7-7700k, 64Gb)에서 &lt;strong&gt;2시간 반&lt;/strong&gt; 가량 걸리던 작업이 &lt;strong&gt;1시간&lt;/strong&gt; 가량으로 줄어들었습니다만 만족할만한 수준은 되지&amp;nbsp;않았습니다.&lt;/p&gt;
-&lt;p&gt;그래서 고려해야할 사항을 나누어서 tuning을&amp;nbsp;해보았습니다.&lt;/p&gt;
+&lt;p&gt;HP나 Dell 등과 같은 서버 벤더에서 구입하는 장비들은 가성비도 안 나오고, 게다가 굳이 서비스 받을 일도 없어서, PC부품 조립하는 것과 유사한 사양으로 뽑았습니다. 그리고 ubuntu 18.04 server 를 설치 후 작업 중인 소프트웨어 빌드(Android 8.1)를&amp;nbsp;수행해보았습니다.&lt;/p&gt;
+&lt;p&gt;업무용 개인 Desktop &lt;span class="caps"&gt;PC&lt;/span&gt;(i7-7700k, 64Gb)에서 &lt;strong&gt;2시간 반&lt;/strong&gt; 가량 걸리던 작업이 &lt;strong&gt;1시간&lt;/strong&gt; 가량으로 줄어들었습니다만 만족할만한 수준은 되지&amp;nbsp;않았습니다.&lt;/p&gt;
+&lt;p&gt;그래서 고려해야 할 사항을 나누어서 tuning을&amp;nbsp;해보았습니다.&lt;/p&gt;
 &lt;h2&gt;cpu&amp;nbsp;governor&lt;/h2&gt;
-&lt;p&gt;최근 intel cpu들은 &lt;a href="https://www.kernel.org/doc/Documentation/cpu-freq/intel-pstate.txt"&gt;작업 유무에 따라 자동으로 clock이 조정&lt;/a&gt;되는데 기본값으로는 어떻게든 전원을 적게 사용하게 되어 있어서 기본성능이 충분히 나오지 않습니다.
+&lt;p&gt;최근 intel cpu들은 &lt;a href="https://www.kernel.org/doc/Documentation/cpu-freq/intel-pstate.txt"&gt;작업 유무에 따라 자동으로 clock이 조정&lt;/a&gt;되는데 기본 값으로는 어떻게든 전원을 적게 사용하게 되어 있어서 기본 성능이 충분히 나오지 않습니다.
 &lt;a href="https://www.archlinux.org/groups/x86_64/linux-tools/"&gt;linux-tools 패키지&lt;/a&gt;에 포함된 &lt;a href="https://wiki.archlinux.org/index.php/CPU_frequency_scaling#Scaling_governors"&gt;cpupower 라는 도구를 이용&lt;/a&gt;해 부팅할 때 cpu 성능을 되도록이면 잘 나올 수 있도록&amp;nbsp;조정했습니다.&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ cpupower frequency-set -g performance
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo cpupower frequency-set -g performance
 &lt;/pre&gt;&lt;/div&gt;
 
 
 &lt;h2&gt;disk&amp;nbsp;layout&lt;/h2&gt;
-&lt;p&gt;빌드할 때 사용할 disk는 다음과 같이 특성에 나누어서 &lt;a href="2018_04_18_using_bcache.html"&gt;bcache&lt;/a&gt; 및 zram을&amp;nbsp;활용했습니다.&lt;/p&gt;
+&lt;p&gt;빌드 할 때 사용할 disk는 다음과 같이 특성에 나누어서 &lt;a href="2018_04_18_using_bcache.html"&gt;bcache&lt;/a&gt; 및 zram을&amp;nbsp;활용했습니다.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;/dev/bcache0 :&amp;nbsp;/srv/workspace&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;빌드할 때 필요한 소스를 내려받는 위치입니다. 수시로 gerrit서버의 자잘한 변경사항을 checkout 하면서 write작업이 되어야 하기 때문에 writeback cache mode를 사용하도록&amp;nbsp;했습니다.&lt;/p&gt;
+&lt;p&gt;빌드 할 때 필요한 소스를 내려받는 위치입니다. 수시로 gerrit서버의 자잘한 변경 사항을 checkout 하면서 write작업이 되어야 하기 때문에 writeback cache mode를 사용하도록&amp;nbsp;했습니다.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;/dev/bcache1 :&amp;nbsp;/srv/storage&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;빌드할 때 필요한 소스의 git object를 받아두는 위치입니다. 하루에 1번씩 밤에 gerrit서버의 전체내용을 sync 합니다. 하루에 1번만 야간에 write작업이 이루어지기 때문에 write속도는 빠르지 않아도 되어서, writethrough cache mode를&amp;nbsp;사용합니다.&lt;/p&gt;
+&lt;p&gt;빌드 할 때 필요한 소스의 git object를 받아두는 위치입니다. 하루에 1번씩 밤에 gerrit서버의 전체 내용을 sync 합니다. 하루에 1번만 야간에 write작업이 이루어지기 때문에 write 속도는 빠르지 않아도 되어서, writethrough cache mode를&amp;nbsp;사용합니다.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;/dev/zram0 :&amp;nbsp;/srv/build&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;빌드할 때 생성되는 object 파일을 보관하는 위치입니다. 여간하면 tmpfs를 이용하려고 했는데, android 프로젝트에서 생성하는 object및 binary 크기가 130Gb에 육박해서 시스템의 메모리에 한꺼번에 적재가 되지 않습니다. 따라서 압축기법을 이용하는 zram을 이용해서 물리적인 크기보다 훨씬 많은 데이터가 들어가게&amp;nbsp;구성했습니다.&lt;/p&gt;
+&lt;p&gt;빌드 할 때 생성되는 object 파일을 보관하는 위치입니다. 여간하면 tmpfs를 이용하려고 했는데, android 프로젝트에서 생성하는 object 및 binary 크기가 130Gb에 육박해서 시스템의 메모리에 한꺼번에 적재가 되지 않습니다. 따라서 압축 기법을 이용하는 zram을 이용해서 물리적인 크기보다 훨씬 많은 데이터가 들어가게&amp;nbsp;구성했습니다.&lt;/p&gt;
 &lt;h2&gt;repo init &amp;amp;&amp;amp;&amp;nbsp;sync&lt;/h2&gt;
-&lt;p&gt;위에서 구성한 disk layout을 활용할 수 있도록 git-repo 를 이용해 소스 다운받을 수 있도록&amp;nbsp;했습니다.&lt;/p&gt;
+&lt;p&gt;위에서 구성한 disk layout을 활용할 수 있도록 git-repo 를 이용해 소스 다운 받을 수 있도록&amp;nbsp;했습니다.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;cd&lt;/span&gt; /src/workspace/Android
 $ repo init -u http://gerrit.local/manifests &lt;span class="se"&gt;\&lt;/span&gt;
     --reference&lt;span class="o"&gt;=&lt;/span&gt;/srv/storage/gerrit-mirror
@@ -41,24 +41,24 @@ $ repo sync -j48 -c --no-tags
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;repo init 시 &lt;a href="2017_01_24_repo_mirror.html"&gt;&amp;#8212;reference 옵션을 이용하면 지정한 위치의 repository에 포함된 git object를 사용&lt;/a&gt;할 수 있으므로 처음 repo 를 구성하더라도 빠른 시간내에 작업이&amp;nbsp;완료됩니다.&lt;/p&gt;
+&lt;p&gt;repo init 시 &lt;a href="2017_01_24_repo_mirror.html"&gt;&amp;#8212;reference 옵션을 이용하면 지정한 위치의 repository에 포함된 git object를 사용&lt;/a&gt;할 수 있으므로 처음 repo 를 구성하더라도 빠른 시간 내에 작업이&amp;nbsp;완료됩니다.&lt;/p&gt;
 &lt;h2&gt;android clean&amp;nbsp;build&lt;/h2&gt;
-&lt;p&gt;소스를 구성한 후, 빌드할 때 다음과 같은 옵션을&amp;nbsp;사용합니다.&lt;/p&gt;
+&lt;p&gt;소스를 구성한 후, 빌드 할 때 다음과 같은 옵션을&amp;nbsp;사용합니다.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nb"&gt;export&lt;/span&gt; &lt;span class="nv"&gt;USE_CCACHE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt;
 $ make -j48 droid &lt;span class="nv"&gt;OUT_DIR_COMMON_BASE&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;/srv/build dist
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;ccache를 이용해서 빌드시간을 줄이는 것은 꽤 알려진 방법입니다. 이외에 안드로이드에서 빌드할 때 OUT_DIR_COMMON_BASE 옵션을 주면 지정된 디렉토리 아래에 object 및 binary가 생성됩니다. 디렉토리 위치를 zram이 마운트된 위치를 주게 해서, write속도에 이득을 얻으면서, 또한 flash write회수를 줄여서 장비의 수명을 늘일 수 있게&amp;nbsp;됩니다.&lt;/p&gt;
+&lt;p&gt;ccache를 이용해서 빌드 시간을 줄이는 것은 꽤 알려진 방법입니다. 이외에 안드로이드에서 빌드 할 때 OUT_DIR_COMMON_BASE 옵션을 주면 지정된 디렉토리 아래에 object 및 binary가 생성됩니다. 디렉토리 위치를 zram이 마운트 된 위치를 주게 해서, write속도에 이득을 얻으면서, 또한 flash write 회수를 줄여서 장비의 수명을 늘일 수 있게&amp;nbsp;됩니다.&lt;/p&gt;
 &lt;p&gt;그리고 dist 옵션을 사용하면 실제 단말에 필요한 파일만 out/dist 디렉토리에 모이게&amp;nbsp;됩니다.&lt;/p&gt;
 &lt;h2&gt;incremental&amp;nbsp;build&lt;/h2&gt;
-&lt;p&gt;풀 빌드가 끝난 뒤 이전 빌드의 오브젝트를 재활용해서 빌드시간을 줄일 수 있습니다. 하지만 build target 설정이 달라지면 (ex: x86 -&amp;gt; arm) 기존의 바이너리가 대부분 재사용이 불가능합니다. 또한 ramdisk의 크기는 한정되어 있어서 build target별로 보관이&amp;nbsp;불가능합니다.&lt;/p&gt;
-&lt;p&gt;그렇다고 build 결과물을 빌드할 때마다 복사하는 것은 빌드시간보다 더 오래 걸리는 작업입니다. (build 결과물 130Gb 옮기는데 대략 10분&amp;nbsp;걸림)&lt;/p&gt;
+&lt;p&gt;풀 빌드가 끝난 뒤 이전 빌드의 오브젝트를 재활용해서 빌드 시간을 줄일 수 있습니다. 하지만 build target 설정이 달라지면 (ex: x86 -&amp;gt; arm) 기존의 바이너리가 대부분 재사용이 불가능합니다. 또한 ramdisk의 크기는 한정되어 있어서 build target별로 보관이&amp;nbsp;불가능합니다.&lt;/p&gt;
+&lt;p&gt;그렇다고 build 결과물을 빌드할 때마다 복사하는 것은 빌드 시간보다 더 오래 걸리는 작업입니다. (build 결과물 130Gb 옮기는데 대략 10분&amp;nbsp;걸림)&lt;/p&gt;
 &lt;p&gt;그래서 다음과 같은 빌드 전략을&amp;nbsp;세웠습니다.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;nightly build 는 항상 clean&amp;nbsp;build&lt;/li&gt;
 &lt;li&gt;clean build가 끝나면 /dev/bcache0 : /srv/workspace 디렉토리 아래의 지정된 위치에&amp;nbsp;복사&lt;/li&gt;
-&lt;li&gt;nightly build 완료 이후, 추가 작업의 경우에는 빌드서버의 이용자가 없을 것이기 때문에, 작업 시간이 오래 걸려도 상관이&amp;nbsp;없습니다.&lt;/li&gt;
+&lt;li&gt;nightly build 완료 이후, 추가 작업의 경우에는 빌드 서버의 이용자가 없을 것이기 때문에, 작업 시간이 오래 걸려도 상관이&amp;nbsp;없습니다.&lt;/li&gt;
 &lt;li&gt;incremental build 할 때는 nightly build 에서 빌드한 후 /srv/workspace 디렉토리로 옮겼던 작업 결과를 overlayfs 를 이용해&amp;nbsp;재활용&lt;/li&gt;
 &lt;li&gt;리눅스의 &lt;a href="https://wiki.archlinux.org/index.php/Overlay_filesystem"&gt;overlayfs는 여러 개의 디렉토리를 엮어서 하나의 디렉토리처럼 표현&lt;/a&gt;해주며, &lt;a href="https://docs.docker.com/storage/storagedriver/overlayfs-driver/"&gt;docker에서 파일시스템 스냅샷 구현&lt;/a&gt;등에&amp;nbsp;이용됩니다.&lt;/li&gt;
 &lt;li&gt;nightly build의 결과를 스냅샷으로 이용하고, 변경된 부분만 zram에 저장되게&amp;nbsp;합니다.&lt;/li&gt;
