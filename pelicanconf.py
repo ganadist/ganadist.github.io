@@ -45,13 +45,18 @@ DEFAULT_PAGINATION = 10
 THEME = 'themes/Flex'
 #THEME = 'themes/blueidea'
 DISQUS_SITENAME = 'ganadist-github-io'
-SLUGIFY_SOURCE = 'basename'
+#SLUGIFY_SOURCE = 'basename'
 TYPOGRIFY = True
 DEFAULT_DATE_FORMAT = '%m/%d/%Y'
 #DEFAULT_DATE_FORMAT = '%c'
 GOOGLE_ANALYTICS = 'UA-120269954-1'
 
+STATIC_PATHS = ['static', ]
+
 PLUGIN_PATHS = ['pelican-plugins']
-PLUGINS = ['cjk-auto-spacing', ]
+PLUGINS = [
+        'cjk-auto-spacing',
+        'pelican_gist',
+]
 
 CJK_AUTO_SPACING_TITLE = True

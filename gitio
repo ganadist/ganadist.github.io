@@ -16,7 +16,7 @@ with open(filename, 'w') as fp:
     fp.write(f'Slug: {ltime.tm_year}_{ltime.tm_mon:02d}_{ltime.tm_mday:02d}_' + basename.replace('-', '_') + '\n')
     fp.write(f'Date: {ltime.tm_year}-{ltime.tm_mon:02d}-{ltime.tm_mday:02d} {ltime.tm_hour:02d}:{ltime.tm_min:02d}\n')
     fp.write('Category: tech\n')
-    fp.write('Tag: \n')
+    fp.write('Tags: \n')
     fp.write('Summary: \n')
     fp.write('\n')
 
