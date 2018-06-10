@@ -1,5 +1,205 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Ganachoco's Blog</title><link href="http://ganadist.github.io/" rel="alternate"></link><link href="http://ganadist.github.io/feeds/all.atom.xml" rel="self"></link><id>http://ganadist.github.io/</id><updated>2018-06-02T23:30:00+09:00</updated><entry><title>Android 플랫폼 빌드 속도 향상시키기</title><link href="http://ganadist.github.io/2018_06_02_build_performance_enhancement.html" rel="alternate"></link><published>2018-06-02T23:30:00+09:00</published><updated>2018-06-02T23:30:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-06-02:/2018_06_02_build_performance_enhancement.html</id><summary type="html">&lt;p&gt;빌드 속도 올리기 팁&amp;nbsp;모음&lt;/p&gt;</summary><content type="html">&lt;p&gt;최근에 덩치가 큰 소프트웨어 작업을 진행하면서, 제대로 된 CI서버가 없어서 고단하던 참에, 때 마침 CI서버 구입 승인이 나면서 새롭게 구성했습니다.
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Ganachoco's Blog</title><link href="http://ganadist.github.io/" rel="alternate"></link><link href="http://ganadist.github.io/feeds/all.atom.xml" rel="self"></link><id>http://ganadist.github.io/</id><updated>2018-06-10T22:56:00+09:00</updated><entry><title>gerrit의 database를 h2에서 pgsql로 변환하기</title><link href="http://ganadist.github.io/2018_06_10_gerrit_h2_pgsql_convert.html" rel="alternate"></link><published>2018-06-10T22:56:00+09:00</published><updated>2018-06-10T22:56:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-06-10:/2018_06_10_gerrit_h2_pgsql_convert.html</id><summary type="html">&lt;p&gt;gerrit database를 h2에서 pgsql로&amp;nbsp;바꾸기&lt;/p&gt;</summary><content type="html">&lt;p&gt;1달 전에 설치했던 회사 &lt;a href="https://www.gerritcodereview.com/"&gt;gerrit&lt;/a&gt;서비스의 성능을 튜닝해보던 중, 별도로 database 설치 및 설정이 귀찮아서 gerrit에서 내장으로 제공되는 &lt;a href="http://www.h2database.com/"&gt;h2 database&lt;/a&gt;를 선택하던게 문제가 있지 않나 싶은 의심이 들어서, gerrit 관리자들 사이에서 널리 사용되는 &lt;a href="https://www.postgresql.org/"&gt;postgresql&lt;/a&gt;로 변환해보기로&amp;nbsp;했습니다.&lt;/p&gt;
+&lt;p&gt;database는 전혀 문외한이라 어떻게 해볼까 고민이었는데, 선지자들의 발자취를 검색해보던 중 &lt;a href="https://groups.google.com/forum/#!msg/repo-discuss/waUyfJ6pbf0/wQnpu9EIAgAJ"&gt;google groups&lt;/a&gt;에 다행히 성공담이 남아있길래, 그들의 작업 로그를 기반으로 진행해보았습니다. google groups에 논의된 백업 방법은 gerrit 2.7 및 2.12 버젼 기반이고, 제 경우에는 현재 제일 최근 버젼인 2.15를 기반으로&amp;nbsp;진행하였습니다.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;주의&lt;/strong&gt;: 잘못 건드렸다간 데이터를 날려먹을 수 있기 때문에 꼭 이전 데이터를 백업해두시기 바랍니다. 저는 tar로 묶어서 안전하게 보관한 후 진행을&amp;nbsp;시작했습니다.&lt;/p&gt;
+&lt;h2&gt;h2 database를 csv로&amp;nbsp;export&lt;/h2&gt;
+&lt;p&gt;먼저 h2 database에서 내장 함수를 이용해 csv로 export를 하였습니다. google groups의 예제에서는 한땀한땀 h2의 내장 함수를 실행시켜주었지만, python 스크립트를 이용해 일괄적으로 csv 파일로 변환했습니다. (gerrit 버젼에 따라서 table 및 column 이름이 바뀔 수&amp;nbsp;있습니다.)&lt;/p&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/0c2780a1f3a624041665e971c5ea632f.js?file=gerrit_h2_to_csv.py'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;#!/usr/bin/env python3
+# vim: ts=4 sw=4 sts=4 et ai
+import os, sys
+import subprocess
+
+tables = {
+'ACCOUNT_EXTERNAL_IDS':
+  ("ACCOUNT_ID","EMAIL_ADDRESS","PASSWORD","EXTERNAL_ID"),
+'ACCOUNT_GROUP_BY_ID':
+  ("GROUP_ID","INCLUDE_UUID"),
+'ACCOUNT_GROUP_BY_ID_AUD':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","GROUP_ID","INCLUDE_UUID","ADDED_ON"),
+'ACCOUNT_GROUP_MEMBERS':
+  ("ACCOUNT_ID","GROUP_ID"),
+'ACCOUNT_GROUP_MEMBERS_AUDIT':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","ACCOUNT_ID","GROUP_ID","ADDED_ON"),
+'ACCOUNT_GROUP_NAMES':
+  ("GROUP_ID","NAME",),
+'ACCOUNT_GROUPS':
+  ("NAME","DESCRIPTION","VISIBLE_TO_ALL","GROUP_UUID","OWNER_GROUP_UUID","GROUP_ID","CREATED_ON"),
+'ACCOUNTS':
+  ("REGISTERED_ON","FULL_NAME","PREFERRED_EMAIL","INACTIVE","STATUS","ACCOUNT_ID"),
+'CHANGE_MESSAGES':
+  ("AUTHOR_ID","WRITTEN_ON","MESSAGE","PATCHSET_CHANGE_ID","PATCHSET_PATCH_SET_ID","TAG","REAL_AUTHOR","CHANGE_ID","UUID"),
+'CHANGES':
+  ("CHANGE_KEY","CREATED_ON","LAST_UPDATED_ON","OWNER_ACCOUNT_ID","DEST_PROJECT_NAME","DEST_BRANCH_NAME","STATUS","CURRENT_PATCH_SET_ID","SUBJECT","TOPIC","ORIGINAL_SUBJECT","SUBMISSION_ID","ASSIGNEE","NOTE_DB_STATE","ROW_VERSION","CHANGE_ID","IS_PRIVATE","WORK_IN_PROGRESS","REVIEW_STARTED","REVERT_OF"),
+'PATCH_COMMENTS':
+  ("LINE_NBR","AUTHOR_ID","WRITTEN_ON","STATUS","SIDE","MESSAGE","PARENT_UUID","RANGE_START_LINE","RANGE_START_CHARACTER","RANGE_END_LINE","RANGE_END_CHARACTER","TAG","REAL_AUTHOR","UNRESOLVED","CHANGE_ID","PATCH_SET_ID","FILE_NAME","UUID"),
+'PATCH_SET_APPROVALS':
+  ("VALUE","GRANTED","TAG","REAL_ACCOUNT_ID","POST_SUBMIT","CHANGE_ID","PATCH_SET_ID","ACCOUNT_ID","CATEGORY_ID"),
+'PATCH_SETS':
+  ("REVISION","UPLOADER_ACCOUNT_ID","CREATED_ON","GROUPS","PUSH_CERTIFICATE","DESCRIPTION","CHANGE_ID","PATCH_SET_ID"),
+'SCHEMA_VERSION':
+  ("VERSION_NBR","SINGLETON"),
+'SYSTEM_CONFIG':
+  ("REGISTER_EMAIL_PRIVATE_KEY","SITE_PATH","ADMIN_GROUP_ID","ANONYMOUS_GROUP_ID","REGISTERED_GROUP_ID","WILD_PROJECT_NAME","BATCH_USERS_GROUP_ID","OWNER_GROUP_ID","ADMIN_GROUP_UUID","BATCH_USERS_GROUP_UUID","SINGLETON")
+}
+
+def dump_table(table_name):
+    filename = os.path.join('/srv/gerrit/csv', table_name)
+    cols = tables[table_name]
+    cols = ','.join(cols)
+    cmd = f"call csvwrite('{filename}', 'select {cols} from {table_name}');"
+    return cmd
+
+def dump_currval(id_name):
+    cmd = f"select currval('{id_name}');"
+    return cmd
+
+def dump():
+    for table_name in tables:
+        yield dump_table(table_name)
+    for id_name in ('change_id', 'account_id', 'account_group_id'):
+        yield dump_currval(id_name)
+
+def main():
+    cmd = 'java', '-jar', 'bin/gerrit.war', 'gsql', '-d', '.'
+    with subprocess.Popen(cmd,
+            bufsize = 0, universal_newlines = True,
+            stdin = subprocess.PIPE) as proc:
+        for cmd in dump():
+            proc.stdin.write(cmd + '\r\n')
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
+&lt;p&gt;스크립트 수행 결과 말미의 sequence는 따로 보관하기가 귀찮아서, 수동으로 import 스크립트에 박아서&amp;nbsp;처리했습니다.&lt;/p&gt;
+&lt;h2&gt;All-Projcts 및 All-Users repository&amp;nbsp;백업&lt;/h2&gt;
+&lt;p&gt;일단 csv로 export가 완료되면, gerrit 에서 자동으로 생성되었던 &lt;strong&gt;All-Projects.git&lt;/strong&gt; 및 &lt;strong&gt;All-Users.git&lt;/strong&gt; repository 를 별도로 백업해두어야 합니다. 해당 repository에는 전체 프로젝트 및 사용자의 권한 정보가 보관되고, 이후에 db를 생성하기 위해 gerrit을 재초기화 할 때 같이 초기화가 되기 때문에, 꼭 백업을 해두었다가 다시 활용해야&amp;nbsp;합니다.&lt;/p&gt;
+&lt;h2&gt;이전할 database로 gerrit 재&amp;nbsp;초기화&lt;/h2&gt;
+&lt;p&gt;배포판에서 제공하는 pgsql을 설치한 후, &lt;a href="https://gerrit-review.googlesource.com/Documentation/install.html#createdb_postgres"&gt;database의 user 및 table을 구성&lt;/a&gt;하고 &lt;a href="https://gerrit-review.googlesource.com/Documentation/config-gerrit.html#database"&gt;gerrit 설정&lt;/a&gt;에서 pgsql을 사용하도록 구성한 다음 재 초기화를&amp;nbsp;진행합니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ java -jar bin/gerrit.war init --batch -d .
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h2&gt;All-Projects 및 All-Users repository&amp;nbsp;복구&lt;/h2&gt;
+&lt;p&gt;앞에서 백업해두었던 두 개의 repository를 다시 원래 위치에 복사해서&amp;nbsp;복구합니다.&lt;/p&gt;
+&lt;h2&gt;csv를 pgsql로&amp;nbsp;import&lt;/h2&gt;
+&lt;p&gt;h2를 export할 때와 유사하게 python 스크립트로 구성해서 pgsql에 csv를&amp;nbsp;퍼부었습니다.&lt;/p&gt;
+&lt;p&gt;일부 sequence (change_id, account_id, account_group_id)는 h2스크립트에서 출력했던 결과를 수동으로&amp;nbsp;기입했습니다.&lt;/p&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/0c2780a1f3a624041665e971c5ea632f.js?file=gerrit_csv_to_pgsql.py'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;#!/usr/bin/env python3
+# vim: ts=4 sw=4 sts=4 et ai
+import os, sys
+import subprocess
+
+tables = {
+'ACCOUNT_EXTERNAL_IDS':
+  ("ACCOUNT_ID","EMAIL_ADDRESS","PASSWORD","EXTERNAL_ID"),
+'ACCOUNT_GROUP_BY_ID':
+  ("GROUP_ID","INCLUDE_UUID"),
+'ACCOUNT_GROUP_BY_ID_AUD':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","GROUP_ID","INCLUDE_UUID","ADDED_ON"),
+'ACCOUNT_GROUP_MEMBERS':
+  ("ACCOUNT_ID","GROUP_ID"),
+'ACCOUNT_GROUP_MEMBERS_AUDIT':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","ACCOUNT_ID","GROUP_ID","ADDED_ON"),
+'ACCOUNT_GROUP_NAMES':
+  ("GROUP_ID","NAME",),
+'ACCOUNT_GROUPS':
+  ("NAME","DESCRIPTION","VISIBLE_TO_ALL","GROUP_UUID","OWNER_GROUP_UUID","GROUP_ID","CREATED_ON"),
+'ACCOUNTS':
+  ("REGISTERED_ON","FULL_NAME","PREFERRED_EMAIL","INACTIVE","STATUS","ACCOUNT_ID"),
+'CHANGE_MESSAGES':
+  ("AUTHOR_ID","WRITTEN_ON","MESSAGE","PATCHSET_CHANGE_ID","PATCHSET_PATCH_SET_ID","TAG","REAL_AUTHOR","CHANGE_ID","UUID"),
+'CHANGES':
+  ("CHANGE_KEY","CREATED_ON","LAST_UPDATED_ON","OWNER_ACCOUNT_ID","DEST_PROJECT_NAME","DEST_BRANCH_NAME","STATUS","CURRENT_PATCH_SET_ID","SUBJECT","TOPIC","ORIGINAL_SUBJECT","SUBMISSION_ID","ASSIGNEE","NOTE_DB_STATE","ROW_VERSION","CHANGE_ID","IS_PRIVATE","WORK_IN_PROGRESS","REVIEW_STARTED","REVERT_OF"),
+'PATCH_COMMENTS':
+  ("LINE_NBR","AUTHOR_ID","WRITTEN_ON","STATUS","SIDE","MESSAGE","PARENT_UUID","RANGE_START_LINE","RANGE_START_CHARACTER","RANGE_END_LINE","RANGE_END_CHARACTER","TAG","REAL_AUTHOR","UNRESOLVED","CHANGE_ID","PATCH_SET_ID","FILE_NAME","UUID"),
+'PATCH_SET_APPROVALS':
+  ("VALUE","GRANTED","TAG","REAL_ACCOUNT_ID","POST_SUBMIT","CHANGE_ID","PATCH_SET_ID","ACCOUNT_ID","CATEGORY_ID"),
+'PATCH_SETS':
+  ("REVISION","UPLOADER_ACCOUNT_ID","CREATED_ON","GROUPS","PUSH_CERTIFICATE","DESCRIPTION","CHANGE_ID","PATCH_SET_ID"),
+'SCHEMA_VERSION':
+  ("VERSION_NBR","SINGLETON"),
+'SYSTEM_CONFIG':
+  ("REGISTER_EMAIL_PRIVATE_KEY","SITE_PATH","ADMIN_GROUP_ID","ANONYMOUS_GROUP_ID","REGISTERED_GROUP_ID","WILD_PROJECT_NAME","BATCH_USERS_GROUP_ID","OWNER_GROUP_ID","ADMIN_GROUP_UUID","BATCH_USERS_GROUP_UUID","SINGLETON")
+}
+
+SEQUENCES = {
+  'change_id': 'NNNN', # change_id sequence from gerrit_h2_to_csv.py
+  'account_id': '10000XX', # account_id sequence from gerrit_h2_to_csv.py
+  'account_group_id': 'GG', # account_group_id sequence from gerrit_h2_to_csv.py
+}
+
+def imp_table(table_name):
+    filename = os.path.join('/srv/gerrit/csv', table_name)
+    cols = tables[table_name]
+    cols = '(' + ','.join(cols) + ')'
+    table_name = table_name.lower()
+    yield f"delete from {table_name};"
+    yield f"\COPY {table_name}{cols} from '{filename}' DELIMITER ',' CSV HEADER;"
+
+def imp_currval(id_name):
+    value = SEQUENCES[id_name]
+    cmd = f"select setval('{id_name}', {value});"
+    return cmd
+
+def imp():
+    for table_name in tables:
+        for cmd in imp_table(table_name):
+            yield cmd
+    for id_name in ('change_id', 'account_id', 'account_group_id'):
+        yield imp_currval(id_name)
+
+def main():
+    cmd = 'psql', '-h', 'localhost', '-U', 'gerrit2', 'reviewdb'
+    #cmd = 'java', '-jar', 'bin/gerrit.war', 'gsql', '-d', '.'
+    with subprocess.Popen(cmd,
+            bufsize = 0, universal_newlines = True,
+            stdin = subprocess.PIPE) as proc:
+        for cmd in imp():
+            proc.stdin.write(cmd + '\r\n')
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
+&lt;p&gt;gerrit 2.15에서 새로 추가된 &lt;a href="https://gerrit-review.googlesource.com/Documentation/note-db.html"&gt;notedb backend&lt;/a&gt;를 이용하고 있다면 account 관련 database를 import 못한다고 오류가 발생할 수 있는데, 해당 database의 값은 앞에서 복사한 All-Users repository에 포함되어 있기 때문에 무시하면&amp;nbsp;됩니다.&lt;/p&gt;
+&lt;p&gt;import가 완료되면 gerrit 내장 sql 커맨드 인터페이스에서 테이블들이 제대로 옮겨졌는지 확인해보면&amp;nbsp;됩니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ java -jar bin/gerrit.war gsql -d .
+gerrit&amp;gt; &lt;span class="se"&gt;\d&lt;/span&gt;
+            List of relations
+TABLE_SCHEM &lt;span class="p"&gt;|&lt;/span&gt; TABLE_NAME                  &lt;span class="p"&gt;|&lt;/span&gt; TABLE_TYPE
+------------+-----------------------------+-----------
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; ACCOUNTS                    &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; ACCOUNT_EXTERNAL_IDS        &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; ACCOUNT_GROUPS              &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; ACCOUNT_GROUP_BY_ID         &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; ACCOUNT_GROUP_BY_ID_AUD     &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; ACCOUNT_GROUP_MEMBERS       &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; ACCOUNT_GROUP_MEMBERS_AUDIT &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; ACCOUNT_GROUP_NAMES         &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; CHANGES                     &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; CHANGE_MESSAGES             &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; PATCH_COMMENTS              &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; PATCH_SETS                  &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; PATCH_SET_APPROVALS         &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; SCHEMA_VERSION              &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+PUBLIC      &lt;span class="p"&gt;|&lt;/span&gt; SYSTEM_CONFIG               &lt;span class="p"&gt;|&lt;/span&gt; TABLE
+
+gerrit&amp;gt; &lt;span class="k"&gt;select&lt;/span&gt; * from SCHEMA_VERSION&lt;span class="p"&gt;;&lt;/span&gt;
+VERSION_NBR &lt;span class="p"&gt;|&lt;/span&gt; SINGLETON
+------------+----------
+&lt;span class="m"&gt;161&lt;/span&gt;         &lt;span class="p"&gt;|&lt;/span&gt; X
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;(1 row; 1&amp;nbsp;ms)&lt;/p&gt;
+&lt;h2&gt;gerrit&amp;nbsp;재시작&lt;/h2&gt;
+&lt;p&gt;database 이전이 완료되면 gerrit을 재시작해서 기능이 정상적으로 동작하는지 점검합니다. 혹시 뭔가 이상한 점이 발견되면 맨 앞에서 백업해두었던 tarball을 이용해 되돌리면 손쉽게 복원이 가능합니다&amp;#8230;&amp;nbsp;(무책임)&lt;/p&gt;
+&lt;h2&gt;후기&lt;/h2&gt;
+&lt;p&gt;이렇게 열과 성의를 다해 database를 이전하였건만, 성능과 관련해서는 딱히 나아진 점이 보이지 않아서, 다시 h2 database로 되돌렸습니다. 그래도 필요하면 언제든지 database 변환이 가능하다는 것을 위안으로&amp;nbsp;삼아야죠.&lt;/p&gt;
+&lt;p&gt;gerrit 성능에 대한 삽질은 나중에 기회가 있을 때 이야기를 풀어보도록&amp;nbsp;하겠습니다.&lt;/p&gt;</content><category term="gerrit"></category><category term="database"></category></entry><entry><title>Android 플랫폼 빌드 속도 향상시키기</title><link href="http://ganadist.github.io/2018_06_02_build_performance_enhancement.html" rel="alternate"></link><published>2018-06-02T23:30:00+09:00</published><updated>2018-06-02T23:30:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-06-02:/2018_06_02_build_performance_enhancement.html</id><summary type="html">&lt;p&gt;빌드 속도 올리기 팁&amp;nbsp;모음&lt;/p&gt;</summary><content type="html">&lt;p&gt;최근에 덩치가 큰 소프트웨어 작업을 진행하면서, 제대로 된 CI서버가 없어서 고단하던 참에, 때 마침 CI서버 구입 승인이 나면서 새롭게 구성했습니다.
 대략적인 서버 사양은 다음과&amp;nbsp;같습니다.&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;span class="caps"&gt;CPU&lt;/span&gt;: &lt;a href="https://ark.intel.com/products/126699/Intel-Core-i9-7980XE-Extreme-Edition-Processor-24_75M-Cache-up-to-4_20-GHz"&gt;Intel i9-7980 &lt;span class="caps"&gt;XE&lt;/span&gt;&lt;/a&gt; 18 Core 36 Thread&amp;nbsp;3.8GHz&lt;/li&gt;
