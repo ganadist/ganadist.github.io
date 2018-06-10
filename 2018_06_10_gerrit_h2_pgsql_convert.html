@@ -251,7 +251,7 @@ def main():
 </code></pre>
     </noscript>
 </div>
-<p>gerrit 2.15에서 새로 추가된 <a href="https://gerrit-review.googlesource.com/Documentation/note-db.html">notedb backend</a>를 이용하고 있다면 account 관련 database를 import 못한다고 오류가 발생할 수 있는데, 해당 database의 값은 앞에서 복사한 All-Users repository에 포함되어 있기 때문에 무시하면&nbsp;됩니다.</p>
+<p>gerrit 2.15에서 새로 추가된 <a href="https://gerrit-review.googlesource.com/Documentation/note-db.html">notedb backend</a>를 이용하고 있다면 일부 account 관련 database를 import 못한다고 오류가 발생할 수 있는데, 해당 database의 값은 앞에서 복사한 All-Users repository에 포함되어 있기 때문에 무시하면&nbsp;됩니다.</p>
 <p>import가 완료되면 gerrit 내장 sql 커맨드 인터페이스에서 테이블들이 제대로 옮겨졌는지 확인해보면&nbsp;됩니다.</p>
 <div class="highlight"><pre><span></span>$ java -jar bin/gerrit.war gsql -d .
 gerrit&gt; <span class="se">\d</span>
@@ -278,10 +278,10 @@ gerrit&gt; <span class="k">select</span> * from SCHEMA_VERSION<span class="p">;<
 VERSION_NBR <span class="p">|</span> SINGLETON
 ------------+----------
 <span class="m">161</span>         <span class="p">|</span> X
+<span class="o">(</span><span class="m">1</span> row<span class="p">;</span> <span class="m">1</span> ms<span class="o">)</span>
 </pre></div>
 
 
-<p>(1 row; 1&nbsp;ms)</p>
 <h2>gerrit&nbsp;재시작</h2>
 <p>database 이전이 완료되면 gerrit을 재시작해서 기능이 정상적으로 동작하는지 점검합니다. 혹시 뭔가 이상한 점이 발견되면 맨 앞에서 백업해두었던 tarball을 이용해 되돌리면 손쉽게 복원이 가능합니다&#8230;&nbsp;(무책임)</p>
 <h2>후기</h2>

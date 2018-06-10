@@ -164,7 +164,7 @@ def main():
 &lt;/code&gt;&lt;/pre&gt;
     &lt;/noscript&gt;
 &lt;/div&gt;
-&lt;p&gt;gerrit 2.15에서 새로 추가된 &lt;a href="https://gerrit-review.googlesource.com/Documentation/note-db.html"&gt;notedb backend&lt;/a&gt;를 이용하고 있다면 account 관련 database를 import 못한다고 오류가 발생할 수 있는데, 해당 database의 값은 앞에서 복사한 All-Users repository에 포함되어 있기 때문에 무시하면&amp;nbsp;됩니다.&lt;/p&gt;
+&lt;p&gt;gerrit 2.15에서 새로 추가된 &lt;a href="https://gerrit-review.googlesource.com/Documentation/note-db.html"&gt;notedb backend&lt;/a&gt;를 이용하고 있다면 일부 account 관련 database를 import 못한다고 오류가 발생할 수 있는데, 해당 database의 값은 앞에서 복사한 All-Users repository에 포함되어 있기 때문에 무시하면&amp;nbsp;됩니다.&lt;/p&gt;
 &lt;p&gt;import가 완료되면 gerrit 내장 sql 커맨드 인터페이스에서 테이블들이 제대로 옮겨졌는지 확인해보면&amp;nbsp;됩니다.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ java -jar bin/gerrit.war gsql -d .
 gerrit&amp;gt; &lt;span class="se"&gt;\d&lt;/span&gt;
@@ -191,10 +191,10 @@ gerrit&amp;gt; &lt;span class="k"&gt;select&lt;/span&gt; * from SCHEMA_VERSION&l
 VERSION_NBR &lt;span class="p"&gt;|&lt;/span&gt; SINGLETON
 ------------+----------
 &lt;span class="m"&gt;161&lt;/span&gt;         &lt;span class="p"&gt;|&lt;/span&gt; X
+&lt;span class="o"&gt;(&lt;/span&gt;&lt;span class="m"&gt;1&lt;/span&gt; row&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="m"&gt;1&lt;/span&gt; ms&lt;span class="o"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;(1 row; 1&amp;nbsp;ms)&lt;/p&gt;
 &lt;h2&gt;gerrit&amp;nbsp;재시작&lt;/h2&gt;
 &lt;p&gt;database 이전이 완료되면 gerrit을 재시작해서 기능이 정상적으로 동작하는지 점검합니다. 혹시 뭔가 이상한 점이 발견되면 맨 앞에서 백업해두었던 tarball을 이용해 되돌리면 손쉽게 복원이 가능합니다&amp;#8230;&amp;nbsp;(무책임)&lt;/p&gt;
 &lt;h2&gt;후기&lt;/h2&gt;
