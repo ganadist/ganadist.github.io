@@ -1,5 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Ganachoco's Blog - tech</title><link href="http://ganadist.github.io/" rel="alternate"></link><link href="http://ganadist.github.io/feeds/tech.atom.xml" rel="self"></link><id>http://ganadist.github.io/</id><updated>2018-07-10T21:16:00+09:00</updated><entry><title>android 의 dumpsys를 이용한 분석 방법</title><link href="http://ganadist.github.io/2018_07_10_dumpsys.html" rel="alternate"></link><published>2018-07-10T21:16:00+09:00</published><updated>2018-07-10T21:16:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-07-10:/2018_07_10_dumpsys.html</id><summary type="html">&lt;p&gt;android dumpsys&amp;nbsp;사용하기&lt;/p&gt;</summary><content type="html">&lt;p&gt;얼마 전에 &lt;a href="http://pluu.github.io/"&gt;과일님&lt;/a&gt;이 &lt;a href="https://yanolja.github.io/2018/07/Android-Why"&gt;쌩고생하며 디버깅했던 경험을 공유&lt;/a&gt;해주었는데, 약간 더 곁들여서&amp;nbsp;끄적여봅니다.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Ganachoco's Blog - tech</title><link href="http://ganadist.github.io/" rel="alternate"></link><link href="http://ganadist.github.io/feeds/tech.atom.xml" rel="self"></link><id>http://ganadist.github.io/</id><updated>2018-09-11T23:17:00+09:00</updated><entry><title>Systemd 로 docker-compose 간단하게 관리하기</title><link href="http://ganadist.github.io/2018_09_11_systemd_docker_compose.html" rel="alternate"></link><published>2018-09-11T23:17:00+09:00</published><updated>2018-09-11T23:17:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-09-11:/2018_09_11_systemd_docker_compose.html</id><summary type="html">&lt;p&gt;systemd와 docker-compose를 이용해 gitlab 인스턴스&amp;nbsp;관리하기&lt;/p&gt;</summary><content type="html">&lt;p&gt;회사에서 가지고 노는(?) 일부 서비스는 &lt;a href="https://docs.docker.com/compose/overview/"&gt;docker-compose&lt;/a&gt;를 이용해 관리를 하는데, 가끔씩 docker 이미지를 업그레이드 할 필요가 있습니다.
+docker-compose 명령을 이용하면 간단하게 업그레이드 할 수 있긴 하지만, systemd 서비스 형식을 이용하면 왠지 더 뽀대나고, 편하게 관리할 수 있을 것 같다는 생각이 들어서 시도해보았습니다. (덤으로 ubuntu 18.04부터는 systemd로 서비스 관리가&amp;nbsp;됩니다.)&lt;/p&gt;
+&lt;p&gt;다음은 docker-compose 를 수행할 systemd service unit 파일 (&lt;code&gt;/etc/systemd/system/docker-compose@.service&lt;/code&gt;)입니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;[Unit]&lt;/span&gt;
+&lt;span class="na"&gt;Description&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;Start docker instance with composer.yml&lt;/span&gt;
+&lt;span class="na"&gt;After&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;network.target&lt;/span&gt;
+&lt;span class="na"&gt;RequiresMountsFor&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;/srv&lt;/span&gt;
+
+&lt;span class="k"&gt;[Service]&lt;/span&gt;
+&lt;span class="na"&gt;Type&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;oneshot&lt;/span&gt;
+&lt;span class="na"&gt;ExecStartPre&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;-/usr/bin/docker-compose down&lt;/span&gt;
+&lt;span class="na"&gt;ExecStartPre&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;-/usr/bin/docker-compose pull&lt;/span&gt;
+&lt;span class="na"&gt;ExecStart&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;/usr/bin/docker-compose up -d&lt;/span&gt;
+&lt;span class="na"&gt;WorkingDirectory&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s"&gt;/etc/docker-compose/%i&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;ExecStartPre&lt;/code&gt; 에서 업데이트할 도커 이미지가 있는지 확인한 후 업그레이드를 하고, (실패하더라도 fallback 으로 무시) docker-compose를 이용해 인스턴스를 시작합니다.
+docker-compose에 필요한 &lt;code&gt;compose.yml&lt;/code&gt;은 &lt;code&gt;/etc/docker-compose/ 의 하위 디렉토리&lt;/code&gt;에 찾을 수 있게 &lt;code&gt;WorkingDirectory&lt;/code&gt;를&amp;nbsp;설정하였습니다.&lt;/p&gt;
+&lt;p&gt;아래는 gitlab 을 띄우기 위한 &lt;code&gt;/etc/docker-compose/gitlab/compose.yml&lt;/code&gt; 파일입니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;# vim: ts=2 sw=2 sts=2 et ai
+gitlab:
+  image: gitlab/gitlab-ce:latest
+  restart: always
+  hostname: gitlab.private
+  container_name: gitlab
+  environment:
+    GITLAB_OMNIBUS_CONFIG: |
+      external_url &amp;#39;http://gitlab.example.com/&amp;#39;
+      # Add any other gitlab.rb configuration here, each on its own line
+      gitlab_rails[&amp;#39;ldap_enabled&amp;#39;] = true
+      gitlab_rails[&amp;#39;ldap_servers&amp;#39;] = YAML.load &amp;lt;&amp;lt;-&amp;#39;EOS&amp;#39;
+      main: # &amp;#39;main&amp;#39; is the GitLab &amp;#39;provider ID&amp;#39; of this LDAP server
+        label: &amp;#39;LDAP&amp;#39;
+        host: &amp;#39;ldap.example.com&amp;#39;
+        port: 389
+        uid: &amp;#39;uid&amp;#39;
+        bind_dn: &amp;#39;cn=admin,dc=example,dc=com&amp;#39;
+        password: &amp;#39;ldapadminpassword&amp;#39;
+        encryption: &amp;#39;plain&amp;#39; # &amp;quot;start_tls&amp;quot; or &amp;quot;simple_tls&amp;quot; or &amp;quot;plain&amp;quot;
+        verify_certificates: false
+        active_directory: false
+        allow_username_or_email_login: true
+        lowercase_usernames: true
+        block_auto_created_users: false
+        base: &amp;#39;ou=members,dc=example,dc=com&amp;#39;
+        user_filter: &amp;#39;&amp;#39;
+        attributes:
+            username: [&amp;#39;uid&amp;#39;]
+            email: [&amp;#39;mail&amp;#39;]
+            name: &amp;#39;cn&amp;#39;
+        ## EE only
+        group_base: &amp;#39;&amp;#39;
+        admin_group: &amp;#39;&amp;#39;
+        sync_ssh_keys: false
+      EOS
+  ports:
+    - &amp;quot;127.0.0.1:8080:80&amp;quot;
+  volumes:
+    - /etc/gitlab:/etc/gitlab
+    - /var/log/gitlab:/var/log/gitlab
+    - /srv/gitlab/data:/var/opt/gitlab
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;docker 인스턴스의 lifecycle은 docker service에서 해주며, compose.yml에서 docker 서비스가 시작하면 인스턴스가 자동으로 시작하도록 &lt;code&gt;restart: always&lt;/code&gt;로 설정했기 때문에, systemd의 Service Type은 oneshot으로 설정했습니다. 앞에서도 언급했지만 systemd unit의 역할은 &lt;code&gt;docker 이미지의 업데이트&lt;/code&gt; 스크립트&amp;nbsp;입니다.&lt;/p&gt;
+&lt;p&gt;이제 gitlab 인스턴스를 구동시키다가, 업데이트가 필요하면, 다음과 같이 systemd service를 실행해서 docker 이미지를 업데이트하면&amp;nbsp;됩니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ sudo systemctl restart docker-compose@gitlab
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;참쉽죠?&lt;/p&gt;</content><category term="systemd"></category><category term="docker"></category><category term="docker-compose"></category><category term="gitlab"></category></entry><entry><title>android 의 dumpsys를 이용한 분석 방법</title><link href="http://ganadist.github.io/2018_07_10_dumpsys.html" rel="alternate"></link><published>2018-07-10T21:16:00+09:00</published><updated>2018-07-10T21:16:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-07-10:/2018_07_10_dumpsys.html</id><summary type="html">&lt;p&gt;android dumpsys&amp;nbsp;사용하기&lt;/p&gt;</summary><content type="html">&lt;p&gt;얼마 전에 &lt;a href="http://pluu.github.io/"&gt;과일님&lt;/a&gt;이 &lt;a href="https://yanolja.github.io/2018/07/Android-Why"&gt;쌩고생하며 디버깅했던 경험을 공유&lt;/a&gt;해주었는데, 약간 더 곁들여서&amp;nbsp;끄적여봅니다.&lt;/p&gt;
 &lt;h1&gt;dumpsys&lt;/h1&gt;
 &lt;p&gt;&lt;a href="https://developer.android.com/studio/command-line/dumpsys"&gt;dumpsys 명령어&lt;/a&gt;는 IBinder의 &lt;a href="http://bit.ly/2u8AZIY"&gt;dump 메소드&lt;/a&gt;의 결과를 표준 출력으로 출력해주는 유용한 개발도구입니다. adb만 사용 가능한 상태면 손쉽게 기기의 상태를 확인해볼 수 있고, PC가 없더라도 &lt;a href="https://developer.android.com/studio/debug/bug-report#bugreportdevice"&gt;개발자 옵션에 포함되어 있는 버그 신고&lt;/a&gt; 기능을 이용해서 출력을 뽑아낼 수 있습니다. 그런데 아무 IBinder 객체에게 사용할 수 있는 것은 아니고, &lt;a href="https://android.googlesource.com/platform/frameworks/native/+/master/cmds/servicemanager/"&gt;system service manager&lt;/a&gt;에 등록된 항목에 한해서 가능합니다. system service manager에 등록된 IBinder객체는 다음의 명령을 이용해&amp;nbsp;확인가능합니다.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;## android 4.3 이전
