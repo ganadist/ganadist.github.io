@@ -758,7 +758,222 @@ stack:
          bedae56c  b6d53333  /system/lib/libc.so &lt;span class="o"&gt;(&lt;/span&gt;je_tcache_bin_flush_small+210&lt;span class="o"&gt;)&lt;/span&gt;
 
 Tombstone written to: /data/tombstones/tombstone_09
-&lt;/pre&gt;&lt;/div&gt;</content><category term="linux"></category><category term="ubuntu"></category><category term="android"></category></entry><entry><title>간단하게 뜯어보는 nbd(network block device)</title><link href="http://ganadist.github.io/2011_08_15_nbd.html" rel="alternate"></link><published>2011-08-15T12:00:00+09:00</published><updated>2011-08-15T12:00:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2011-08-15:/2011_08_15_nbd.html</id><summary type="html">&lt;p&gt;nbd&amp;nbsp;사용방법&lt;/p&gt;</summary><content type="html">&lt;p&gt;nbd는 소켓을 이용해서 저멀리 떨어져있는 기계의 block장치를 현재 컴퓨터의 block장치처럼 쓰게 하는 리눅스의&amp;nbsp;기능이다.&lt;/p&gt;
+&lt;/pre&gt;&lt;/div&gt;</content><category term="linux"></category><category term="ubuntu"></category><category term="android"></category></entry><entry><title>사제 Android Platform SDK 배포시 주의할 점</title><link href="http://ganadist.github.io/2013_01_07_platform_sdk_publish.html" rel="alternate"></link><published>2013-01-07T21:26:00+09:00</published><updated>2013-01-07T21:26:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2013-01-07:/2013_01_07_platform_sdk_publish.html</id><summary type="html">&lt;p&gt;android addon sdk 배포시 주의해야 할&amp;nbsp;사항들&lt;/p&gt;</summary><content type="html">&lt;p&gt;요새 android sdk 및 addon과 관련해서 약간 작업을 하면서 느낀 애로사항을&amp;nbsp;정리해봤습니다.&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;
+&lt;p&gt;sdk용 addon을 배포하기 위해서는 http://goo.gl/UUh8a 에 정의된 대로 xml을 만들어야&amp;nbsp;합니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;ics(sdk tools v20)까지 쓰이던 skin이 v21부터 쓰이지 않습니다. 그 대신에 Device Profile이라는 것으로 대체된 것 같습니다. Device Profile은 sdk addon 대신 extra 로 추가될 수 있습니다. (설치 위치가 $&lt;span class="caps"&gt;SDKROOT&lt;/span&gt;/extras/$VENDOR_ID/DeviceProfiles/devices.xml 이면 avd manager에서&amp;nbsp;인식됩니다.)&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;addon 에 추가되는 문서는 add-ons/addon-blahblah/docs/$DOC_MODULE 로 설치되는데, 실제로 eclipse에서는 add-ons/addon-blahblah/reference 에 설치되어야 IDE와&amp;nbsp;연동됩니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;li&gt;
+&lt;p&gt;이건 java vm의 버그인데, java vm에서 사용자 홈 디렉토리를 찾는 부분이 Windows에서는 조금 이상하게 되어 있습니다. ( http://bugs.sun.com/view_bug.do?bug_id=4787931 )
+사용자의 바탕화면 폴더를 찾은 다음, 그 윗 폴더를 사용자의 홈 디렉토리(user.home property)로 설정하는데요. 일반적으로는 %&lt;span class="caps"&gt;USERPROFILE&lt;/span&gt;%이라는 환경변수를 사용자 홈 디렉토리로 인지해야 합니다.
+그런데 registry등으로 바탕화면 폴더의 위치를 변경 해버리면, Sdk Manager(java app)와 Android Emulator(windows native program)가 찾아보는 HOME디렉토리가 달라지기 때문에 제대로 동작하지 않을 수 있습니다. 간단한 workaround로는 ANDROID_SDK_HOME 이라는 환경변수를 추가적으로 설정해 놓으면, Sdk Manager와 Android Emulator가 엉뚱한 파일을 참조하는 것을 해결할 수&amp;nbsp;있습니다.&lt;/p&gt;
+&lt;/li&gt;
+&lt;/ol&gt;</content><category term="android"></category><category term="platform"></category><category term="sdk"></category></entry><entry><title>누가 안드로이드 코드에 기여를 하고 있을까요?</title><link href="http://ganadist.github.io/2013_03_10_who_contribute_aosp.html" rel="alternate"></link><published>2013-01-07T21:26:00+09:00</published><updated>2013-01-07T21:26:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2013-01-07:/2013_03_10_who_contribute_aosp.html</id><summary type="html">&lt;p&gt;안드로이드 오픈소스 프로젝트에 기여하고 있는 사람들&amp;nbsp;살펴보기&lt;/p&gt;</summary><content type="html">&lt;p&gt;실제로 구글에서 안드로이드만 작업하는 외계인들이 얼마나 분포하고 있는지 궁금해서 작은 스크립트를 만들어&amp;nbsp;봤습니다.&lt;/p&gt;
+&lt;p&gt;aosp의 커밋로그를 간단하게 긁어서 커밋 작성자의 메일 주소로 googler를 추려낸 다음 커밋 회수를&amp;nbsp;찍어봤는데요.&lt;/p&gt;
+&lt;p&gt;일단 안드로이드에 몰빵하는 사람을 추려내는 방법은 제 멋대로 다음을 기준으로&amp;nbsp;잡아봤습니다.,&lt;/p&gt;
+&lt;p&gt;200 =~ (2013(올해) - 2008(구글이 안드로이드를 먹은 해) - 1(지금은 연초고 구글이 먹을때는 연말이라 보정)) * (52 * 1) (20% project&amp;nbsp;시간)&lt;/p&gt;
+&lt;p&gt;&lt;code&gt;즉 커밋 200개 미만이면 아마 20% 프로젝트동안 삽질한 사람이라 보고 빼는 식으로 하려고 합니다. 그리고 AOSP 전체 소스에서는 약간 여유를 둬서 300커밋 미만으로 짤랐습니다.&lt;/code&gt;&lt;/p&gt;
+&lt;p&gt;4.2.2를 기준으로 AOSP전체 소스에 300회 이상 커밋한 사람은 111명이고, 그중 코어 모듈(frameworks, bionic, system, hardware, build, dalvik, libcore 디렉토리)에만 커밋회수가 200회 이상인 사람은 68명&amp;nbsp;입니다.&lt;/p&gt;
+&lt;p&gt;규모에 비해서 상당히 적은 사람이 일하고 있다는 것을 알 수 있습니다.
+(국내 어떤 회사의 꽤 규모가 큰 &lt;span class="caps"&gt;OS&lt;/span&gt; 프로젝트의 경우 풀타임 석박사급 개발자가 200명 이상 투입되었다고 합니다. 그런데 출시도 못하고 접었다는게&amp;nbsp;함정&amp;#8230;)&lt;/p&gt;
+&lt;p&gt;그리고 커밋 로그 중 드물게 &lt;code&gt;deckard@android.com&lt;/code&gt; 라는주소가보이는데요, 이것은 사람의 메일주소가 아니라 구글 내부 CI시스템입니다. (실제로 https://android-review.googlesource.com 에 코드를 올리면 저 녀석이 해당 코드가 제대로 빌드되는 지&amp;nbsp;확인해줍니다.)&lt;/p&gt;
+&lt;p&gt;아마도 영화 블레이드 러너의 주인공인 데커드 형사 ( http://en.wikipedia.org/wiki/Rick_Deckard )의 이름을 딴 것으로&amp;nbsp;보입니다.&lt;/p&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/5057717.js?file=getCommitCount.py'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+# -*- coding : utf-8 -*-
+
+import sys, os
+import subprocess
+import xml.dom.minidom
+
+BOTS = ('initial-contribution@android.com',
+	'code-review@android.com',
+	'android-gerrit@google.com',
+	'android-git-automerger@android.com',
+	'android-merger@google.com',
+	'deckard@android.com',
+)
+
+NOBODY = ('', 'nobody@android.com')
+
+def isBot(email):
+	if email in BOTS: return True
+	return email.startswith('android-build')
+
+def isGoogler(email):
+	if email.endswith('google.com'):
+		return True
+	if email.endswith('android.com'):
+		return True
+	return email == ''
+
+def getManifest(path):
+	return os.path.join(path, '.repo', 'manifest.xml')
+
+def getTop():
+	def isTopDir(path):
+		return os.access(getManifest(path), os.F_OK)
+		
+	def getParents():
+		for env in ('TOP', 'ANDROID_BUILD_TOP'):
+			wd = os.getenv(env)
+			if wd: yield wd
+		wd = os.path.abspath(os.getcwd())
+		while wd != os.path.sep:
+			yield wd
+			wd = os.path.dirname(wd)
+
+	for path in getParents():
+		if isTopDir(path):
+			return path
+
+	assert False, "can not find android source directory."
+
+def getPaths(path):
+	manifest = getManifest(path)
+	root = xml.dom.minidom.parse(manifest)
+	for node in root.childNodes[0].childNodes:
+		if node.nodeName != 'project':
+			continue
+		yield node.getAttribute('path')
+
+def getAuthors(path):
+	gitdir = os.path.join(path, '.git')
+	cmd = ('git', 'log', '--no-merges', '--pretty=%ae %an')
+	p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+			env = {'GIT_DIR': gitdir})
+	for line in p.stdout:
+		line = line.strip()
+		if '@' in line:
+			if ' ' in line:
+				email, name = line.split(' ', 1)
+			else:
+				email, name = line, ''
+		else:
+			email, name = '', line
+		yield email, name
+
+class AuthorCount(object):
+	def __init__(self, email):
+		object.__init__(self)
+		self.email = email
+		self.names = []
+		self.count = 0
+
+	def getName(self):
+		return self.names and self.names[0] or ''
+	
+	def getCount(self):
+		return self.count
+	
+	def getEmail(self):
+		return self.email
+	
+	def incCount(self, name):
+		if not name in self.names:
+			def nameSort(a, b):
+				if a.islower(): return 1
+				if b.islower(): return -1
+				return cmp(b, a)
+			self.names.append(name)
+			self.names.sort(nameSort)
+		self.count += 1
+
+	def __str__(self):
+		if self.email:
+			mail = self.email.replace('@', ' at ').replace('.', ' dot ')
+		else:
+			mail = 'UNKNOWN_AT_GOOGLE_DOT_COM'
+		return '%s &lt;%s&gt;\t %d'%(self.getName(), mail, self.count)
+
+if __name__ == '__main__':
+	d = {}
+	top = getTop()
+	platformPrefix = ('frameworks',
+			'bionic',
+			'system',
+			'hardware',
+			'build',
+			'dalvik',
+			'libcore',
+	)
+
+	platformOnly = '-p' in sys.argv
+	commitCountLimit = platformOnly and 500 or 1000
+
+	def isPlatform(path):
+		for prefix in platformPrefix:
+			if path.startswith(prefix):
+				return True
+
+	for path in getPaths(top):
+		if platformOnly and not isPlatform(path):
+			continue
+
+		for author in getAuthors(path):
+			email, name = author
+			if isBot(email):
+				continue
+			if not isGoogler(email):
+				continue
+			if email in NOBODY:
+				key = 'NOBODY', name
+				email = ''
+			else:
+				if email.endswith('corp.google.com'):
+					email = email.split('@', 1)[0] + '@google.com'
+				key = email, ''
+			d.setdefault(key, AuthorCount(email)).incCount(name)
+
+	names = {}
+	for item in d.iteritems():
+		k, v = item
+		name = v.getName()
+		names.setdefault(name, set()).add(item)
+
+	# get delegate account in duplicated
+	def getDelegates(items):
+		google_account = set()
+		android_account = set()
+		for key, value in items:
+			email = value.getEmail()
+			if email.endswith('google.com'):
+				google_account.add((key, value))
+			elif email.endswith('android.com'):
+				android_account.add((key, value))
+		return google_account and google_account or android_account
+
+	# merge duplicated account
+	for items in names.itervalues():
+		if len(items) == 1: continue
+		delegates = getDelegates(items)
+		if len(delegates) != 1: continue
+		delegate = tuple(delegates)[0][1]
+		for k, v in items - delegates:
+			del d[k]
+			delegate.count += v.count
+
+	countKey = lambda x:x.getCount()
+	nameKey = lambda x:x.getName()
+	emailKey = lambda x:x.getEmail()
+
+	count = 0
+	for item in sorted(d.itervalues(), key = countKey):
+		#if d[item].count &lt; commitCountLimit: continue
+		sys.stdout.write('%s\n'%(str(item)))
+		count += item.getCount()
+	print 'total commit count:', count&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
+&lt;p&gt;https://gist.github.com/ganadist/5057717&lt;/p&gt;</content><category term="android"></category><category term="platform"></category><category term="opensource"></category></entry><entry><title>간단하게 뜯어보는 nbd(network block device)</title><link href="http://ganadist.github.io/2011_08_15_nbd.html" rel="alternate"></link><published>2011-08-15T12:00:00+09:00</published><updated>2011-08-15T12:00:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2011-08-15:/2011_08_15_nbd.html</id><summary type="html">&lt;p&gt;nbd&amp;nbsp;사용방법&lt;/p&gt;</summary><content type="html">&lt;p&gt;nbd는 소켓을 이용해서 저멀리 떨어져있는 기계의 block장치를 현재 컴퓨터의 block장치처럼 쓰게 하는 리눅스의&amp;nbsp;기능이다.&lt;/p&gt;
 &lt;p&gt;물론 꼭 저 멀리 떨어져있을 필요는 없으며, 꼭 block장치여야 한다는 법은&amp;nbsp;없다.&lt;/p&gt;
 &lt;p&gt;특정한 위치에서 특정한 길이의 데이터를 read하거나 write할 수만 있으면&amp;nbsp;상관없다.&lt;/p&gt;
 &lt;p&gt;nbd를 구성하려면 3개의 컴퍼넌트가&amp;nbsp;필요하다.&lt;/p&gt;

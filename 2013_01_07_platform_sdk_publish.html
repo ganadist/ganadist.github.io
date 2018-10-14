@@ -1,0 +1,164 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+
+    <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/stylesheet/style.min.css">
+
+  <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/pygments/github.min.css">
+  <link rel="stylesheet" type="text/css" href="http://ganadist.github.io/theme/font-awesome/css/font-awesome.min.css">
+
+
+    <link href="http://ganadist.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Ganachoco's Blog Atom">
+
+
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="" />
+
+
+<meta name="author" content="YOUNG HO CHA" />
+<meta name="description" content="android addon sdk 배포시 주의해야 할 사항들" />
+<meta name="keywords" content="android, platform, sdk">
+<meta property="og:site_name" content="Ganachoco's Blog"/>
+<meta property="og:title" content="사제 Android Platform SDK 배포시 주의할 점"/>
+<meta property="og:description" content="android addon sdk 배포시 주의해야 할 사항들"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="http://ganadist.github.io/2013_01_07_platform_sdk_publish.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2013-01-07 21:26:00+09:00"/>
+<meta property="article:modified_time" content=""/>
+<meta property="article:author" content="http://ganadist.github.io/author/young-ho-cha.html">
+<meta property="article:section" content="tech"/>
+<meta property="article:tag" content="android"/>
+<meta property="article:tag" content="platform"/>
+<meta property="article:tag" content="sdk"/>
+<meta property="og:image" content="">
+
+  <title>Ganachoco's Blog &ndash; 사제 Android Platform SDK 배포시 주의할 점</title>
+
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="http://ganadist.github.io">
+        <img src="http://ganadist.github.io/theme/img/profile.png" alt="" title="">
+      </a>
+      <h1><a href="http://ganadist.github.io"></a></h1>
+
+
+      <nav>
+        <ul class="list">
+
+          <li><a href="http://b.android.com" target="_blank">b.android.com</a></li>
+          <li><a href="https://d.android.com" target="_blank">d.android.com</a></li>
+          <li><a href="https://r.android.com" target="_blank">r.android.com</a></li>
+          <li><a href="https://s.android.com" target="_blank">s.android.com</a></li>
+          <li><a href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" target="_blank">Andy Figure</a></li>
+        </ul>
+      </nav>
+
+      <ul class="social">
+        <li><a class="sc-github" href="http://github.com/ganadist" target="_blank"><i class="fa fa-github"></i></a></li>
+        <li><a class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank"><i class="fa fa-slideshare"></i></a></li>
+        <li><a class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+      </ul>
+    </div>
+
+
+  </aside>
+  <main>
+
+
+<article class="single">
+  <header>
+    <h1 id="2013_01_07_platform_sdk_publish">사제 Android Platform <span class="caps">SDK</span> 배포시 주의할&nbsp;점</h1>
+    <p>
+          Posted on 01/07/2013 in <a href="http://ganadist.github.io/category/tech.html">tech</a>
+
+
+    </p>
+  </header>
+
+
+  <div>
+    <p>요새 android sdk 및 addon과 관련해서 약간 작업을 하면서 느낀 애로사항을&nbsp;정리해봤습니다.</p>
+<ol>
+<li>
+<p>sdk용 addon을 배포하기 위해서는 http://goo.gl/UUh8a 에 정의된 대로 xml을 만들어야&nbsp;합니다.</p>
+</li>
+<li>
+<p>ics(sdk tools v20)까지 쓰이던 skin이 v21부터 쓰이지 않습니다. 그 대신에 Device Profile이라는 것으로 대체된 것 같습니다. Device Profile은 sdk addon 대신 extra 로 추가될 수 있습니다. (설치 위치가 $<span class="caps">SDKROOT</span>/extras/$VENDOR_ID/DeviceProfiles/devices.xml 이면 avd manager에서&nbsp;인식됩니다.)</p>
+</li>
+<li>
+<p>addon 에 추가되는 문서는 add-ons/addon-blahblah/docs/$DOC_MODULE 로 설치되는데, 실제로 eclipse에서는 add-ons/addon-blahblah/reference 에 설치되어야 IDE와&nbsp;연동됩니다.</p>
+</li>
+<li>
+<p>이건 java vm의 버그인데, java vm에서 사용자 홈 디렉토리를 찾는 부분이 Windows에서는 조금 이상하게 되어 있습니다. ( http://bugs.sun.com/view_bug.do?bug_id=4787931 )
+사용자의 바탕화면 폴더를 찾은 다음, 그 윗 폴더를 사용자의 홈 디렉토리(user.home property)로 설정하는데요. 일반적으로는 %<span class="caps">USERPROFILE</span>%이라는 환경변수를 사용자 홈 디렉토리로 인지해야 합니다.
+그런데 registry등으로 바탕화면 폴더의 위치를 변경 해버리면, Sdk Manager(java app)와 Android Emulator(windows native program)가 찾아보는 HOME디렉토리가 달라지기 때문에 제대로 동작하지 않을 수 있습니다. 간단한 workaround로는 ANDROID_SDK_HOME 이라는 환경변수를 추가적으로 설정해 놓으면, Sdk Manager와 Android Emulator가 엉뚱한 파일을 참조하는 것을 해결할 수&nbsp;있습니다.</p>
+</li>
+</ol>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="http://ganadist.github.io/tag/android.html">android</a>
+      <a href="http://ganadist.github.io/tag/platform.html">platform</a>
+      <a href="http://ganadist.github.io/tag/sdk.html">sdk</a>
+    </p>
+  </div>
+
+
+
+
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'ganadist-github-io';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+        Please enable JavaScript to view comments.
+
+</noscript>
+</article>
+
+    <footer>
+<p>&copy; YOUNG HO CHA </p>
+<p>    Powered by <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a>
+</p>    </footer>
+  </main>
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-120269954-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Ganachoco's Blog ",
+  "url" : "http://ganadist.github.io",
+  "image": "",
+  "description": ""
+}
+</script>
+</body>
+</html>
