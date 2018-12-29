@@ -108,13 +108,12 @@ FATAL: kernel did not supply AT_SECURE
 </pre></div>
 
 
-<p>첫번째 uname 실행은 pc용 busybox가 docker 내부에서 정상독작하는지 확인하기 위해서 실행해봤습니다. 그리고 android에 포함된 toolbox의 ls를 수행했는데 커널에서 특정기능이 지원하지 않는다는 오류메세지가 발생했습니다. 여기서 커널은 실제 리눅스 커널이 아니라 qemu-user가 에물레이션 하는 커널일껍니다. 일단 <a href="http://androidxref.com/4.4.4_r1/search?q=kernel+did+not+supply+AT_SECURE&amp;project=bionic">해당 메세지를 어디서 출력하는지 알아보기 위해 검색</a>을 해보니, 런타임 링커에서 특정한 커널기능을 확인하는 부분이 있습니다. 일단 해당 부분을 검사하지 않도록 수정한 후 android를 빌드해서 새로 docker 이미지를&nbsp;만들었습니다.</p>
-<div class="highlight"><pre><span></span><span class="err">$</span> <span class="n">repo</span> <span class="n">init</span> <span class="o">-</span><span class="n">u</span> <span class="n">https</span><span class="p">:</span><span class="o">//</span><span class="n">android</span><span class="o">.</span><span class="n">googlesource</span><span class="o">.</span><span class="n">com</span><span class="o">/</span><span class="n">platform</span><span class="o">/</span><span class="n">manifest</span> <span class="o">-</span><span class="n">b</span> <span class="n">kitkat</span><span class="o">-</span><span class="n">dev</span> 
-<span class="err">$</span> <span class="n">repo</span> <span class="n">sync</span> <span class="o">--</span><span class="n">no</span><span class="o">-</span><span class="n">tags</span> <span class="o">-</span><span class="n">c</span> <span class="o">-</span><span class="n">j8</span>
-<span class="err">$</span> <span class="n">source</span> <span class="o">./</span><span class="n">build</span><span class="o">/</span><span class="n">envsetup</span><span class="o">.</span><span class="n">sh</span>
-<span class="err">$</span> <span class="n">lunch</span> <span class="n">aosp_arm</span><span class="o">-</span><span class="n">userdebug</span>
-<span class="err">$</span> <span class="n">make</span> <span class="o">-</span><span class="n">j8</span> <span class="n">systemtarball</span>
-<span class="err">$</span> <span class="n">docker</span> <span class="kn">import</span> <span class="err">$</span><span class="n">OUT</span><span class="o">/</span><span class="n">system</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">bz2</span> <span class="n">android</span><span class="o">-</span><span class="mi">19</span><span class="o">-</span><span class="n">armeabi</span><span class="o">-</span><span class="n">v7a</span>
+<p>첫번째 uname 실행은 pc용 busybox가 docker 내부에서 정상동작하는지 확인하기 위해서 실행해봤습니다. 그리고 android에 포함된 toolbox의 ls를 수행했는데 커널에서 특정기능이 지원하지 않는다는 오류메세지가 발생했습니다. 여기서 커널은 실제 리눅스 커널이 아니라 qemu-user가 에물레이션 하는 커널일껍니다. 일단 <a href="http://androidxref.com/4.4.4_r1/search?q=kernel+did+not+supply+AT_SECURE&amp;project=bionic">해당 메세지를 어디서 출력하는지 알아보기 위해 검색</a>을 해보니, 런타임 링커에서 특정한 커널기능을 확인하는 부분이 있습니다. 일단 해당 부분을 검사하지 않도록 수정한 후 android를 빌드해서 새로 docker 이미지를&nbsp;만들었습니다.</p>
+<div class="highlight"><pre><span></span>$ repo init -u https://android.googlesource.com/platform/manifest -b kitkat-dev 
+$ repo sync --no-tags -c -j8
+$ <span class="nb">source</span> ./build/envsetup.sh
+$ lunch aosp_arm-userdebug
+$ make -j8 systemtarball
 </pre></div>
 
 
@@ -202,6 +201,9 @@ int main() {
 <span class="o">[</span>armeabi-v7a<span class="o">]</span> Install        : <span class="nv">uname</span> <span class="o">=</span>&gt; libs/armeabi-v7a/uname
 
 $ cp libs/armeabi-v7a/uname /tmp/
+
+$ file /tmp/uname
+/tmp/uname: ELF <span class="m">32</span>-bit LSB shared object, ARM, EABI5 version <span class="m">1</span> <span class="o">(</span>SYSV<span class="o">)</span>, dynamically linked, interpreter /system/bin/linker, BuildID<span class="o">[</span>sha1<span class="o">]=</span>6d04cf954964d58ce83ee7f5996a70dab7cca880, stripped
 
 $ docker run -it -v /bin/busybox:/bin/sh -v /opt/qemu-user/qemu-arm-static:/usr/bin/qemu-arm-static -v /tmp:/tmp --name kk --rm  android-19-armeabi-v7a /bin/sh
 
