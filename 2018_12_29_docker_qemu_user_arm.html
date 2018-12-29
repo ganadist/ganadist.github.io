@@ -101,9 +101,9 @@
 <p>그리고 qemu-user-static 바이너리와 binfmt_misc 설정을 완료하고 docker를 수행합니다. 데비안/우분투 사용자면, <a href="https://packages.debian.org/sid/qemu-user-static">qemu-user-static 패키지</a>만 설치하면 됩니다. 하지만 저는 archlinux를 사용하고 있어서, docker에서 debian 환경을 수행한 후, 해당 패키지를 설치하고 바이너리를 /opt/qemu-user 로 복사한 후, binfmt_misc 설정만 <a href="https://aur.archlinux.org/packages/binfmt-qemu-static/">binfmt-qemu-static aur</a>로 설치했습니다. 아직 docker이미지가 제대로 동작하는지 확인을 할 수가 없으니 busybox의 도움도&nbsp;받아보겠습니다.</p>
 <div class="highlight"><pre><span></span>$ docker run -it -v /bin/busybox:/bin/sh -v /opt/qemu-user/qemu-arm-static:/usr/bin/qemu-arm-static -v /tmp:/tmp --name kk --rm  android-19-armeabi-v7a /bin/sh
 
-/ <span class="c1"># uname -a</span>
+<span class="c1"># uname -a</span>
 Linux fb479d7afe07 <span class="m">4</span>.19.12-arch1-1-ARCH <span class="c1">#1 SMP PREEMPT Fri Dec 21 13:56:54 UTC 2018 x86_64 GNU/Linux</span>
-/ <span class="c1"># /system/bin/ls</span>
+<span class="c1"># /system/bin/ls</span>
 FATAL: kernel did not supply AT_SECURE
 </pre></div>
 
@@ -120,7 +120,7 @@ FATAL: kernel did not supply AT_SECURE
 
 <p>수정한 OS이미지로 docker 이미지를 생성한 후&nbsp;실행해보았습니다.</p>
 <div class="highlight"><pre><span></span><span class="err">$</span> <span class="n">docker</span> <span class="kn">import</span> <span class="err">$</span><span class="n">OUT</span><span class="o">/</span><span class="n">system</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">bz2</span> <span class="n">android</span><span class="o">-</span><span class="mi">19</span><span class="o">-</span><span class="n">armeabi</span><span class="o">-</span><span class="n">v7a</span>
-<span class="o">/</span> <span class="c1"># /system/bin/ls</span>
+<span class="c1"># /system/bin/ls</span>
 <span class="n">Segmentation</span> <span class="n">fault</span> <span class="p">(</span><span class="n">core</span> <span class="n">dumped</span><span class="p">)</span>
 </pre></div>
 
@@ -205,7 +205,7 @@ $ cp libs/armeabi-v7a/uname /tmp/
 
 $ docker run -it -v /bin/busybox:/bin/sh -v /opt/qemu-user/qemu-arm-static:/usr/bin/qemu-arm-static -v /tmp:/tmp --name kk --rm  android-19-armeabi-v7a /bin/sh
 
-/ <span class="c1"># /tmp/uname</span>
+<span class="c1"># /tmp/uname</span>
 sys:     Linux
 rel:     <span class="m">4</span>.19.12-arch1-1-ARCH
 ver:     <span class="c1">#1 SMP PREEMPT Fri Dec 21 13:56:54 UTC 2018</span>
