@@ -1,5 +1,164 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Ganachoco's Blog - tech</title><link href="https://ganadist.github.io/" rel="alternate"></link><link href="https://ganadist.github.io/feeds/tech.atom.xml" rel="self"></link><id>https://ganadist.github.io/</id><updated>2018-11-24T22:59:00+09:00</updated><entry><title>안드로이드의 로그 확인 기능들 살펴보기</title><link href="https://ganadist.github.io/2018_11_24_android_log.html" rel="alternate"></link><published>2018-11-24T22:59:00+09:00</published><updated>2018-11-24T22:59:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-11-24:/2018_11_24_android_log.html</id><summary type="html">&lt;p&gt;안드로이드의&amp;nbsp;로그설비들&lt;/p&gt;</summary><content type="html">&lt;h1&gt;logcat&amp;nbsp;buffer&lt;/h1&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Ganachoco's Blog - tech</title><link href="https://ganadist.github.io/" rel="alternate"></link><link href="https://ganadist.github.io/feeds/tech.atom.xml" rel="self"></link><id>https://ganadist.github.io/</id><updated>2018-12-29T12:32:00+09:00</updated><entry><title>Docker로 ndk 바이너리 실행해보기</title><link href="https://ganadist.github.io/2018_12_29_docker_qemu_user_arm.html" rel="alternate"></link><published>2018-12-29T12:32:00+09:00</published><updated>2018-12-29T12:32:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-12-29:/2018_12_29_docker_qemu_user_arm.html</id><summary type="html"></summary><content type="html">&lt;p&gt;옛날 옛적(..)에 &lt;a href="http://www.scratchbox.org/"&gt;Scratchbox&lt;/a&gt;라고 하는 물건이 있었습니다. 크로스 컴파일을 편하게 하기위한 도구인데, 파일시스템을 격리시키는 &lt;a href="https://en.wikipedia.org/wiki/Chroot"&gt;chroot&lt;/a&gt;와 가상화 소프트웨어인 &lt;a href="https://www.qemu.org"&gt;qemu&lt;/a&gt;를 이용해서, PC에서 arm, mips, ppc등과 같은 이기종용 바이너리를 생성할 수&amp;nbsp;있습니다.&lt;/p&gt;
+&lt;p&gt;여기서 qemu를 이용하는 방법이 독특한데요, &lt;a href="https://qemu.weilnetz.de/doc/qemu-doc.html#QEMU-PC-System-emulator"&gt;하드웨어 가상화&lt;/a&gt;가 아닌, &lt;a href="https://qemu.weilnetz.de/doc/qemu-doc.html#QEMU-User-space-emulator"&gt;리눅스 커널 가상화(소프트웨어 가상화)&lt;/a&gt;을 이용합니다. 이렇게 되면 실행파일을 qemu가 해석해서, 일부 시스템콜을 에물레이션하게 됩니다. (이와 유사하면서도 유명하게 &lt;a href="https://www.winehq.org"&gt;Wine&lt;/a&gt;, 또는 &lt;a href="https://docs.microsoft.com/en-us/windows/wsl/about"&gt;&lt;span class="caps"&gt;WSL&lt;/span&gt;(Windows Subsystem for Linux)&lt;/a&gt;&amp;nbsp;입니다.)&lt;/p&gt;
+&lt;p&gt;그리고 실행하는 방법을 단순화 하기 위해 Linux의 &lt;a href="https://en.wikipedia.org/wiki/Binfmt_misc"&gt;binfmt_misc&lt;/a&gt;를 이용해서, 실행하려는 파일의 헤더를 확인해 적절한 에물레이터에게 실행파일을 해석하게 하도록 하면, 거의 native환경과 유사하게 실행환경을 구성할 수&amp;nbsp;있습니다.&lt;/p&gt;
+&lt;p&gt;그런데 scratchbox와 유사하지만 최근 트렌드에 알맞게 chroot 대신 &lt;a href="https://ownyourbits.com/2018/06/27/running-and-building-arm-docker-containers-in-x86/"&gt;docker를 이용해 이기종용 바이너리를 실행하는 환경을 구성하려는 시도&lt;/a&gt;가 눈에 띄더군요. 해당 포스팅을 따라하면 쉽게 PC에서 arm용 데비안 환경을 구성할 수&amp;nbsp;있습니다.&lt;/p&gt;
+&lt;p&gt;이와 유사하게 android환경도 에물레이터 대신 docker를 이용해 구성할 수 없을까 싶어서 시도를 해보았습니다. docker 이미지는 Android &lt;span class="caps"&gt;SDK&lt;/span&gt; 에서 설치할 수 있는 에뮬레이터의 OS이미지를 이용하면 손쉽게 만들 수&amp;nbsp;있습니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;mkdir&lt;/span&gt; &lt;span class="n"&gt;system&lt;/span&gt;
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;mount&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ANDROID_HOME&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;system&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;images&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;android&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;default&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;armeabi&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;v7a&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;system&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;img&lt;/span&gt; &lt;span class="n"&gt;system&lt;/span&gt;
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;sudo&lt;/span&gt; &lt;span class="n"&gt;tar&lt;/span&gt; &lt;span class="n"&gt;cf&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;system&lt;/span&gt; &lt;span class="o"&gt;|&lt;/span&gt; &lt;span class="n"&gt;docker&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="n"&gt;android&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;armeabi&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;v7a&lt;/span&gt;
+&lt;span class="n"&gt;sha256&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="n"&gt;f7427ad5b84efaf1c862c69b66df55c3ad8b8bbb05660fece31bc29c8cbc4abe&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;그리고 qemu-user-static 바이너리와 binfmt_misc 설정을 완료하고 docker를 수행합니다. 데비안/우분투 사용자면, &lt;a href="https://packages.debian.org/sid/qemu-user-static"&gt;qemu-user-static 패키지&lt;/a&gt;만 설치하면 됩니다. 하지만 저는 archlinux를 사용하고 있어서, docker에서 debian 환경을 수행한 후, 해당 패키지를 설치하고 바이너리를 /opt/qemu-user 로 복사한 후, binfmt_misc 설정만 &lt;a href="https://aur.archlinux.org/packages/binfmt-qemu-static/"&gt;binfmt-qemu-static aur&lt;/a&gt;로 설치했습니다. 아직 docker이미지가 제대로 동작하는지 확인을 할 수가 없으니 busybox의 도움도&amp;nbsp;받아보겠습니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ docker run -it -v /bin/busybox:/bin/sh -v /opt/qemu-user/qemu-arm-static:/usr/bin/qemu-arm-static -v /tmp:/tmp --name kk --rm  android-19-armeabi-v7a /bin/sh
+
+&lt;span class="c1"&gt;# uname -a&lt;/span&gt;
+Linux fb479d7afe07 &lt;span class="m"&gt;4&lt;/span&gt;.19.12-arch1-1-ARCH &lt;span class="c1"&gt;#1 SMP PREEMPT Fri Dec 21 13:56:54 UTC 2018 x86_64 GNU/Linux&lt;/span&gt;
+&lt;span class="c1"&gt;# /system/bin/ls&lt;/span&gt;
+FATAL: kernel did not supply AT_SECURE
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;첫번째 uname 실행은 pc용 busybox가 docker 내부에서 정상독작하는지 확인하기 위해서 실행해봤습니다. 그리고 android에 포함된 toolbox의 ls를 수행했는데 커널에서 특정기능이 지원하지 않는다는 오류메세지가 발생했습니다. 여기서 커널은 실제 리눅스 커널이 아니라 qemu-user가 에물레이션 하는 커널일껍니다. 일단 &lt;a href="http://androidxref.com/4.4.4_r1/search?q=kernel+did+not+supply+AT_SECURE&amp;amp;project=bionic"&gt;해당 메세지를 어디서 출력하는지 알아보기 위해 검색&lt;/a&gt;을 해보니, 런타임 링크에서 커널기능을 확인하는 부분이 있습니다. 일단 해당 부분을 검사하지 않도록 수정한 후 android를 빌드해서 새로 docker 이미지를&amp;nbsp;만들었습니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;repo&lt;/span&gt; &lt;span class="n"&gt;init&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;u&lt;/span&gt; &lt;span class="n"&gt;https&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="o"&gt;//&lt;/span&gt;&lt;span class="n"&gt;android&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;googlesource&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;com&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;platform&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;manifest&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="n"&gt;kitkat&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;dev&lt;/span&gt; 
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;repo&lt;/span&gt; &lt;span class="n"&gt;sync&lt;/span&gt; &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;no&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;tags&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;j8&lt;/span&gt;
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;source&lt;/span&gt; &lt;span class="o"&gt;./&lt;/span&gt;&lt;span class="n"&gt;build&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;envsetup&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;sh&lt;/span&gt;
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;lunch&lt;/span&gt; &lt;span class="n"&gt;aosp_arm&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;userdebug&lt;/span&gt;
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;make&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;j8&lt;/span&gt; &lt;span class="n"&gt;systemtarball&lt;/span&gt;
+&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;docker&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;OUT&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;system&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tar&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bz2&lt;/span&gt; &lt;span class="n"&gt;android&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;armeabi&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;v7a&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;수정한 OS이미지로 docker 이미지를 생성한 후&amp;nbsp;실행해보았습니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;docker&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;OUT&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;system&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tar&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bz2&lt;/span&gt; &lt;span class="n"&gt;android&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;armeabi&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;v7a&lt;/span&gt;
+&lt;span class="c1"&gt;# /system/bin/ls&lt;/span&gt;
+&lt;span class="n"&gt;Segmentation&lt;/span&gt; &lt;span class="n"&gt;fault&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;core&lt;/span&gt; &lt;span class="n"&gt;dumped&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;세그폴트 메세지를 보고 잠시 당황했었습니다만, gdb를 이용해 어디서 발생했는지&amp;nbsp;확인해보았습니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7/bin/arm-linux-androideabi-gdb &lt;span class="nv"&gt;$OUT&lt;/span&gt;/system/bin/ls /tmp/qemu_ls_20181229-022527_7.core 
+GNU gdb &lt;span class="o"&gt;(&lt;/span&gt;GDB&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="m"&gt;7&lt;/span&gt;.6
+
+&lt;span class="o"&gt;(&lt;/span&gt;gdb&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="nb"&gt;set&lt;/span&gt; sysroot out/target/product/generic/symbols
+&lt;span class="o"&gt;(&lt;/span&gt;gdb&lt;span class="o"&gt;)&lt;/span&gt; &lt;span class="nb"&gt;set&lt;/span&gt; solib-search-path out/target/product/generic/symbols/system/lib
+&lt;span class="o"&gt;(&lt;/span&gt;gdb&lt;span class="o"&gt;)&lt;/span&gt; bt
+&lt;span class="c1"&gt;#0  0xf676889e in find_property()&lt;/span&gt;
+at bionic/libc/bionic/system_properties.c:403
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;일반적인 안드로이드 환경과 다르게 system property 값을 관리하는 init 프로세스가 동작하고 있지 않아서 property관련 동작이 잘못수행되고 있었습니다. 일단은 해당 동작이 segfault만 발생하지 않도록 대충 수습한 후,  docker이미지를 다시 만들어서 /system/bin/ls 를 수행하니 파일 목록이 정상적으로&amp;nbsp;출력됩니다.&lt;/p&gt;
+&lt;p&gt;좀 더 제대로 확인해보기 위해 다음과 같이 ndk용 코드를 간단하게&amp;nbsp;작성해봤습니다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;jni/Application.mk&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=Application.mk'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;APP_ABI = armeabi-v7a 
+APP_PLATFORM = android-19
+APP_STL = c++_static
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;jni/Android.mk&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=Android.mk'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := uname
+LOCAL_SRC_FILES := \
+	main.c
+
+include $(BUILD_EXECUTABLE)
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
+&lt;ul&gt;
+&lt;li&gt;jni/main.c&lt;/li&gt;
+&lt;/ul&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=main.c'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;/*
+ * vim: ts=4 sw=4 sts=4 et ai
+ */
+
+#include &lt;sys/utsname.h&gt;
+#include &lt;stdio.h&gt;
+
+int main() {
+    struct utsname buf;
+    uname(&amp;buf);
+    printf("sys:\t %s\n",buf.sysname);
+    printf("rel:\t %s\n",buf.release);
+    printf("ver:\t %s\n",buf.version);
+    printf("h/w:\t %s\n",buf.machine);
+
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
+&lt;p&gt;그리고 실행파일을 생성한 후 docker 내에서&amp;nbsp;실행해보았습니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ &lt;span class="nv"&gt;$ANDROID_HOME&lt;/span&gt;/ndk-bundle/ndk-build 
+&lt;span class="o"&gt;[&lt;/span&gt;armeabi-v7a&lt;span class="o"&gt;]&lt;/span&gt; Compile thumb  : uname &amp;lt;&lt;span class="o"&gt;=&lt;/span&gt; main.c
+&lt;span class="o"&gt;[&lt;/span&gt;armeabi-v7a&lt;span class="o"&gt;]&lt;/span&gt; Executable     : uname
+&lt;span class="o"&gt;[&lt;/span&gt;armeabi-v7a&lt;span class="o"&gt;]&lt;/span&gt; Install        : &lt;span class="nv"&gt;uname&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;&amp;gt; libs/armeabi-v7a/uname
+
+$ cp libs/armeabi-v7a/uname /tmp/
+
+$ docker run -it -v /bin/busybox:/bin/sh -v /opt/qemu-user/qemu-arm-static:/usr/bin/qemu-arm-static -v /tmp:/tmp --name kk --rm  android-19-armeabi-v7a /bin/sh
+
+&lt;span class="c1"&gt;# /tmp/uname&lt;/span&gt;
+sys:     Linux
+rel:     &lt;span class="m"&gt;4&lt;/span&gt;.19.12-arch1-1-ARCH
+ver:     &lt;span class="c1"&gt;#1 SMP PREEMPT Fri Dec 21 13:56:54 UTC 2018&lt;/span&gt;
+h/w:     armv7l
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;이와 같이 arm용 android 실행파일에서 호출하는 &lt;a href="http://man7.org/linux/man-pages/man2/uname.2.html"&gt;uname 시스템 콜&lt;/a&gt;이 docker에서 정상적으로 동작하는 것을&amp;nbsp;확인했습니다.&lt;/p&gt;
+&lt;p&gt;이 환경에서는 일반적인 android app을 수행할 수는 없지만, cpu 연산만 필요로 하는 일부 동작(openssl, ffmpeg)등의 검증은 실제 하드웨어나 에물레이터 필요없이, jenkins와 같은 headless 환경에서 가능할 수 있을 것&amp;nbsp;같습니다.&lt;/p&gt;
+&lt;p&gt;이제 회사사람들을 꼬시는 일만&amp;nbsp;남았&amp;#8230;&lt;/p&gt;</content><category term="Android"></category><category term="Docker"></category><category term="NDK"></category></entry><entry><title>APEX, Android Package for OS</title><link href="https://ganadist.github.io/2018_12_24_android_apex.html" rel="alternate"></link><published>2018-12-24T22:14:00+09:00</published><updated>2018-12-24T22:14:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-12-24:/2018_12_24_android_apex.html</id><summary type="html">&lt;p&gt;모듈화된 안드로이드 OS로 가는 길, &lt;span class="caps"&gt;APEX&lt;/span&gt;&lt;/p&gt;</summary><content type="html">&lt;p&gt;최근 AOSP에 &lt;a href="https://android.googlesource.com/platform/system/apex/+/da6ab6e"&gt;apex&lt;/a&gt;하는 기능이 추가되었습니다. 안드로이드에서는 앱을 배포하기 위해 apk라는 패키징 형식을 이용하는데요, apex는 앱 대신 OS의 일부 기능을 업데이트 하기 위해 사용하는 패키지 형식으로&amp;nbsp;짐작됩니다.&lt;/p&gt;
+&lt;p&gt;현재 aosp의 master 버젼을 빌드하고 나면 다음과 같은 apex 파일들이&amp;nbsp;생성됩니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ ls &lt;span class="nv"&gt;$OUT&lt;/span&gt;/system/apex
+com.android.conscrypt.apex
+com.android.resolv.apex
+com.android.runtime.debug.apex
+com.android.tzdata.apex
+
+$ unzip -t &lt;span class="nv"&gt;$OUT&lt;/span&gt;/system/apex/com.android.runtime.debug.apex
+Archive:  out/target/product/generic_x86_64/system/apex/com.android.runtime.debug.apex
+    testing: apex_manifest.json
+    testing: apex_payload.img         OK
+    testing: resources.arsc           OK
+    testing: AndroidManifest.xml      OK
+    testing: META-INF/CERT.SF         OK
+    testing: META-INF/CERT.RSA        OK
+    testing: META-INF/MANIFEST.MF     OK
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;언듯 보기에는 apk 파일의 내용물과 유사하지만, classes.dex 대신 apex_payload.img 라는 파일이 포함되어 있습니다. 
+해당 파일은 ext2 형식의 파일시스템을 포함하는 이미지이며, 각 역할을 수행하는 실행파일, 공유라이브러리, 또는 OS에서 필요로 하는 리소스가 포함될 수&amp;nbsp;있습니다.&lt;/p&gt;
+&lt;p&gt;현재 aosp의 master에서 apex형식으로 분리될 수 있는 항목은 다음과&amp;nbsp;같습니다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://android.googlesource.com/platform/art/+/d67db81/build/apex/Android.bp#102"&gt;com.android.runtime&lt;/a&gt; : Android Runtime(&lt;span class="caps"&gt;ART&lt;/span&gt;)&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://android.googlesource.com/platform/external/conscrypt/+/afe0939/apex/Android.bp#15"&gt;com.android.conscrypt&lt;/a&gt; : Secure Layer for&amp;nbsp;Java&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://android.googlesource.com/platform/system/netd/+/4231c54/apex/Android.bp#16"&gt;com.android.resolv&lt;/a&gt; : &lt;span class="caps"&gt;DNS&lt;/span&gt;&amp;nbsp;Resolver&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://android.googlesource.com/platform/system/timezone/+/8481d19/apex/Android.bp#15"&gt;com.android.tzdata&lt;/a&gt; : Timezone resources for&amp;nbsp;bionic/icu&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://android.googlesource.com/platform/frameworks/av/+/69addc70/apex/Android.bp#15"&gt;com.android.media&lt;/a&gt; : Media&amp;nbsp;Codecs&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;따라서 기기 제조사에서 직접 Android OS의 업데이트를 진행하지 않더라도, 위 항목들은 꾸준히 업데이트가 될 수 있을 것으로&amp;nbsp;보입니다.&lt;/p&gt;</content><category term="android"></category><category term="aosp"></category></entry><entry><title>안드로이드의 로그 확인 기능들 살펴보기</title><link href="https://ganadist.github.io/2018_11_24_android_log.html" rel="alternate"></link><published>2018-11-24T22:59:00+09:00</published><updated>2018-11-24T22:59:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-11-24:/2018_11_24_android_log.html</id><summary type="html">&lt;p&gt;안드로이드의&amp;nbsp;로그설비들&lt;/p&gt;</summary><content type="html">&lt;h1&gt;logcat&amp;nbsp;buffer&lt;/h1&gt;
 &lt;p&gt;안드로이드 개발을 하고 있다면 아주 친숙하게 볼 수 있는 안드로이드의 기본 로깅 시스템입니다.
  로깅 데이터는 링버퍼에 저장이 되며, 따라서 최근의 로깅 데이터만 보관하며, adb를 이용해 요청할 때 로깅 데이터를 조회할 수&amp;nbsp;있습니다.&lt;/p&gt;
 &lt;p&gt;logcat은 용도별로 다음과 같은 로그 버퍼를 가지고&amp;nbsp;있습니다.&lt;/p&gt;
