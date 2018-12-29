@@ -14,9 +14,9 @@
 &lt;p&gt;그리고 qemu-user-static 바이너리와 binfmt_misc 설정을 완료하고 docker를 수행합니다. 데비안/우분투 사용자면, &lt;a href="https://packages.debian.org/sid/qemu-user-static"&gt;qemu-user-static 패키지&lt;/a&gt;만 설치하면 됩니다. 하지만 저는 archlinux를 사용하고 있어서, docker에서 debian 환경을 수행한 후, 해당 패키지를 설치하고 바이너리를 /opt/qemu-user 로 복사한 후, binfmt_misc 설정만 &lt;a href="https://aur.archlinux.org/packages/binfmt-qemu-static/"&gt;binfmt-qemu-static aur&lt;/a&gt;로 설치했습니다. 아직 docker이미지가 제대로 동작하는지 확인을 할 수가 없으니 busybox의 도움도&amp;nbsp;받아보겠습니다.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ docker run -it -v /bin/busybox:/bin/sh -v /opt/qemu-user/qemu-arm-static:/usr/bin/qemu-arm-static -v /tmp:/tmp --name kk --rm  android-19-armeabi-v7a /bin/sh
 
-&lt;span class="c1"&gt;# uname -a&lt;/span&gt;
+/ &lt;span class="c1"&gt;# uname -a&lt;/span&gt;
 Linux fb479d7afe07 &lt;span class="m"&gt;4&lt;/span&gt;.19.12-arch1-1-ARCH &lt;span class="c1"&gt;#1 SMP PREEMPT Fri Dec 21 13:56:54 UTC 2018 x86_64 GNU/Linux&lt;/span&gt;
-&lt;span class="c1"&gt;# /system/bin/ls&lt;/span&gt;
+/ &lt;span class="c1"&gt;# /system/bin/ls&lt;/span&gt;
 FATAL: kernel did not supply AT_SECURE
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -33,7 +33,7 @@ FATAL: kernel did not supply AT_SECURE
 
 &lt;p&gt;수정한 OS이미지로 docker 이미지를 생성한 후&amp;nbsp;실행해보았습니다.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt; &lt;span class="n"&gt;docker&lt;/span&gt; &lt;span class="kn"&gt;import&lt;/span&gt; &lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;OUT&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;system&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;tar&lt;/span&gt;&lt;span class="o"&gt;.&lt;/span&gt;&lt;span class="n"&gt;bz2&lt;/span&gt; &lt;span class="n"&gt;android&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;armeabi&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;v7a&lt;/span&gt;
-&lt;span class="c1"&gt;# /system/bin/ls&lt;/span&gt;
+&lt;span class="o"&gt;/&lt;/span&gt; &lt;span class="c1"&gt;# /system/bin/ls&lt;/span&gt;
 &lt;span class="n"&gt;Segmentation&lt;/span&gt; &lt;span class="n"&gt;fault&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;core&lt;/span&gt; &lt;span class="n"&gt;dumped&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
@@ -118,7 +118,7 @@ $ cp libs/armeabi-v7a/uname /tmp/
 
 $ docker run -it -v /bin/busybox:/bin/sh -v /opt/qemu-user/qemu-arm-static:/usr/bin/qemu-arm-static -v /tmp:/tmp --name kk --rm  android-19-armeabi-v7a /bin/sh
 
-&lt;span class="c1"&gt;# /tmp/uname&lt;/span&gt;
+/ &lt;span class="c1"&gt;# /tmp/uname&lt;/span&gt;
 sys:     Linux
 rel:     &lt;span class="m"&gt;4&lt;/span&gt;.19.12-arch1-1-ARCH
 ver:     &lt;span class="c1"&gt;#1 SMP PREEMPT Fri Dec 21 13:56:54 UTC 2018&lt;/span&gt;
