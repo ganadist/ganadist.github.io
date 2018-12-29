@@ -218,6 +218,10 @@ h/w:     armv7l
 <p>이와 같이 arm용 android 실행파일에서 호출하는 <a href="http://man7.org/linux/man-pages/man2/uname.2.html">uname 시스템 콜</a>이 docker에서 정상적으로 동작하는 것을&nbsp;확인했습니다.</p>
 <p>이 환경에서는 일반적인 android app을 수행할 수는 없지만, cpu 연산만 필요로 하는 일부 동작(openssl, ffmpeg)등의 검증은 실제 하드웨어나 에물레이터 필요없이, jenkins와 같은 headless 환경에서 가능할 수 있을 것&nbsp;같습니다.</p>
 <p>이제 회사사람들을 꼬시는 일만&nbsp;남았&#8230;</p>
+<p>덤:
+<a href="https://gist.github.com/ganadist/72213f7c4cdf0f5efd99ec3d52287394">docker 이미지</a>를 <a href="https://cloud.docker.com/repository/docker/ganadist/android-docker/general">docker hub 에 업로드</a>해두었습니다. 사용해 보려면 다음과 같이 docker 명령을 실행하면&nbsp;됩니다.</p>
+<div class="highlight"><pre><span></span>$  docker run --privileged -it ganadist/android-docker:android-19-armeabi-v7a
+</pre></div>
   </div>
   <div class="tag-cloud">
     <p>
