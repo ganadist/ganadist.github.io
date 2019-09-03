@@ -1,5 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Ganachoco's Blog - tech</title><link href="https://ganadist.github.io/" rel="alternate"></link><link href="https://ganadist.github.io/feeds/tech.atom.xml" rel="self"></link><id>https://ganadist.github.io/</id><updated>2018-12-29T12:32:00+09:00</updated><entry><title>Docker로 ndk 바이너리 실행해보기</title><link href="https://ganadist.github.io/2018_12_29_docker_qemu_user_arm.html" rel="alternate"></link><published>2018-12-29T12:32:00+09:00</published><updated>2018-12-29T12:32:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-12-29:/2018_12_29_docker_qemu_user_arm.html</id><summary type="html">&lt;p&gt;headless android runtime with&amp;nbsp;docker&lt;/p&gt;</summary><content type="html">&lt;p&gt;옛날 옛적(..)에 &lt;a href="http://www.scratchbox.org/"&gt;Scratchbox&lt;/a&gt;라고 하는 물건이 있었습니다. 크로스 컴파일을 편하게 하기위한 도구인데, 파일시스템을 격리시키는 &lt;a href="https://en.wikipedia.org/wiki/Chroot"&gt;chroot&lt;/a&gt;와 가상화 소프트웨어인 &lt;a href="https://www.qemu.org"&gt;qemu&lt;/a&gt;를 이용해서, PC에서 arm, mips, ppc등과 같은 이기종용 바이너리를 생성할 수&amp;nbsp;있습니다.&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Ganachoco's Blog - tech</title><link href="https://ganadist.github.io/" rel="alternate"></link><link href="https://ganadist.github.io/feeds/tech.atom.xml" rel="self"></link><id>https://ganadist.github.io/</id><updated>2019-09-03T22:35:00+09:00</updated><entry><title>Split Apks의 Sideload 검사</title><link href="https://ganadist.github.io/2019_09_03_missing_splits_manager.html" rel="alternate"></link><published>2019-09-03T22:35:00+09:00</published><updated>2019-09-03T22:35:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2019-09-03:/2019_09_03_missing_splits_manager.html</id><summary type="html">&lt;p&gt;Google Play Core의 Sideload 검사&amp;nbsp;알아보기&lt;/p&gt;</summary><content type="html">&lt;p&gt;최근 Google Play에서 &lt;a href="https://developer.android.com/guide/app-bundle"&gt;App Bundle&lt;/a&gt;을 사용하는 앱이 점점 늘어나고 있습니다. AppBundle을 사용하면 최종 사용자는 단말기기에 최적화 된 어플리케이션(Split Apks 형식)을 작은 용량으로 받을 수 있는 장점이 있습니다.
+Split Apks 형식은 Android 5.0(Lollipop)부터 지원되는 형식이며, &lt;a href="https://developer.android.com/studio/command-line/bundletool"&gt;bundletool&lt;/a&gt;을 이용해서 Google Play를 통하지 않고 AppBundle 파일을 이용해 만들 수 있습니다. 당연히 osx에서는 &lt;a href="https://formulae.brew.sh/formula/bundletool"&gt;brew 를 이용해 설치&lt;/a&gt;가 가능하며, archlinux에서는 &lt;a href="https://aur.archlinux.org/packages/bundletool/"&gt;aur 에서 패키지를 제공&lt;/a&gt;합니다.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;$ brew install bundletool
+$ ./gradlew bundleDebug
+$ bundletool build-apks --ks&lt;span class="o"&gt;=&lt;/span&gt;release.keystore --ks-pass&lt;span class="o"&gt;=&lt;/span&gt;keystore_password --ks-key-alias&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="nb"&gt;alias&lt;/span&gt; --key-pass&lt;span class="o"&gt;=&lt;/span&gt;password --connected-device --bundle&lt;span class="o"&gt;=&lt;/span&gt;app/build/outputs/bundle/debug/app-debug.aab --output&lt;span class="o"&gt;=&lt;/span&gt;my_app.apks
+$ unzip -t my_app.apks 
+Archive:  my_app.apks
+    testing: splits/base-xhdpi.apk    OK
+    testing: splits/base-x86.apk      OK
+    testing: splits/base-master.apk   OK
+    testing: toc.pb                   OK
+No errors detected in compressed data of my_app.apks.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;그런데 Google Play Store이외의 앱 유통 채널(일반적으로 3rd party market이라고 부릅니다)에서는 이러한 장점을 취할 수가 없게 되는데요, 예전과 동일한 방식으로 단말기기에 받은 apk파일을 그대로 3rd party market에 배포하게 되면, 내려받은 단말과 다른 구성을 가진 기기에서는 오동작할 수 있게 됩니다.
+여기서 다른 구성이란 &lt;span class="caps"&gt;ABI&lt;/span&gt;(Application Binary Interface) 또는 DPI의 경우 기기마다 달라질 수 있으며, 정상적인 구성을 포함하지 않을 경우, 적절한 native method나 drawable/layout resource를 가져올 수 없어서, 앱이 비정상종료가 될 수&amp;nbsp;있습니다.&lt;/p&gt;
+&lt;p&gt;이러한 오류를 방지하기 위해, Google에서는 앱이 구동할 때 &lt;a href="https://developer.android.com/guide/app-bundle/sideload-check"&gt;Sideload Check&lt;/a&gt;라는 절차를 추가해서, 잘못된 형식의 앱이 설치(이러한 상황을 Sideload라고 부릅니다)가 되면, 사용자에게 앱을 재설치하도록 유도하게&amp;nbsp;됩니다.&lt;/p&gt;
+&lt;p&gt;Sideload check의 주요 기능인 MissingSplitManager class에는 다음 2가지의 public method가 존재하며, 각각의 method에서는 다음과 같은 동작을 수행한다고&amp;nbsp;합니다.&lt;/p&gt;
+&lt;p&gt;*&lt;a href="https://developer.android.com/reference/com/google/android/play/core/missingsplits/MissingSplitsManager.html#isMissingRequiredSplits()"&gt;MissingSplitsManager.isMissingRequiredSplits()&lt;/a&gt;
+  * 설치된 앱이 Split Apks 형식으로 설치되었는지 확인
+    * Google Play나 bundletool에서 Split Apks형식으로 앱을 생성하면 AndroidManifest.xml 에 &lt;code&gt;com.android.vending.splits.required&lt;/code&gt; 라고하는 metadata가 임의로 추가됩니다. 따라서 해당 metadata의 존재 유무로 Split Apks형식인지 알 수 있습니다.
+  * Split Apks 형식이 아니면 standalone apk형식이기 때문에 정상설치로 취급
+  * Split Apks 형식인데, base apk 이외에 &lt;a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageInfo?hl=en#splitNames:kotlin.Array"&gt;추가적인 apk&lt;/a&gt;가 포함되지 않은 경우, 이상설치로&amp;nbsp;취급&lt;/p&gt;
+&lt;p&gt;*&lt;a href="https://developer.android.com/reference/com/google/android/play/core/missingsplits/MissingSplitsManager.html#disableAppIfMissingRequiredSplits()"&gt;MissingSplitsManager.disableAppIfMissingRequiredSplits()&lt;/a&gt;&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;isMissingRequiredSplits()를 수행해 구성에 문제가 발견되었을 때&lt;ul&gt;
+&lt;li&gt;Activity가 아닌 모든 Android Components(Service, Broadcast Receiver, Provider)에 대해 동작하지 않도록 &lt;a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageManager?hl=en#setComponentEnabledSetting(android.content.ComponentName,%20kotlin.Int,%20kotlin.Int)"&gt;Component State&lt;/a&gt;를 &lt;a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageManager?hl=en#COMPONENT_ENABLED_STATE_DISABLED:kotlin.Int"&gt;disable&lt;/a&gt;로&amp;nbsp;설정&lt;/li&gt;
+&lt;li&gt;해당 동작은 사용자의 의도와는 무관하게, Push나 다른앱의 연동등에 의해 앱이 구동되지 않게 하기위해 취하는&amp;nbsp;조치입니다.&lt;/li&gt;
+&lt;li&gt;Play Service에서 사용자가 앱을 재설치 할 수 있도록 유도하는 dialog를 띄우도록&amp;nbsp;함.&lt;/li&gt;
+&lt;li&gt;현재 앱은 다음 단계에서 종료할 것이고, drawable/layout resource가 포함되지 않을 수 있으므로, UI를 띄울 수 없는&amp;nbsp;상태입니다.&lt;/li&gt;
+&lt;li&gt;Activity가 동작하지 않게 &lt;a href="https://developer.android.com/reference/android/app/ActivityManager.AppTask.html#finishAndRemoveTask()"&gt;tasks를 모두 종료&lt;/a&gt; 후 &lt;a href="https://developer.android.com/reference/kotlin/java/lang/System?hl=en#exit(kotlin.Int)"&gt;process&amp;nbsp;종료&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;Split Apks 구성에 문제가 없거나, Split Apks형식이 아닐 때&lt;ul&gt;
+&lt;li&gt;Activity가 아닌 모든 Android Components가 disable 되어 있으면, 이전 Sideload check에서 disable한 것이기 때문에, &lt;a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageManager?hl=en#COMPONENT_ENABLED_STATE_DEFAULT:kotlin.Int"&gt;원래 상태로 원복&lt;/a&gt;시킴&lt;/li&gt;
+&lt;li&gt;Application 수행을 계속 진행할 수 있도록&amp;nbsp;함.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;하지만 Sideload check를 추가한 이후에 임의로 몇가지 오류상태를 만들어봤는데, &lt;code&gt;isMissingRequiredSplits()&lt;/code&gt;가 의도한대로 동작하지 않는 것을 발견했습니다.
+API및 DPI에 대해 Split Apks를 생성한 후, base module및 &lt;span class="caps"&gt;DPI&lt;/span&gt; module만 설치 한 경우에도 &lt;code&gt;isMissingRequiredSplits()&lt;/code&gt;에서 누락된 &lt;span class="caps"&gt;ABI&lt;/span&gt; module을 감지하지 못하고, 정상 설치된 경우로 판단하고 있었습니다. 위에서 설명한 것과 같이 PackageInfo.splitNames에서 항목이 1개라도 있으면 정상설치로 취급하게&amp;nbsp;됩니다.&lt;/p&gt;
+&lt;p&gt;따라서 Google Play Core 에서 제공하는 MissingSplitsManager API는 일부 상황에 대해서 오동작할 수 있게됩니다. 개인적으로 이러한 상황이 닥쳤을 때는 Google Play Core &lt;span class="caps"&gt;API&lt;/span&gt; 대신 다음과 같이 동작을 수행하면, 사용자에게 조금이라도 나은 사용자 경험을 줄 수 있을 것&amp;nbsp;같습니다.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;AndroidManifest.xml에서 &lt;code&gt;com.android.vending.splits.required&lt;/code&gt; 메타데이터 확인 및 &lt;a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageManager?hl=en#getInstallerPackageName(kotlin.String)"&gt;앱의 설치 경로&lt;/a&gt;가 &lt;a href="https://developers.google.com/android/reference/com/google/android/gms/common/GooglePlayServicesUtil.html#GOOGLE_PLAY_STORE_PACKAGE"&gt;Google Play Store&lt;/a&gt;인지&amp;nbsp;확인 &lt;/li&gt;
+&lt;li&gt;되도록이면 Google Play Store의 signature가 google에서 배포한 것이지&amp;nbsp;확인&lt;/li&gt;
+&lt;li&gt;앱 구성이 잘못되면, notification을 이용해 앱설치가 잘못되었다는 것을 알려주고, click 시 앱을 재설치할 수 있도록 &lt;a href="https://developer.android.com/distribute/marketing-tools/linking-to-google-play#android-app"&gt;Google Play의 intent를&amp;nbsp;등록&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;함께보기 : &lt;a href="https://gist.github.com/ganadist/af8541d36aaf36c5e94f6a7596ea02eb"&gt;MissingSplitsManager class를 Android Studio에서 disassemble한 코드&amp;nbsp;조각&lt;/a&gt;&lt;/p&gt;</content><category term="Google Play"></category><category term="appbundle"></category><category term="Split Apks"></category></entry><entry><title>Docker로 ndk 바이너리 실행해보기</title><link href="https://ganadist.github.io/2018_12_29_docker_qemu_user_arm.html" rel="alternate"></link><published>2018-12-29T12:32:00+09:00</published><updated>2018-12-29T12:32:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2018-12-29:/2018_12_29_docker_qemu_user_arm.html</id><summary type="html">&lt;p&gt;headless android runtime with&amp;nbsp;docker&lt;/p&gt;</summary><content type="html">&lt;p&gt;옛날 옛적(..)에 &lt;a href="http://www.scratchbox.org/"&gt;Scratchbox&lt;/a&gt;라고 하는 물건이 있었습니다. 크로스 컴파일을 편하게 하기위한 도구인데, 파일시스템을 격리시키는 &lt;a href="https://en.wikipedia.org/wiki/Chroot"&gt;chroot&lt;/a&gt;와 가상화 소프트웨어인 &lt;a href="https://www.qemu.org"&gt;qemu&lt;/a&gt;를 이용해서, PC에서 arm, mips, ppc등과 같은 이기종용 바이너리를 생성할 수&amp;nbsp;있습니다.&lt;/p&gt;
 &lt;p&gt;여기서 qemu를 이용하는 방법이 독특한데요, &lt;a href="https://qemu.weilnetz.de/doc/qemu-doc.html#QEMU-PC-System-emulator"&gt;하드웨어 가상화&lt;/a&gt;가 아닌, &lt;a href="https://qemu.weilnetz.de/doc/qemu-doc.html#QEMU-User-space-emulator"&gt;리눅스 커널 가상화(소프트웨어 가상화)&lt;/a&gt;을 이용합니다. 이렇게 되면 실행파일을 qemu가 해석해서, 일부 시스템콜을 에물레이션하게 됩니다. (&lt;a href="https://www.winehq.org"&gt;Wine&lt;/a&gt;, 또는 &lt;a href="https://docs.microsoft.com/en-us/windows/wsl/about"&gt;&lt;span class="caps"&gt;WSL&lt;/span&gt;(Windows Subsystem for Linux)&lt;/a&gt; 등도 이와 유사하게&amp;nbsp;동작합니다.)&lt;/p&gt;
 &lt;p&gt;그리고 실행하는 방법을 단순화 하기 위해 Linux의 &lt;a href="https://en.wikipedia.org/wiki/Binfmt_misc"&gt;binfmt_misc&lt;/a&gt;를 이용해서, 실행하려는 파일의 헤더를 확인해 적절한 에물레이터에게 실행파일을 해석하게 하도록 하면, 거의 native환경과 유사하게 실행환경을 구성할 수&amp;nbsp;있습니다.&lt;/p&gt;
 &lt;p&gt;그런데 scratchbox와 유사하지만 최근 트렌드에 알맞게 chroot 대신 &lt;a href="https://ownyourbits.com/2018/06/27/running-and-building-arm-docker-containers-in-x86/"&gt;docker를 이용해 이기종용 바이너리를 실행하는 환경을 구성하려는 시도&lt;/a&gt;가 눈에 띄더군요. 해당 포스팅을 따라하면 쉽게 PC에서 arm용 데비안 환경을 구성할 수&amp;nbsp;있습니다.&lt;/p&gt;
