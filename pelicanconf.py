@@ -32,10 +32,9 @@ LINKS = (
 
 # Social widget
 SOCIAL = (('github', 'http://github.com/ganadist'),
-        ('slideshare', 'https://www.slideshare.net/ganachoco'),
-        ('linkedin', 'http://www.linkedin.com/in/ganadist'),
-        ('g+', 'https://plus.google.com/+YoungHoCha'),
-)
+          ('slideshare', 'https://www.slideshare.net/ganachoco/presentations'),
+          ('linkedin', 'http://www.linkedin.com/in/ganadist'),
+          )
 
 DEFAULT_PAGINATION = 10
 
@@ -55,8 +54,8 @@ STATIC_PATHS = ['static', ]
 
 PLUGIN_PATHS = ['pelican-plugins']
 PLUGINS = [
-        'cjk-auto-spacing',
-        'pelican_gist',
+    'cjk-auto-spacing',
+    'pelican_gist',
 ]
 
 CJK_AUTO_SPACING_TITLE = True
