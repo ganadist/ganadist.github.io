@@ -104,19 +104,31 @@ No errors detected in compressed data of my_app.apks.
 <p>그런데 Google Play Store이외의 앱 유통 채널(일반적으로 3rd party market이라고 부릅니다)에서는 이러한 장점을 취할 수가 없게 되는데요, 예전과 동일한 방식으로 단말기기에 받은 apk파일을 그대로 3rd party market에 배포하게 되면, 내려받은 단말과 다른 구성을 가진 기기에서는 오동작할 수 있게 됩니다.
 여기서 다른 구성이란 <span class="caps">ABI</span>(Application Binary Interface) 또는 DPI의 경우 기기마다 달라질 수 있으며, 정상적인 구성을 포함하지 않을 경우, 적절한 native method나 drawable/layout resource를 가져올 수 없어서, 앱이 비정상종료가 될 수&nbsp;있습니다.</p>
 <p>이러한 오류를 방지하기 위해, Google에서는 앱이 구동할 때 <a href="https://developer.android.com/guide/app-bundle/sideload-check">Sideload Check</a>라는 절차를 추가해서, 잘못된 형식의 앱이 설치(이러한 상황을 Sideload라고 부릅니다)가 되면, 사용자에게 앱을 재설치하도록 유도하게&nbsp;됩니다.</p>
-<p>Sideload check의 주요 기능인 MissingSplitManager class에는 다음 2가지의 public method가 존재하며, 각각의 method에서는 다음과 같은 동작을 수행한다고&nbsp;합니다.</p>
-<p>*<a href="https://developer.android.com/reference/com/google/android/play/core/missingsplits/MissingSplitsManager.html#isMissingRequiredSplits()">MissingSplitsManager.isMissingRequiredSplits()</a>
-  * 설치된 앱이 Split Apks 형식으로 설치되었는지 확인
-    * Google Play나 bundletool에서 Split Apks형식으로 앱을 생성하면 AndroidManifest.xml 에 <code>com.android.vending.splits.required</code> 라고하는 metadata가 임의로 추가됩니다. 따라서 해당 metadata의 존재 유무로 Split Apks형식인지 알 수 있습니다.
-  * Split Apks 형식이 아니면 standalone apk형식이기 때문에 정상설치로 취급
-  * Split Apks 형식인데, base apk 이외에 <a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageInfo?hl=en#splitNames:kotlin.Array">추가적인 apk</a>가 포함되지 않은 경우, 이상설치로&nbsp;취급</p>
-<p>*<a href="https://developer.android.com/reference/com/google/android/play/core/missingsplits/MissingSplitsManager.html#disableAppIfMissingRequiredSplits()">MissingSplitsManager.disableAppIfMissingRequiredSplits()</a></p>
+<p>Sideload check의 주요 기능은 <a href="https://developer.android.com/reference/com/google/android/play/core/packages">Google Play Core <span class="caps">API</span></a>에서 제공되는데, 해당 API에서 제공되는 MissingSplitManager class에는 다음 2가지의 public method가 존재하며, 각각의 method에서는 다음과 같은 동작을 수행한다고&nbsp;합니다.</p>
+<ul>
+<li>
+<p><a href="https://developer.android.com/reference/com/google/android/play/core/missingsplits/MissingSplitsManager.html#isMissingRequiredSplits()">MissingSplitsManager.isMissingRequiredSplits()</a></p>
+<ul>
+<li>설치된 앱이 Split Apks 형식으로 설치되었는지 확인<ul>
+<li>Google Play나 bundletool에서 Split Apks형식으로 앱을 생성하면 AndroidManifest.xml 에 <code>com.android.vending.splits.required</code> 라고하는 metadata가 임의로 추가됩니다. 따라서 해당 metadata의 존재 유무로 Split Apks형식인지 알 수&nbsp;있습니다.</li>
+</ul>
+</li>
+<li>Split Apks 형식이 아니면 standalone apk형식이기 때문에 정상설치로&nbsp;취급</li>
+<li>Split Apks 형식인데, base apk 이외에 <a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageInfo?hl=en#splitNames:kotlin.Array">추가적인 apk</a>가 포함되지 않은 경우, 이상설치로&nbsp;취급</li>
+</ul>
+</li>
+<li>
+<p><a href="https://developer.android.com/reference/com/google/android/play/core/missingsplits/MissingSplitsManager.html#disableAppIfMissingRequiredSplits()">MissingSplitsManager.disableAppIfMissingRequiredSplits()</a></p>
 <ul>
 <li>isMissingRequiredSplits()를 수행해 구성에 문제가 발견되었을 때<ul>
-<li>Activity가 아닌 모든 Android Components(Service, Broadcast Receiver, Provider)에 대해 동작하지 않도록 <a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageManager?hl=en#setComponentEnabledSetting(android.content.ComponentName,%20kotlin.Int,%20kotlin.Int)">Component State</a>를 <a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageManager?hl=en#COMPONENT_ENABLED_STATE_DISABLED:kotlin.Int">disable</a>로&nbsp;설정</li>
+<li>Activity가 아닌 모든 Android Components(Service, Broadcast Receiver, Provider)에 대해 동작하지 않도록 <a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageManager?hl=en#setComponentEnabledSetting(android.content.ComponentName,%20kotlin.Int,%20kotlin.Int)">Component State</a>를 <a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageManager?hl=en#COMPONENT_ENABLED_STATE_DISABLED:kotlin.Int">disable</a>로 설정<ul>
 <li>해당 동작은 사용자의 의도와는 무관하게, Push나 다른앱의 연동등에 의해 앱이 구동되지 않게 하기위해 취하는&nbsp;조치입니다.</li>
-<li>Play Service에서 사용자가 앱을 재설치 할 수 있도록 유도하는 dialog를 띄우도록&nbsp;함.</li>
+</ul>
+</li>
+<li>Play Service에서 사용자가 앱을 재설치 할 수 있도록 유도하는 dialog를 띄우도록 함.<ul>
 <li>현재 앱은 다음 단계에서 종료할 것이고, drawable/layout resource가 포함되지 않을 수 있으므로, UI를 띄울 수 없는&nbsp;상태입니다.</li>
+</ul>
+</li>
 <li>Activity가 동작하지 않게 <a href="https://developer.android.com/reference/android/app/ActivityManager.AppTask.html#finishAndRemoveTask()">tasks를 모두 종료</a> 후 <a href="https://developer.android.com/reference/kotlin/java/lang/System?hl=en#exit(kotlin.Int)">process&nbsp;종료</a></li>
 </ul>
 </li>
@@ -126,12 +138,16 @@ No errors detected in compressed data of my_app.apks.
 </ul>
 </li>
 </ul>
+</li>
+</ul>
 <p>하지만 Sideload check를 추가한 이후에 임의로 몇가지 오류상태를 만들어봤는데, <code>isMissingRequiredSplits()</code>가 의도한대로 동작하지 않는 것을 발견했습니다.
 API및 DPI에 대해 Split Apks를 생성한 후, base module및 <span class="caps">DPI</span> module만 설치 한 경우에도 <code>isMissingRequiredSplits()</code>에서 누락된 <span class="caps">ABI</span> module을 감지하지 못하고, 정상 설치된 경우로 판단하고 있었습니다. 위에서 설명한 것과 같이 PackageInfo.splitNames에서 항목이 1개라도 있으면 정상설치로 취급하게&nbsp;됩니다.</p>
 <p>따라서 Google Play Core 에서 제공하는 MissingSplitsManager API는 일부 상황에 대해서 오동작할 수 있게됩니다. 개인적으로 이러한 상황이 닥쳤을 때는 Google Play Core <span class="caps">API</span> 대신 다음과 같이 동작을 수행하면, 사용자에게 조금이라도 나은 사용자 경험을 줄 수 있을 것&nbsp;같습니다.</p>
 <ul>
-<li>AndroidManifest.xml에서 <code>com.android.vending.splits.required</code> 메타데이터 확인 및 <a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageManager?hl=en#getInstallerPackageName(kotlin.String)">앱의 설치 경로</a>가 <a href="https://developers.google.com/android/reference/com/google/android/gms/common/GooglePlayServicesUtil.html#GOOGLE_PLAY_STORE_PACKAGE">Google Play Store</a>인지&nbsp;확인 </li>
+<li>AndroidManifest.xml에서 <code>com.android.vending.splits.required</code> 메타데이터 확인 및 <a href="https://developer.android.com/reference/kotlin/android/content/pm/PackageManager?hl=en#getInstallerPackageName(kotlin.String)">앱의 설치 경로</a>가 <a href="https://developers.google.com/android/reference/com/google/android/gms/common/GooglePlayServicesUtil.html#GOOGLE_PLAY_STORE_PACKAGE">Google Play Store</a>인지 확인 <ul>
 <li>되도록이면 Google Play Store의 signature가 google에서 배포한 것이지&nbsp;확인</li>
+</ul>
+</li>
 <li>앱 구성이 잘못되면, notification을 이용해 앱설치가 잘못되었다는 것을 알려주고, click 시 앱을 재설치할 수 있도록 <a href="https://developer.android.com/distribute/marketing-tools/linking-to-google-play#android-app">Google Play의 intent를&nbsp;등록</a></li>
 </ul>
 <p>함께보기 : <a href="https://gist.github.com/ganadist/af8541d36aaf36c5e94f6a7596ea02eb">MissingSplitsManager class를 Android Studio에서 disassemble한 코드&nbsp;조각</a></p>
