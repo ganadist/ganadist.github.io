@@ -185,15 +185,59 @@ at bionic/libc/bionic/system_properties.c:403
 <ul>
 <li>jni/Application.mk</li>
 </ul>
-<p>[gist:id=80acee57558d9c9503612078a3f656b2,file=Application.mk]</p>
+<div class="gist">
+    <script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=Application.mk'></script>
+    <noscript>
+        <pre><code>APP_ABI = armeabi-v7a 
+APP_PLATFORM = android-19
+APP_STL = c++_static
+</code></pre>
+    </noscript>
+</div>
 <ul>
 <li>jni/Android.mk</li>
 </ul>
-<p>[gist:id=80acee57558d9c9503612078a3f656b2,file=Android.mk]</p>
+<div class="gist">
+    <script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=Android.mk'></script>
+    <noscript>
+        <pre><code>LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := uname
+LOCAL_SRC_FILES := \
+	main.c
+
+include $(BUILD_EXECUTABLE)
+</code></pre>
+    </noscript>
+</div>
 <ul>
 <li>jni/main.c</li>
 </ul>
-<p>[gist:id=80acee57558d9c9503612078a3f656b2,file=main.c]</p>
+<div class="gist">
+    <script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=main.c'></script>
+    <noscript>
+        <pre><code>/*
+ * vim: ts=4 sw=4 sts=4 et ai
+ */
+
+#include <sys/utsname.h>
+#include <stdio.h>
+
+int main() {
+    struct utsname buf;
+    uname(&buf);
+    printf("sys:\t %s\n",buf.sysname);
+    printf("rel:\t %s\n",buf.release);
+    printf("ver:\t %s\n",buf.version);
+    printf("h/w:\t %s\n",buf.machine);
+
+    return 0;
+}
+</code></pre>
+    </noscript>
+</div>
 <p>그리고 실행파일을 생성한 후 docker 내에서&nbsp;실행해보았습니다.</p>
 <div class="highlight"><pre><span></span><code><span class="err">$</span><span class="w"> </span><span class="err">$</span><span class="n">ANDROID_HOME</span><span class="o">/</span><span class="n">ndk</span><span class="o">-</span><span class="n">bundle</span><span class="o">/</span><span class="n">ndk</span><span class="o">-</span><span class="n">build</span><span class="w"> </span>
 <span class="o">[</span><span class="n">armeabi-v7a</span><span class="o">]</span><span class="w"> </span><span class="n">Compile</span><span class="w"> </span><span class="n">thumb</span><span class="w">  </span><span class="err">:</span><span class="w"> </span><span class="n">uname</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">main</span><span class="p">.</span><span class="n">c</span><span class="w"></span>

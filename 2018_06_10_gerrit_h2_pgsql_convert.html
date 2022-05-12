@@ -139,7 +139,74 @@
 <p><strong>주의</strong>: 잘못 건드렸다간 데이터를 날려먹을 수 있기 때문에 꼭 이전 데이터를 백업해두시기 바랍니다. 저는 tar로 묶어서 안전하게 보관한 후 진행을&nbsp;시작했습니다.</p>
 <h2>h2 database를 csv로&nbsp;export</h2>
 <p>먼저 h2 database에서 내장 함수를 이용해 csv로 export를 하였습니다. google groups의 예제에서는 한땀한땀 h2의 내장 함수를 실행시켜주었지만, python 스크립트를 이용해 일괄적으로 csv 파일로 변환했습니다. (gerrit 버젼에 따라서 table 및 column 이름이 바뀔 수&nbsp;있습니다.)</p>
-<p>[gist:id=0c2780a1f3a624041665e971c5ea632f,file=gerrit_h2_to_csv.py]</p>
+<div class="gist">
+    <script src='https://gist.github.com/0c2780a1f3a624041665e971c5ea632f.js?file=gerrit_h2_to_csv.py'></script>
+    <noscript>
+        <pre><code>#!/usr/bin/env python3
+# vim: ts=4 sw=4 sts=4 et ai
+import os, sys
+import subprocess
+
+tables = {
+'ACCOUNT_EXTERNAL_IDS':
+  ("ACCOUNT_ID","EMAIL_ADDRESS","PASSWORD","EXTERNAL_ID"),
+'ACCOUNT_GROUP_BY_ID':
+  ("GROUP_ID","INCLUDE_UUID"),
+'ACCOUNT_GROUP_BY_ID_AUD':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","GROUP_ID","INCLUDE_UUID","ADDED_ON"),
+'ACCOUNT_GROUP_MEMBERS':
+  ("ACCOUNT_ID","GROUP_ID"),
+'ACCOUNT_GROUP_MEMBERS_AUDIT':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","ACCOUNT_ID","GROUP_ID","ADDED_ON"),
+'ACCOUNT_GROUP_NAMES':
+  ("GROUP_ID","NAME",),
+'ACCOUNT_GROUPS':
+  ("NAME","DESCRIPTION","VISIBLE_TO_ALL","GROUP_UUID","OWNER_GROUP_UUID","GROUP_ID","CREATED_ON"),
+'ACCOUNTS':
+  ("REGISTERED_ON","FULL_NAME","PREFERRED_EMAIL","INACTIVE","STATUS","ACCOUNT_ID"),
+'CHANGE_MESSAGES':
+  ("AUTHOR_ID","WRITTEN_ON","MESSAGE","PATCHSET_CHANGE_ID","PATCHSET_PATCH_SET_ID","TAG","REAL_AUTHOR","CHANGE_ID","UUID"),
+'CHANGES':
+  ("CHANGE_KEY","CREATED_ON","LAST_UPDATED_ON","OWNER_ACCOUNT_ID","DEST_PROJECT_NAME","DEST_BRANCH_NAME","STATUS","CURRENT_PATCH_SET_ID","SUBJECT","TOPIC","ORIGINAL_SUBJECT","SUBMISSION_ID","ASSIGNEE","NOTE_DB_STATE","ROW_VERSION","CHANGE_ID","IS_PRIVATE","WORK_IN_PROGRESS","REVIEW_STARTED","REVERT_OF"),
+'PATCH_COMMENTS':
+  ("LINE_NBR","AUTHOR_ID","WRITTEN_ON","STATUS","SIDE","MESSAGE","PARENT_UUID","RANGE_START_LINE","RANGE_START_CHARACTER","RANGE_END_LINE","RANGE_END_CHARACTER","TAG","REAL_AUTHOR","UNRESOLVED","CHANGE_ID","PATCH_SET_ID","FILE_NAME","UUID"),
+'PATCH_SET_APPROVALS':
+  ("VALUE","GRANTED","TAG","REAL_ACCOUNT_ID","POST_SUBMIT","CHANGE_ID","PATCH_SET_ID","ACCOUNT_ID","CATEGORY_ID"),
+'PATCH_SETS':
+  ("REVISION","UPLOADER_ACCOUNT_ID","CREATED_ON","GROUPS","PUSH_CERTIFICATE","DESCRIPTION","CHANGE_ID","PATCH_SET_ID"),
+'SCHEMA_VERSION':
+  ("VERSION_NBR","SINGLETON"),
+'SYSTEM_CONFIG':
+  ("REGISTER_EMAIL_PRIVATE_KEY","SITE_PATH","ADMIN_GROUP_ID","ANONYMOUS_GROUP_ID","REGISTERED_GROUP_ID","WILD_PROJECT_NAME","BATCH_USERS_GROUP_ID","OWNER_GROUP_ID","ADMIN_GROUP_UUID","BATCH_USERS_GROUP_UUID","SINGLETON")
+}
+
+def dump_table(table_name):
+    filename = os.path.join('/srv/gerrit/csv', table_name)
+    cols = tables[table_name]
+    cols = ','.join(cols)
+    cmd = f"call csvwrite('{filename}', 'select {cols} from {table_name}');"
+    return cmd
+
+def dump_currval(id_name):
+    cmd = f"select currval('{id_name}');"
+    return cmd
+
+def dump():
+    for table_name in tables:
+        yield dump_table(table_name)
+    for id_name in ('change_id', 'account_id', 'account_group_id'):
+        yield dump_currval(id_name)
+
+def main():
+    cmd = 'java', '-jar', 'bin/gerrit.war', 'gsql', '-d', '.'
+    with subprocess.Popen(cmd,
+            bufsize = 0, universal_newlines = True,
+            stdin = subprocess.PIPE) as proc:
+        for cmd in dump():
+            proc.stdin.write(cmd + '\r\n')
+</code></pre>
+    </noscript>
+</div>
 <p>스크립트 수행 결과 말미의 sequence는 따로 보관하기가 귀찮아서, 수동으로 import 스크립트에 박아서&nbsp;처리했습니다.</p>
 <h2>All-Projcts 및 All-Users repository&nbsp;백업</h2>
 <p>일단 csv로 export가 완료되면, gerrit 에서 자동으로 생성되었던 <strong>All-Projects.git</strong> 및 <strong>All-Users.git</strong> repository 를 별도로 백업해두어야 합니다. 해당 repository에는 전체 프로젝트 및 사용자의 권한 정보가 보관되고, 이후에 db를 생성하기 위해 gerrit을 재초기화 할 때 같이 초기화가 되기 때문에, 꼭 백업을 해두었다가 다시 활용해야&nbsp;합니다.</p>
@@ -153,7 +220,84 @@
 <h2>csv를 pgsql로&nbsp;import</h2>
 <p>h2를 export할 때와 유사하게 python 스크립트로 구성해서 pgsql에 csv를&nbsp;퍼부었습니다.</p>
 <p>일부 sequence (change_id, account_id, account_group_id)는 h2스크립트에서 출력했던 결과를 수동으로&nbsp;기입했습니다.</p>
-<p>[gist:id=0c2780a1f3a624041665e971c5ea632f,file=gerrit_csv_to_pgsql.py]</p>
+<div class="gist">
+    <script src='https://gist.github.com/0c2780a1f3a624041665e971c5ea632f.js?file=gerrit_csv_to_pgsql.py'></script>
+    <noscript>
+        <pre><code>#!/usr/bin/env python3
+# vim: ts=4 sw=4 sts=4 et ai
+import os, sys
+import subprocess
+
+tables = {
+'ACCOUNT_EXTERNAL_IDS':
+  ("ACCOUNT_ID","EMAIL_ADDRESS","PASSWORD","EXTERNAL_ID"),
+'ACCOUNT_GROUP_BY_ID':
+  ("GROUP_ID","INCLUDE_UUID"),
+'ACCOUNT_GROUP_BY_ID_AUD':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","GROUP_ID","INCLUDE_UUID","ADDED_ON"),
+'ACCOUNT_GROUP_MEMBERS':
+  ("ACCOUNT_ID","GROUP_ID"),
+'ACCOUNT_GROUP_MEMBERS_AUDIT':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","ACCOUNT_ID","GROUP_ID","ADDED_ON"),
+'ACCOUNT_GROUP_NAMES':
+  ("GROUP_ID","NAME",),
+'ACCOUNT_GROUPS':
+  ("NAME","DESCRIPTION","VISIBLE_TO_ALL","GROUP_UUID","OWNER_GROUP_UUID","GROUP_ID","CREATED_ON"),
+'ACCOUNTS':
+  ("REGISTERED_ON","FULL_NAME","PREFERRED_EMAIL","INACTIVE","STATUS","ACCOUNT_ID"),
+'CHANGE_MESSAGES':
+  ("AUTHOR_ID","WRITTEN_ON","MESSAGE","PATCHSET_CHANGE_ID","PATCHSET_PATCH_SET_ID","TAG","REAL_AUTHOR","CHANGE_ID","UUID"),
+'CHANGES':
+  ("CHANGE_KEY","CREATED_ON","LAST_UPDATED_ON","OWNER_ACCOUNT_ID","DEST_PROJECT_NAME","DEST_BRANCH_NAME","STATUS","CURRENT_PATCH_SET_ID","SUBJECT","TOPIC","ORIGINAL_SUBJECT","SUBMISSION_ID","ASSIGNEE","NOTE_DB_STATE","ROW_VERSION","CHANGE_ID","IS_PRIVATE","WORK_IN_PROGRESS","REVIEW_STARTED","REVERT_OF"),
+'PATCH_COMMENTS':
+  ("LINE_NBR","AUTHOR_ID","WRITTEN_ON","STATUS","SIDE","MESSAGE","PARENT_UUID","RANGE_START_LINE","RANGE_START_CHARACTER","RANGE_END_LINE","RANGE_END_CHARACTER","TAG","REAL_AUTHOR","UNRESOLVED","CHANGE_ID","PATCH_SET_ID","FILE_NAME","UUID"),
+'PATCH_SET_APPROVALS':
+  ("VALUE","GRANTED","TAG","REAL_ACCOUNT_ID","POST_SUBMIT","CHANGE_ID","PATCH_SET_ID","ACCOUNT_ID","CATEGORY_ID"),
+'PATCH_SETS':
+  ("REVISION","UPLOADER_ACCOUNT_ID","CREATED_ON","GROUPS","PUSH_CERTIFICATE","DESCRIPTION","CHANGE_ID","PATCH_SET_ID"),
+'SCHEMA_VERSION':
+  ("VERSION_NBR","SINGLETON"),
+'SYSTEM_CONFIG':
+  ("REGISTER_EMAIL_PRIVATE_KEY","SITE_PATH","ADMIN_GROUP_ID","ANONYMOUS_GROUP_ID","REGISTERED_GROUP_ID","WILD_PROJECT_NAME","BATCH_USERS_GROUP_ID","OWNER_GROUP_ID","ADMIN_GROUP_UUID","BATCH_USERS_GROUP_UUID","SINGLETON")
+}
+
+SEQUENCES = {
+  'change_id': 'NNNN', # change_id sequence from gerrit_h2_to_csv.py
+  'account_id': '10000XX', # account_id sequence from gerrit_h2_to_csv.py
+  'account_group_id': 'GG', # account_group_id sequence from gerrit_h2_to_csv.py
+}
+
+def imp_table(table_name):
+    filename = os.path.join('/srv/gerrit/csv', table_name)
+    cols = tables[table_name]
+    cols = '(' + ','.join(cols) + ')'
+    table_name = table_name.lower()
+    yield f"delete from {table_name};"
+    yield f"\COPY {table_name}{cols} from '{filename}' DELIMITER ',' CSV HEADER;"
+
+def imp_currval(id_name):
+    value = SEQUENCES[id_name]
+    cmd = f"select setval('{id_name}', {value});"
+    return cmd
+
+def imp():
+    for table_name in tables:
+        for cmd in imp_table(table_name):
+            yield cmd
+    for id_name in ('change_id', 'account_id', 'account_group_id'):
+        yield imp_currval(id_name)
+
+def main():
+    cmd = 'psql', '-h', 'localhost', '-U', 'gerrit2', 'reviewdb'
+    #cmd = 'java', '-jar', 'bin/gerrit.war', 'gsql', '-d', '.'
+    with subprocess.Popen(cmd,
+            bufsize = 0, universal_newlines = True,
+            stdin = subprocess.PIPE) as proc:
+        for cmd in imp():
+            proc.stdin.write(cmd + '\r\n')
+</code></pre>
+    </noscript>
+</div>
 <p>gerrit 2.15에서 새로 추가된 <a href="https://gerrit-review.googlesource.com/Documentation/note-db.html">notedb backend</a>를 이용하고 있다면 일부 account 관련 database를 import 못한다고 오류가 발생할 수 있는데, 해당 database의 값은 앞에서 복사한 All-Users repository에 포함되어 있기 때문에 무시하면&nbsp;됩니다.</p>
 <p>import가 완료되면 gerrit 내장 sql 커맨드 인터페이스에서 테이블들이 제대로 옮겨졌는지 확인해보면&nbsp;됩니다.</p>
 <div class="highlight"><pre><span></span><code>$ java -jar bin/gerrit.war gsql -d .

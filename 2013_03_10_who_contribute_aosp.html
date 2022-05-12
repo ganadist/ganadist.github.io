@@ -145,7 +145,195 @@
 (국내 어떤 회사의 꽤 규모가 큰 <span class="caps">OS</span> 프로젝트의 경우 풀타임 석박사급 개발자가 200명 이상 투입되었다고 합니다. 그런데 출시도 못하고 접었다는게&nbsp;함정&#8230;)</p>
 <p>그리고 커밋 로그 중 드물게 <code>deckard@android.com</code> 라는 주소가 보이는데요, 이것은 사람의 메일주소가 아니라 구글 내부 CI시스템입니다. (실제로 https://android-review.googlesource.com 에 코드를 올리면 저 녀석이 해당 코드가 제대로 빌드되는 지&nbsp;확인해줍니다.)</p>
 <p>아마도 영화 블레이드 러너의 주인공인 <a href="http://en.wikipedia.org/wiki/Rick_Deckard">데커드 형사</a>의 이름을 딴 것으로&nbsp;보입니다.</p>
-<p>[gist:id=5057717,file=getCommitCount.py]</p>
+<div class="gist">
+    <script src='https://gist.github.com/5057717.js?file=getCommitCount.py'></script>
+    <noscript>
+        <pre><code>#!/usr/bin/env python
+# -*- coding : utf-8 -*-
+
+import sys, os
+import subprocess
+import xml.dom.minidom
+
+BOTS = ('initial-contribution@android.com',
+	'code-review@android.com',
+	'android-gerrit@google.com',
+	'android-git-automerger@android.com',
+	'android-merger@google.com',
+	'deckard@android.com',
+)
+
+NOBODY = ('', 'nobody@android.com')
+
+def isBot(email):
+	if email in BOTS: return True
+	return email.startswith('android-build')
+
+def isGoogler(email):
+	if email.endswith('google.com'):
+		return True
+	if email.endswith('android.com'):
+		return True
+	return email == ''
+
+def getManifest(path):
+	return os.path.join(path, '.repo', 'manifest.xml')
+
+def getTop():
+	def isTopDir(path):
+		return os.access(getManifest(path), os.F_OK)
+		
+	def getParents():
+		for env in ('TOP', 'ANDROID_BUILD_TOP'):
+			wd = os.getenv(env)
+			if wd: yield wd
+		wd = os.path.abspath(os.getcwd())
+		while wd != os.path.sep:
+			yield wd
+			wd = os.path.dirname(wd)
+
+	for path in getParents():
+		if isTopDir(path):
+			return path
+
+	assert False, "can not find android source directory."
+
+def getPaths(path):
+	manifest = getManifest(path)
+	root = xml.dom.minidom.parse(manifest)
+	for node in root.childNodes[0].childNodes:
+		if node.nodeName != 'project':
+			continue
+		yield node.getAttribute('path')
+
+def getAuthors(path):
+	gitdir = os.path.join(path, '.git')
+	cmd = ('git', 'log', '--no-merges', '--pretty=%ae %an')
+	p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+			env = {'GIT_DIR': gitdir})
+	for line in p.stdout:
+		line = line.strip()
+		if '@' in line:
+			if ' ' in line:
+				email, name = line.split(' ', 1)
+			else:
+				email, name = line, ''
+		else:
+			email, name = '', line
+		yield email, name
+
+class AuthorCount(object):
+	def __init__(self, email):
+		object.__init__(self)
+		self.email = email
+		self.names = []
+		self.count = 0
+
+	def getName(self):
+		return self.names and self.names[0] or ''
+	
+	def getCount(self):
+		return self.count
+	
+	def getEmail(self):
+		return self.email
+	
+	def incCount(self, name):
+		if not name in self.names:
+			def nameSort(a, b):
+				if a.islower(): return 1
+				if b.islower(): return -1
+				return cmp(b, a)
+			self.names.append(name)
+			self.names.sort(nameSort)
+		self.count += 1
+
+	def __str__(self):
+		if self.email:
+			mail = self.email.replace('@', ' at ').replace('.', ' dot ')
+		else:
+			mail = 'UNKNOWN_AT_GOOGLE_DOT_COM'
+		return '%s <%s>\t %d'%(self.getName(), mail, self.count)
+
+if __name__ == '__main__':
+	d = {}
+	top = getTop()
+	platformPrefix = ('frameworks',
+			'bionic',
+			'system',
+			'hardware',
+			'build',
+			'dalvik',
+			'libcore',
+	)
+
+	platformOnly = '-p' in sys.argv
+	commitCountLimit = platformOnly and 500 or 1000
+
+	def isPlatform(path):
+		for prefix in platformPrefix:
+			if path.startswith(prefix):
+				return True
+
+	for path in getPaths(top):
+		if platformOnly and not isPlatform(path):
+			continue
+
+		for author in getAuthors(path):
+			email, name = author
+			if isBot(email):
+				continue
+			if not isGoogler(email):
+				continue
+			if email in NOBODY:
+				key = 'NOBODY', name
+				email = ''
+			else:
+				if email.endswith('corp.google.com'):
+					email = email.split('@', 1)[0] + '@google.com'
+				key = email, ''
+			d.setdefault(key, AuthorCount(email)).incCount(name)
+
+	names = {}
+	for item in d.iteritems():
+		k, v = item
+		name = v.getName()
+		names.setdefault(name, set()).add(item)
+
+	# get delegate account in duplicated
+	def getDelegates(items):
+		google_account = set()
+		android_account = set()
+		for key, value in items:
+			email = value.getEmail()
+			if email.endswith('google.com'):
+				google_account.add((key, value))
+			elif email.endswith('android.com'):
+				android_account.add((key, value))
+		return google_account and google_account or android_account
+
+	# merge duplicated account
+	for items in names.itervalues():
+		if len(items) == 1: continue
+		delegates = getDelegates(items)
+		if len(delegates) != 1: continue
+		delegate = tuple(delegates)[0][1]
+		for k, v in items - delegates:
+			del d[k]
+			delegate.count += v.count
+
+	countKey = lambda x:x.getCount()
+	nameKey = lambda x:x.getName()
+	emailKey = lambda x:x.getEmail()
+
+	count = 0
+	for item in sorted(d.itervalues(), key = countKey):
+		#if d[item].count < commitCountLimit: continue
+		sys.stdout.write('%s\n'%(str(item)))
+		count += item.getCount()
+	print 'total commit count:', count</code></pre>
+    </noscript>
+</div>
 <p>https://gist.github.com/ganadist/5057717</p>
   </div>
   <div class="tag-cloud">

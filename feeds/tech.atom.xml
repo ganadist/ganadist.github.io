@@ -5,7 +5,7 @@
 &lt;p&gt;또한 서명키를 생성할 때, 현대 컴퓨팅환경에 알맞지 않은 취약한 알고리즘을 이용해 서명키를 작성할 수&amp;nbsp;있습니다.&lt;/p&gt;
 &lt;p&gt;서명키가 유출되거나 취약한 알고리즘을 이용한 서명키를 사용하는 경우, 악의적인 의도로 서명된 앱을 변조해서, 앱 사용자의 정보를 취득할 수 있는 위험이 있게 됩니다.
 이러한 경우에는 꼭 서명키를 교체해서, 앱의 보안을 강화해야&amp;nbsp;합니다.&lt;/p&gt;
-&lt;p&gt;기존에는 이러한 경우 서명키를 교체해야 했지만, 앱의 업그레이드 및 자동 업그레이드가 불가능 하기 때문에, 사용자들에게 수동으로 앱을 제거후 다시 설치해 달라고 부탁해야 했습니다.
+&lt;p&gt;기존에는 이러한 경우 (눈물을 머금고) 서명키를 직접 교체해야 했지만, 앱의 업그레이드가 불가능 하기 때문에, 사용자들에게 수동으로 앱을 제거후 다시 설치해 달라고 부탁해야 했습니다.
 하지만 이번에 추가되는 서명키 교체(Key Rotation)은 그러한 불편한 없이, 자연스럽게 서명키를 교체하는 것이&amp;nbsp;가능합니다.&lt;/p&gt;
 &lt;p&gt;이 포스트에서는 Google Play Console 대신, 직접 서명키를 바꾸는 방법과 그 영향에 대해서 이야기&amp;nbsp;해보겠습니다.&lt;/p&gt;
 &lt;p&gt;원래 Android앱의 서명키는 Java에서 사용하던 서명 방식을 그대로 이용한 app signing scheme v1 에서 시작해서, 현재 app signing scheme v4 까지 발표되었는데요, &lt;a href="https://developer.android.com/about/versions/pie/android-9.0#apk-key-rotation"&gt;서명키를 교체하는 기능&lt;/a&gt;은 app signing scheme v3 에서 지원됩니다.
@@ -36,7 +36,7 @@
   --new-signer --ks new_release.keystore --ks-key-alias &lt;span class="s2"&gt;&amp;quot;XXX&amp;quot;&lt;/span&gt; --ks-pass &lt;span class="s2"&gt;&amp;quot;pass:XXXX&amp;quot;&lt;/span&gt;    
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
-&lt;p&gt;해당 명령을 실행할 때,  새로 서명된 앱이 설치되면서 일부 동작에 대해 지정할 수&amp;nbsp;있습니다.  &lt;/p&gt;
+&lt;p&gt;해당 명령을 실행할 때,  새로 서명된 앱으로 업그레이드 되면서 기존에 설치되었던 앱의 일부 특성에 대해 지정할 수&amp;nbsp;있습니다.  &lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&amp;#8212;set-install-data : 기존에 사용하고 있던 앱 데이터를 그대로 유지할지&amp;nbsp;결정&lt;/li&gt;
 &lt;li&gt;&amp;#8212;set-permission : 기존에 사용하고 있던 서명키 기반의 퍼미션을 유지할 지&amp;nbsp;결정&lt;/li&gt;
@@ -219,15 +219,59 @@ at bionic/libc/bionic/system_properties.c:403
 &lt;ul&gt;
 &lt;li&gt;jni/Application.mk&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;[gist:id=80acee57558d9c9503612078a3f656b2,file=Application.mk]&lt;/p&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=Application.mk'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;APP_ABI = armeabi-v7a 
+APP_PLATFORM = android-19
+APP_STL = c++_static
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
 &lt;ul&gt;
 &lt;li&gt;jni/Android.mk&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;[gist:id=80acee57558d9c9503612078a3f656b2,file=Android.mk]&lt;/p&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=Android.mk'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;LOCAL_PATH := $(call my-dir)
+
+include $(CLEAR_VARS)
+
+LOCAL_MODULE := uname
+LOCAL_SRC_FILES := \
+	main.c
+
+include $(BUILD_EXECUTABLE)
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
 &lt;ul&gt;
 &lt;li&gt;jni/main.c&lt;/li&gt;
 &lt;/ul&gt;
-&lt;p&gt;[gist:id=80acee57558d9c9503612078a3f656b2,file=main.c]&lt;/p&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=main.c'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;/*
+ * vim: ts=4 sw=4 sts=4 et ai
+ */
+
+#include &lt;sys/utsname.h&gt;
+#include &lt;stdio.h&gt;
+
+int main() {
+    struct utsname buf;
+    uname(&amp;buf);
+    printf("sys:\t %s\n",buf.sysname);
+    printf("rel:\t %s\n",buf.release);
+    printf("ver:\t %s\n",buf.version);
+    printf("h/w:\t %s\n",buf.machine);
+
+    return 0;
+}
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
 &lt;p&gt;그리고 실행파일을 생성한 후 docker 내에서&amp;nbsp;실행해보았습니다.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="err"&gt;$&lt;/span&gt;&lt;span class="n"&gt;ANDROID_HOME&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;ndk&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;bundle&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="n"&gt;ndk&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;build&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;
 &lt;span class="o"&gt;[&lt;/span&gt;&lt;span class="n"&gt;armeabi-v7a&lt;/span&gt;&lt;span class="o"&gt;]&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;Compile&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;thumb&lt;/span&gt;&lt;span class="w"&gt;  &lt;/span&gt;&lt;span class="err"&gt;:&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;uname&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="o"&gt;&amp;lt;=&lt;/span&gt;&lt;span class="w"&gt; &lt;/span&gt;&lt;span class="n"&gt;main&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="w"&gt;&lt;/span&gt;
@@ -834,7 +878,74 @@ $ adb shell dumpsys activity service com.android.phone/.TelephonyDebugService
 &lt;p&gt;&lt;strong&gt;주의&lt;/strong&gt;: 잘못 건드렸다간 데이터를 날려먹을 수 있기 때문에 꼭 이전 데이터를 백업해두시기 바랍니다. 저는 tar로 묶어서 안전하게 보관한 후 진행을&amp;nbsp;시작했습니다.&lt;/p&gt;
 &lt;h2&gt;h2 database를 csv로&amp;nbsp;export&lt;/h2&gt;
 &lt;p&gt;먼저 h2 database에서 내장 함수를 이용해 csv로 export를 하였습니다. google groups의 예제에서는 한땀한땀 h2의 내장 함수를 실행시켜주었지만, python 스크립트를 이용해 일괄적으로 csv 파일로 변환했습니다. (gerrit 버젼에 따라서 table 및 column 이름이 바뀔 수&amp;nbsp;있습니다.)&lt;/p&gt;
-&lt;p&gt;[gist:id=0c2780a1f3a624041665e971c5ea632f,file=gerrit_h2_to_csv.py]&lt;/p&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/0c2780a1f3a624041665e971c5ea632f.js?file=gerrit_h2_to_csv.py'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;#!/usr/bin/env python3
+# vim: ts=4 sw=4 sts=4 et ai
+import os, sys
+import subprocess
+
+tables = {
+'ACCOUNT_EXTERNAL_IDS':
+  ("ACCOUNT_ID","EMAIL_ADDRESS","PASSWORD","EXTERNAL_ID"),
+'ACCOUNT_GROUP_BY_ID':
+  ("GROUP_ID","INCLUDE_UUID"),
+'ACCOUNT_GROUP_BY_ID_AUD':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","GROUP_ID","INCLUDE_UUID","ADDED_ON"),
+'ACCOUNT_GROUP_MEMBERS':
+  ("ACCOUNT_ID","GROUP_ID"),
+'ACCOUNT_GROUP_MEMBERS_AUDIT':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","ACCOUNT_ID","GROUP_ID","ADDED_ON"),
+'ACCOUNT_GROUP_NAMES':
+  ("GROUP_ID","NAME",),
+'ACCOUNT_GROUPS':
+  ("NAME","DESCRIPTION","VISIBLE_TO_ALL","GROUP_UUID","OWNER_GROUP_UUID","GROUP_ID","CREATED_ON"),
+'ACCOUNTS':
+  ("REGISTERED_ON","FULL_NAME","PREFERRED_EMAIL","INACTIVE","STATUS","ACCOUNT_ID"),
+'CHANGE_MESSAGES':
+  ("AUTHOR_ID","WRITTEN_ON","MESSAGE","PATCHSET_CHANGE_ID","PATCHSET_PATCH_SET_ID","TAG","REAL_AUTHOR","CHANGE_ID","UUID"),
+'CHANGES':
+  ("CHANGE_KEY","CREATED_ON","LAST_UPDATED_ON","OWNER_ACCOUNT_ID","DEST_PROJECT_NAME","DEST_BRANCH_NAME","STATUS","CURRENT_PATCH_SET_ID","SUBJECT","TOPIC","ORIGINAL_SUBJECT","SUBMISSION_ID","ASSIGNEE","NOTE_DB_STATE","ROW_VERSION","CHANGE_ID","IS_PRIVATE","WORK_IN_PROGRESS","REVIEW_STARTED","REVERT_OF"),
+'PATCH_COMMENTS':
+  ("LINE_NBR","AUTHOR_ID","WRITTEN_ON","STATUS","SIDE","MESSAGE","PARENT_UUID","RANGE_START_LINE","RANGE_START_CHARACTER","RANGE_END_LINE","RANGE_END_CHARACTER","TAG","REAL_AUTHOR","UNRESOLVED","CHANGE_ID","PATCH_SET_ID","FILE_NAME","UUID"),
+'PATCH_SET_APPROVALS':
+  ("VALUE","GRANTED","TAG","REAL_ACCOUNT_ID","POST_SUBMIT","CHANGE_ID","PATCH_SET_ID","ACCOUNT_ID","CATEGORY_ID"),
+'PATCH_SETS':
+  ("REVISION","UPLOADER_ACCOUNT_ID","CREATED_ON","GROUPS","PUSH_CERTIFICATE","DESCRIPTION","CHANGE_ID","PATCH_SET_ID"),
+'SCHEMA_VERSION':
+  ("VERSION_NBR","SINGLETON"),
+'SYSTEM_CONFIG':
+  ("REGISTER_EMAIL_PRIVATE_KEY","SITE_PATH","ADMIN_GROUP_ID","ANONYMOUS_GROUP_ID","REGISTERED_GROUP_ID","WILD_PROJECT_NAME","BATCH_USERS_GROUP_ID","OWNER_GROUP_ID","ADMIN_GROUP_UUID","BATCH_USERS_GROUP_UUID","SINGLETON")
+}
+
+def dump_table(table_name):
+    filename = os.path.join('/srv/gerrit/csv', table_name)
+    cols = tables[table_name]
+    cols = ','.join(cols)
+    cmd = f"call csvwrite('{filename}', 'select {cols} from {table_name}');"
+    return cmd
+
+def dump_currval(id_name):
+    cmd = f"select currval('{id_name}');"
+    return cmd
+
+def dump():
+    for table_name in tables:
+        yield dump_table(table_name)
+    for id_name in ('change_id', 'account_id', 'account_group_id'):
+        yield dump_currval(id_name)
+
+def main():
+    cmd = 'java', '-jar', 'bin/gerrit.war', 'gsql', '-d', '.'
+    with subprocess.Popen(cmd,
+            bufsize = 0, universal_newlines = True,
+            stdin = subprocess.PIPE) as proc:
+        for cmd in dump():
+            proc.stdin.write(cmd + '\r\n')
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
 &lt;p&gt;스크립트 수행 결과 말미의 sequence는 따로 보관하기가 귀찮아서, 수동으로 import 스크립트에 박아서&amp;nbsp;처리했습니다.&lt;/p&gt;
 &lt;h2&gt;All-Projcts 및 All-Users repository&amp;nbsp;백업&lt;/h2&gt;
 &lt;p&gt;일단 csv로 export가 완료되면, gerrit 에서 자동으로 생성되었던 &lt;strong&gt;All-Projects.git&lt;/strong&gt; 및 &lt;strong&gt;All-Users.git&lt;/strong&gt; repository 를 별도로 백업해두어야 합니다. 해당 repository에는 전체 프로젝트 및 사용자의 권한 정보가 보관되고, 이후에 db를 생성하기 위해 gerrit을 재초기화 할 때 같이 초기화가 되기 때문에, 꼭 백업을 해두었다가 다시 활용해야&amp;nbsp;합니다.&lt;/p&gt;
@@ -848,7 +959,84 @@ $ adb shell dumpsys activity service com.android.phone/.TelephonyDebugService
 &lt;h2&gt;csv를 pgsql로&amp;nbsp;import&lt;/h2&gt;
 &lt;p&gt;h2를 export할 때와 유사하게 python 스크립트로 구성해서 pgsql에 csv를&amp;nbsp;퍼부었습니다.&lt;/p&gt;
 &lt;p&gt;일부 sequence (change_id, account_id, account_group_id)는 h2스크립트에서 출력했던 결과를 수동으로&amp;nbsp;기입했습니다.&lt;/p&gt;
-&lt;p&gt;[gist:id=0c2780a1f3a624041665e971c5ea632f,file=gerrit_csv_to_pgsql.py]&lt;/p&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/0c2780a1f3a624041665e971c5ea632f.js?file=gerrit_csv_to_pgsql.py'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;#!/usr/bin/env python3
+# vim: ts=4 sw=4 sts=4 et ai
+import os, sys
+import subprocess
+
+tables = {
+'ACCOUNT_EXTERNAL_IDS':
+  ("ACCOUNT_ID","EMAIL_ADDRESS","PASSWORD","EXTERNAL_ID"),
+'ACCOUNT_GROUP_BY_ID':
+  ("GROUP_ID","INCLUDE_UUID"),
+'ACCOUNT_GROUP_BY_ID_AUD':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","GROUP_ID","INCLUDE_UUID","ADDED_ON"),
+'ACCOUNT_GROUP_MEMBERS':
+  ("ACCOUNT_ID","GROUP_ID"),
+'ACCOUNT_GROUP_MEMBERS_AUDIT':
+  ("ADDED_BY","REMOVED_BY","REMOVED_ON","ACCOUNT_ID","GROUP_ID","ADDED_ON"),
+'ACCOUNT_GROUP_NAMES':
+  ("GROUP_ID","NAME",),
+'ACCOUNT_GROUPS':
+  ("NAME","DESCRIPTION","VISIBLE_TO_ALL","GROUP_UUID","OWNER_GROUP_UUID","GROUP_ID","CREATED_ON"),
+'ACCOUNTS':
+  ("REGISTERED_ON","FULL_NAME","PREFERRED_EMAIL","INACTIVE","STATUS","ACCOUNT_ID"),
+'CHANGE_MESSAGES':
+  ("AUTHOR_ID","WRITTEN_ON","MESSAGE","PATCHSET_CHANGE_ID","PATCHSET_PATCH_SET_ID","TAG","REAL_AUTHOR","CHANGE_ID","UUID"),
+'CHANGES':
+  ("CHANGE_KEY","CREATED_ON","LAST_UPDATED_ON","OWNER_ACCOUNT_ID","DEST_PROJECT_NAME","DEST_BRANCH_NAME","STATUS","CURRENT_PATCH_SET_ID","SUBJECT","TOPIC","ORIGINAL_SUBJECT","SUBMISSION_ID","ASSIGNEE","NOTE_DB_STATE","ROW_VERSION","CHANGE_ID","IS_PRIVATE","WORK_IN_PROGRESS","REVIEW_STARTED","REVERT_OF"),
+'PATCH_COMMENTS':
+  ("LINE_NBR","AUTHOR_ID","WRITTEN_ON","STATUS","SIDE","MESSAGE","PARENT_UUID","RANGE_START_LINE","RANGE_START_CHARACTER","RANGE_END_LINE","RANGE_END_CHARACTER","TAG","REAL_AUTHOR","UNRESOLVED","CHANGE_ID","PATCH_SET_ID","FILE_NAME","UUID"),
+'PATCH_SET_APPROVALS':
+  ("VALUE","GRANTED","TAG","REAL_ACCOUNT_ID","POST_SUBMIT","CHANGE_ID","PATCH_SET_ID","ACCOUNT_ID","CATEGORY_ID"),
+'PATCH_SETS':
+  ("REVISION","UPLOADER_ACCOUNT_ID","CREATED_ON","GROUPS","PUSH_CERTIFICATE","DESCRIPTION","CHANGE_ID","PATCH_SET_ID"),
+'SCHEMA_VERSION':
+  ("VERSION_NBR","SINGLETON"),
+'SYSTEM_CONFIG':
+  ("REGISTER_EMAIL_PRIVATE_KEY","SITE_PATH","ADMIN_GROUP_ID","ANONYMOUS_GROUP_ID","REGISTERED_GROUP_ID","WILD_PROJECT_NAME","BATCH_USERS_GROUP_ID","OWNER_GROUP_ID","ADMIN_GROUP_UUID","BATCH_USERS_GROUP_UUID","SINGLETON")
+}
+
+SEQUENCES = {
+  'change_id': 'NNNN', # change_id sequence from gerrit_h2_to_csv.py
+  'account_id': '10000XX', # account_id sequence from gerrit_h2_to_csv.py
+  'account_group_id': 'GG', # account_group_id sequence from gerrit_h2_to_csv.py
+}
+
+def imp_table(table_name):
+    filename = os.path.join('/srv/gerrit/csv', table_name)
+    cols = tables[table_name]
+    cols = '(' + ','.join(cols) + ')'
+    table_name = table_name.lower()
+    yield f"delete from {table_name};"
+    yield f"\COPY {table_name}{cols} from '{filename}' DELIMITER ',' CSV HEADER;"
+
+def imp_currval(id_name):
+    value = SEQUENCES[id_name]
+    cmd = f"select setval('{id_name}', {value});"
+    return cmd
+
+def imp():
+    for table_name in tables:
+        for cmd in imp_table(table_name):
+            yield cmd
+    for id_name in ('change_id', 'account_id', 'account_group_id'):
+        yield imp_currval(id_name)
+
+def main():
+    cmd = 'psql', '-h', 'localhost', '-U', 'gerrit2', 'reviewdb'
+    #cmd = 'java', '-jar', 'bin/gerrit.war', 'gsql', '-d', '.'
+    with subprocess.Popen(cmd,
+            bufsize = 0, universal_newlines = True,
+            stdin = subprocess.PIPE) as proc:
+        for cmd in imp():
+            proc.stdin.write(cmd + '\r\n')
+&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
 &lt;p&gt;gerrit 2.15에서 새로 추가된 &lt;a href="https://gerrit-review.googlesource.com/Documentation/note-db.html"&gt;notedb backend&lt;/a&gt;를 이용하고 있다면 일부 account 관련 database를 import 못한다고 오류가 발생할 수 있는데, 해당 database의 값은 앞에서 복사한 All-Users repository에 포함되어 있기 때문에 무시하면&amp;nbsp;됩니다.&lt;/p&gt;
 &lt;p&gt;import가 완료되면 gerrit 내장 sql 커맨드 인터페이스에서 테이블들이 제대로 옮겨졌는지 확인해보면&amp;nbsp;됩니다.&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;$ java -jar bin/gerrit.war gsql -d .
@@ -1319,7 +1507,195 @@ crash report 처리기들이 어떠한 방식으로 데이터를 구동되는지
 (국내 어떤 회사의 꽤 규모가 큰 &lt;span class="caps"&gt;OS&lt;/span&gt; 프로젝트의 경우 풀타임 석박사급 개발자가 200명 이상 투입되었다고 합니다. 그런데 출시도 못하고 접었다는게&amp;nbsp;함정&amp;#8230;)&lt;/p&gt;
 &lt;p&gt;그리고 커밋 로그 중 드물게 &lt;code&gt;deckard@android.com&lt;/code&gt; 라는 주소가 보이는데요, 이것은 사람의 메일주소가 아니라 구글 내부 CI시스템입니다. (실제로 https://android-review.googlesource.com 에 코드를 올리면 저 녀석이 해당 코드가 제대로 빌드되는 지&amp;nbsp;확인해줍니다.)&lt;/p&gt;
 &lt;p&gt;아마도 영화 블레이드 러너의 주인공인 &lt;a href="http://en.wikipedia.org/wiki/Rick_Deckard"&gt;데커드 형사&lt;/a&gt;의 이름을 딴 것으로&amp;nbsp;보입니다.&lt;/p&gt;
-&lt;p&gt;[gist:id=5057717,file=getCommitCount.py]&lt;/p&gt;
+&lt;div class="gist"&gt;
+    &lt;script src='https://gist.github.com/5057717.js?file=getCommitCount.py'&gt;&lt;/script&gt;
+    &lt;noscript&gt;
+        &lt;pre&gt;&lt;code&gt;#!/usr/bin/env python
+# -*- coding : utf-8 -*-
+
+import sys, os
+import subprocess
+import xml.dom.minidom
+
+BOTS = ('initial-contribution@android.com',
+	'code-review@android.com',
+	'android-gerrit@google.com',
+	'android-git-automerger@android.com',
+	'android-merger@google.com',
+	'deckard@android.com',
+)
+
+NOBODY = ('', 'nobody@android.com')
+
+def isBot(email):
+	if email in BOTS: return True
+	return email.startswith('android-build')
+
+def isGoogler(email):
+	if email.endswith('google.com'):
+		return True
+	if email.endswith('android.com'):
+		return True
+	return email == ''
+
+def getManifest(path):
+	return os.path.join(path, '.repo', 'manifest.xml')
+
+def getTop():
+	def isTopDir(path):
+		return os.access(getManifest(path), os.F_OK)
+		
+	def getParents():
+		for env in ('TOP', 'ANDROID_BUILD_TOP'):
+			wd = os.getenv(env)
+			if wd: yield wd
+		wd = os.path.abspath(os.getcwd())
+		while wd != os.path.sep:
+			yield wd
+			wd = os.path.dirname(wd)
+
+	for path in getParents():
+		if isTopDir(path):
+			return path
+
+	assert False, "can not find android source directory."
+
+def getPaths(path):
+	manifest = getManifest(path)
+	root = xml.dom.minidom.parse(manifest)
+	for node in root.childNodes[0].childNodes:
+		if node.nodeName != 'project':
+			continue
+		yield node.getAttribute('path')
+
+def getAuthors(path):
+	gitdir = os.path.join(path, '.git')
+	cmd = ('git', 'log', '--no-merges', '--pretty=%ae %an')
+	p = subprocess.Popen(cmd, stdout = subprocess.PIPE,
+			env = {'GIT_DIR': gitdir})
+	for line in p.stdout:
+		line = line.strip()
+		if '@' in line:
+			if ' ' in line:
+				email, name = line.split(' ', 1)
+			else:
+				email, name = line, ''
+		else:
+			email, name = '', line
+		yield email, name
+
+class AuthorCount(object):
+	def __init__(self, email):
+		object.__init__(self)
+		self.email = email
+		self.names = []
+		self.count = 0
+
+	def getName(self):
+		return self.names and self.names[0] or ''
+	
+	def getCount(self):
+		return self.count
+	
+	def getEmail(self):
+		return self.email
+	
+	def incCount(self, name):
+		if not name in self.names:
+			def nameSort(a, b):
+				if a.islower(): return 1
+				if b.islower(): return -1
+				return cmp(b, a)
+			self.names.append(name)
+			self.names.sort(nameSort)
+		self.count += 1
+
+	def __str__(self):
+		if self.email:
+			mail = self.email.replace('@', ' at ').replace('.', ' dot ')
+		else:
+			mail = 'UNKNOWN_AT_GOOGLE_DOT_COM'
+		return '%s &lt;%s&gt;\t %d'%(self.getName(), mail, self.count)
+
+if __name__ == '__main__':
+	d = {}
+	top = getTop()
+	platformPrefix = ('frameworks',
+			'bionic',
+			'system',
+			'hardware',
+			'build',
+			'dalvik',
+			'libcore',
+	)
+
+	platformOnly = '-p' in sys.argv
+	commitCountLimit = platformOnly and 500 or 1000
+
+	def isPlatform(path):
+		for prefix in platformPrefix:
+			if path.startswith(prefix):
+				return True
+
+	for path in getPaths(top):
+		if platformOnly and not isPlatform(path):
+			continue
+
+		for author in getAuthors(path):
+			email, name = author
+			if isBot(email):
+				continue
+			if not isGoogler(email):
+				continue
+			if email in NOBODY:
+				key = 'NOBODY', name
+				email = ''
+			else:
+				if email.endswith('corp.google.com'):
+					email = email.split('@', 1)[0] + '@google.com'
+				key = email, ''
+			d.setdefault(key, AuthorCount(email)).incCount(name)
+
+	names = {}
+	for item in d.iteritems():
+		k, v = item
+		name = v.getName()
+		names.setdefault(name, set()).add(item)
+
+	# get delegate account in duplicated
+	def getDelegates(items):
+		google_account = set()
+		android_account = set()
+		for key, value in items:
+			email = value.getEmail()
+			if email.endswith('google.com'):
+				google_account.add((key, value))
+			elif email.endswith('android.com'):
+				android_account.add((key, value))
+		return google_account and google_account or android_account
+
+	# merge duplicated account
+	for items in names.itervalues():
+		if len(items) == 1: continue
+		delegates = getDelegates(items)
+		if len(delegates) != 1: continue
+		delegate = tuple(delegates)[0][1]
+		for k, v in items - delegates:
+			del d[k]
+			delegate.count += v.count
+
+	countKey = lambda x:x.getCount()
+	nameKey = lambda x:x.getName()
+	emailKey = lambda x:x.getEmail()
+
+	count = 0
+	for item in sorted(d.itervalues(), key = countKey):
+		#if d[item].count &lt; commitCountLimit: continue
+		sys.stdout.write('%s\n'%(str(item)))
+		count += item.getCount()
+	print 'total commit count:', count&lt;/code&gt;&lt;/pre&gt;
+    &lt;/noscript&gt;
+&lt;/div&gt;
 &lt;p&gt;https://gist.github.com/ganadist/5057717&lt;/p&gt;</content><category term="tech"></category><category term="android"></category><category term="platform"></category><category term="opensource"></category></entry><entry><title>간단하게 뜯어보는 nbd(network block device)</title><link href="https://ganadist.github.io/2011_08_15_nbd.html" rel="alternate"></link><published>2011-08-15T12:00:00+09:00</published><updated>2011-08-15T12:00:00+09:00</updated><author><name>YOUNG HO CHA</name></author><id>tag:ganadist.github.io,2011-08-15:/2011_08_15_nbd.html</id><summary type="html">&lt;p&gt;nbd&amp;nbsp;사용방법&lt;/p&gt;</summary><content type="html">&lt;p&gt;nbd는 소켓을 이용해서 저멀리 떨어져있는 기계의 block장치를 현재 컴퓨터의 block장치처럼 쓰게 하는 리눅스의&amp;nbsp;기능이다.&lt;/p&gt;
 &lt;p&gt;물론 꼭 저 멀리 떨어져있을 필요는 없으며, 꼭 block장치여야 한다는 법은&amp;nbsp;없다.&lt;/p&gt;
 &lt;p&gt;특정한 위치에서 특정한 길이의 데이터를 read하거나 write할 수만 있으면&amp;nbsp;상관없다.&lt;/p&gt;
