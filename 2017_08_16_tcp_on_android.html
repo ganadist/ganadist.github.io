@@ -2,72 +2,121 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/stylesheet/style.min.css">
 
-  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/pygments/github.min.css">
-  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/font-awesome.min.css">
+
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://ganadist.github.io/theme/pygments/github.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/solid.css">
 
 
     <link href="https://ganadist.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Ganachoco's Blog Atom">
 
 
 
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="HandheldFriendly" content="True" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="" />
+<!-- Google Analytics -->
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+  ga('create', 'UA-120269954-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->  
+
+
+ 
 
 <meta name="author" content="YOUNG HO CHA" />
 <meta name="description" content="Android Framework에서 소켓권한 제어 방법" />
 <meta name="keywords" content="android, network">
-<meta property="og:site_name" content="Ganachoco's Blog"/>
-<meta property="og:title" content="TCP access control in Android Frameworks"/>
-<meta property="og:description" content="Android Framework에서 소켓권한 제어 방법"/>
-<meta property="og:locale" content="en_US"/>
-<meta property="og:url" content="https://ganadist.github.io/2017_08_16_tcp_on_android.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2017-08-16 19:00:00+09:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="https://ganadist.github.io/author/young-ho-cha.html">
-<meta property="article:section" content="tech"/>
-<meta property="article:tag" content="android"/>
-<meta property="article:tag" content="network"/>
-<meta property="og:image" content="">
+
+
+  <meta property="og:site_name" content="Ganachoco's Blog"/>
+  <meta property="og:title" content="TCP access control in Android Frameworks"/>
+  <meta property="og:description" content="Android Framework에서 소켓권한 제어 방법"/>
+  <meta property="og:locale" content="en_US"/>
+  <meta property="og:url" content="https://ganadist.github.io/2017_08_16_tcp_on_android.html"/>
+  <meta property="og:type" content="article"/>
+  <meta property="article:published_time" content="2017-08-16 19:00:00+09:00"/>
+  <meta property="article:modified_time" content=""/>
+  <meta property="article:author" content="https://ganadist.github.io/author/young-ho-cha.html">
+  <meta property="article:section" content="tech"/>
+  <meta property="article:tag" content="android"/>
+  <meta property="article:tag" content="network"/>
+  <meta property="og:image" content="">
 
   <title>Ganachoco's Blog &ndash; TCP access control in Android Frameworks</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
-      <a href="https://ganadist.github.io">
+      <a href="https://ganadist.github.io/">
         <img src="https://ganadist.github.io/theme/img/profile.png" alt="" title="">
       </a>
-      <h1><a href="https://ganadist.github.io"></a></h1>
+
+      <h1>
+        <a href="https://ganadist.github.io/"></a>
+      </h1>
+
 
 
       <nav>
         <ul class="list">
 
-          <li><a href="http://b.android.com" target="_blank">b.android.com</a></li>
-          <li><a href="https://d.android.com" target="_blank">d.android.com</a></li>
-          <li><a href="https://r.android.com" target="_blank">r.android.com</a></li>
-          <li><a href="https://s.android.com" target="_blank">s.android.com</a></li>
-          <li><a href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" target="_blank">Andy Figure</a></li>
+
+
+            <li>
+              <a target="_self" href="http://b.android.com" >b.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://d.android.com" >d.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://r.android.com" >r.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://s.android.com" >s.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" >Andy Figure</a>
+            </li>
         </ul>
       </nav>
 
       <ul class="social">
-        <li><a class="sc-github" href="http://github.com/ganadist" target="_blank"><i class="fa fa-github"></i></a></li>
-        <li><a class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank"><i class="fa fa-slideshare"></i></a></li>
-        <li><a class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+          <li>
+            <a  class="sc-github" href="http://github.com/ganadist" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank">
+              <i class="fab fa-slideshare"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
@@ -75,10 +124,10 @@
 
 <article class="single">
   <header>
+      
     <h1 id="2017_08_16_tcp_on_android"><span class="caps">TCP</span> access control in Android&nbsp;Frameworks</h1>
     <p>
-          Posted on 08/16/2017 in <a href="https://ganadist.github.io/category/tech.html">tech</a>
-
+      Posted on 08/16/2017 in <a href="https://ganadist.github.io/category/tech.html">tech</a>
 
     </p>
   </header>
@@ -94,7 +143,7 @@
 <p>새로운 <a href="https://developer.android.com/about/versions/android-5.0.html#Multinetwork">connectivity api</a> 로 인해 socket 퍼미션을 동적으로 관리하기 위해서 <a href="https://android.googlesource.com/platform/system/netd/+/android-7.1.1_r50">netd 라는 daemon이 완전히 개비</a>되었습니다. (<a href="https://android.googlesource.com/platform/system/netd/+/kitkat-dev">킷캣 이전에도 netd는 존재</a>했지만 테터링이나 vpn등의 제한된 기능만&nbsp;제공했습니다.)</p>
 <p>c 라이브러리(bionic)의 socket 관련 시스템 콜(<a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/socket.cpp">socket</a>, <a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/accept4.cpp">accept4</a>, <a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/connect.cpp">connect</a>) 래퍼는 직접 커널에서 제공되는 시스템콜을 호출하지 않고, <a href="https://android.googlesource.com/platform/bionic/+/android-7.1.1_r50/libc/bionic/NetdClient.cpp">netd 에서 제공되는 래퍼 함수를 호출</a>합니다.</p>
 <p>그리고 각 socket관련 시스템 콜을 호출할 때는 <a href="https://android.googlesource.com/platform/system/netd/+/android-7.1.1_r50/server/FwmarkServer.cpp#207">각 socket에 대해 fwmark(Firewall Mark)라는 것을 설정</a>하고, 라우팅 테이블에서 fwmark를 이용해 해당 패킷을 실제로 교환할 지&nbsp;결정합니다.</p>
-<div class="highlight"><pre><span></span>mako:/ # ip rule
+<div class="highlight"><pre><span></span><code>mako:/ # ip rule
 0:      from all lookup local
 10000:  from all fwmark 0xc0000/0xd0000 lookup legacy_system
 10500:  from all oif dummy0 uidrange 0-0 lookup dummy0
@@ -110,13 +159,12 @@
 22000:  from all fwmark 0x0/0xffff lookup wlan0
 23000:  from all fwmark 0x0/0xffff uidrange 0-0 lookup main
 32000:  from all unreachable
-</pre></div>
-
+</code></pre></div>
 
 <p>따라서 퍼미션을 가지지 않는 데몬이나 앱이 tcp연결을 시도하면, 킷캣 미만처럼 EACCESS오류가 발생하는 것이 아니라,  송신용 소켓일 경우에는  <span class="caps">ENETUNREACH</span>(Network is unreachable)이 발생하며, 수신용 소켓일 경우에는 라우팅이 되지 않아 아예 패킷 수신이 되지&nbsp;않습니다.</p>
 <p>또한 네트워크 인터페이스가 netd 및 connectivity service에 등록되지 않은 상태이면, 마찬가지로 라우팅 테이블에서 해당 패킷을 처리하지 않게 되므로, 패킷 송수신이 불가능한 상태가&nbsp;됩니다.</p>
 <p>임의로 네트워크 인터페이스를 netd에 등록하려면 다음 명령을 미리 실행해&nbsp;놓습니다.</p>
-<div class="highlight"><pre><span></span>mako:/ # ndc network create 100
+<div class="highlight"><pre><span></span><code>mako:/ # ndc network create 100
 mako:/ # ndc network default set 100
 mako:/ # ndc network interface add 100 eth0
 mako:/ # dumpsys netd
@@ -140,7 +188,7 @@ mako:/ # dumpsys netd
           168.126.63.2 &lt;no data&gt;
         No search domains defined
         DNS parameters: sample validity = 1800s, success threshold = 25%, samples (min, max) = (8, 64)
-</pre></div>
+</code></pre></div>
   </div>
   <div class="tag-cloud">
     <p>
@@ -152,6 +200,8 @@ mako:/ # dumpsys netd
 
 
 
+
+<!-- Disqus -->
 <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = 'ganadist-github-io';
@@ -162,28 +212,18 @@ mako:/ # dumpsys netd
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
+<!-- End Disqus -->
 </article>
 
     <footer>
-<p>&copy; YOUNG HO CHA </p>
-<p>    Powered by <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a>
+<p>&copy;  </p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p>    </footer>
   </main>
 
-<!-- Google Analytics -->
-<script type="text/javascript">
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-120269954-1', 'auto');
-  ga('send', 'pageview');
-</script>
-<!-- End Google Analytics -->
 
 
 
@@ -197,5 +237,6 @@ mako:/ # dumpsys netd
   "description": ""
 }
 </script>
+
 </body>
 </html>

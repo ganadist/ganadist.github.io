@@ -2,73 +2,122 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/stylesheet/style.min.css">
 
-  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/pygments/github.min.css">
-  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/font-awesome.min.css">
+
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://ganadist.github.io/theme/pygments/github.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/solid.css">
 
 
     <link href="https://ganadist.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Ganachoco's Blog Atom">
 
 
 
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="HandheldFriendly" content="True" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="" />
+<!-- Google Analytics -->
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+  ga('create', 'UA-120269954-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->  
+
+
+ 
 
 <meta name="author" content="YOUNG HO CHA" />
 <meta name="description" content="리눅스에서 어플리케이션 crash가 처리되는 방법" />
 <meta name="keywords" content="linux, ubuntu, android">
-<meta property="og:site_name" content="Ganachoco's Blog"/>
-<meta property="og:title" content="어플리케이션 Crash 처리하기"/>
-<meta property="og:description" content="리눅스에서 어플리케이션 crash가 처리되는 방법"/>
-<meta property="og:locale" content="en_US"/>
-<meta property="og:url" content="https://ganadist.github.io/2016_06_22_handle_crash.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2016-06-22 19:00:00+09:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="https://ganadist.github.io/author/young-ho-cha.html">
-<meta property="article:section" content="tech"/>
-<meta property="article:tag" content="linux"/>
-<meta property="article:tag" content="ubuntu"/>
-<meta property="article:tag" content="android"/>
-<meta property="og:image" content="">
+
+
+  <meta property="og:site_name" content="Ganachoco's Blog"/>
+  <meta property="og:title" content="어플리케이션 Crash 처리하기"/>
+  <meta property="og:description" content="리눅스에서 어플리케이션 crash가 처리되는 방법"/>
+  <meta property="og:locale" content="en_US"/>
+  <meta property="og:url" content="https://ganadist.github.io/2016_06_22_handle_crash.html"/>
+  <meta property="og:type" content="article"/>
+  <meta property="article:published_time" content="2016-06-22 19:00:00+09:00"/>
+  <meta property="article:modified_time" content=""/>
+  <meta property="article:author" content="https://ganadist.github.io/author/young-ho-cha.html">
+  <meta property="article:section" content="tech"/>
+  <meta property="article:tag" content="linux"/>
+  <meta property="article:tag" content="ubuntu"/>
+  <meta property="article:tag" content="android"/>
+  <meta property="og:image" content="">
 
   <title>Ganachoco's Blog &ndash; 어플리케이션 Crash 처리하기</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
-      <a href="https://ganadist.github.io">
+      <a href="https://ganadist.github.io/">
         <img src="https://ganadist.github.io/theme/img/profile.png" alt="" title="">
       </a>
-      <h1><a href="https://ganadist.github.io"></a></h1>
+
+      <h1>
+        <a href="https://ganadist.github.io/"></a>
+      </h1>
+
 
 
       <nav>
         <ul class="list">
 
-          <li><a href="http://b.android.com" target="_blank">b.android.com</a></li>
-          <li><a href="https://d.android.com" target="_blank">d.android.com</a></li>
-          <li><a href="https://r.android.com" target="_blank">r.android.com</a></li>
-          <li><a href="https://s.android.com" target="_blank">s.android.com</a></li>
-          <li><a href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" target="_blank">Andy Figure</a></li>
+
+
+            <li>
+              <a target="_self" href="http://b.android.com" >b.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://d.android.com" >d.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://r.android.com" >r.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://s.android.com" >s.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" >Andy Figure</a>
+            </li>
         </ul>
       </nav>
 
       <ul class="social">
-        <li><a class="sc-github" href="http://github.com/ganadist" target="_blank"><i class="fa fa-github"></i></a></li>
-        <li><a class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank"><i class="fa fa-slideshare"></i></a></li>
-        <li><a class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+          <li>
+            <a  class="sc-github" href="http://github.com/ganadist" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank">
+              <i class="fab fa-slideshare"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
@@ -76,10 +125,10 @@
 
 <article class="single">
   <header>
+      
     <h1 id="2016_06_22_handle_crash">어플리케이션 Crash&nbsp;처리하기</h1>
     <p>
-          Posted on 06/22/2016 in <a href="https://ganadist.github.io/category/tech.html">tech</a>
-
+      Posted on 06/22/2016 in <a href="https://ganadist.github.io/category/tech.html">tech</a>
 
     </p>
   </header>
@@ -94,7 +143,7 @@ crash report 처리기들이 어떠한 방식으로 데이터를 구동되는지
 <h2>systemd: <a href="https://www.freedesktop.org/software/systemd/man/systemd-coredump.html">systemd-coredump</a></h2>
 <p>systemd를 사용하는 시스템에서는 <a href="https://github.com/systemd/systemd/blob/master/sysctl.d/50-coredump.conf.in">sysctl을 이용해 systemd-coredump를 core_pattern에 등록</a>한다. 그리고 오류가 발생하면, 해당 프로세스의 스택은 물론, systemd 에 의존적인 정보까지 추가해서 기록한다.
 이렇게 기록된 정보는 아래의 명령을 이용해서 확인할 수&nbsp;있다.</p>
-<div class="highlight"><pre><span></span>$ coredumpctl info
+<div class="highlight"><pre><span></span><code>$ coredumpctl info
            PID: <span class="m">1849</span> <span class="o">(</span>nautilus<span class="o">)</span>
            UID: <span class="m">1000</span> <span class="o">(</span>ganadist<span class="o">)</span>
            GID: <span class="m">100</span> <span class="o">(</span>users<span class="o">)</span>
@@ -144,8 +193,7 @@ crash report 처리기들이 어떠한 방식으로 데이터를 구동되는지
                 <span class="c1">#4  0x00007fe51789f975 n/a (libglib-2.0.so.0)</span>
                 <span class="c1">#5  0x00007fe516d96424 start_thread (libpthread.so.0)</span>
                 <span class="c1">#6  0x00007fe516ad5cbd __clone (libc.so.6)</span>
-</pre></div>
-
+</code></pre></div>
 
 <h2><a href="https://wiki.ubuntu.com/Apport">Apport</a></h2>
 <p>우분투 리눅스에서는 apport 라고하는 crash report 도구가 존재하며, <a href="http://bazaar.launchpad.net/~ubuntu-core-dev/ubuntu/xenial/apport/ubuntu/view/head:/etc/init.d/apport#L52">init 스크립트에서 core_pattern에 등록</a>한다. 또한 apport에는 몇가지 추가동작을 하게 되는데 다음과&nbsp;같다.</p>
@@ -184,94 +232,94 @@ crash report 처리기들이 어떠한 방식으로 데이터를 구동되는지
 <p>ActivityManagerService에서는 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12127">dropbox에 crash 정보를 저장</a>하고,  <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/android/app/ApplicationErrorReport.java#159">os 에 지정된 crash report 어플리케이션</a>이 있으며, <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/AppErrorDialog.java#66">사용자가 해당 앱을 사용하겠다고 선택</a>하면, <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12648">해당 앱을 이용해 오류정보를 전송</a>하게&nbsp;된다.</p>
 <h2>dropbox에 저장된 오류&nbsp;확인하기</h2>
 <p>아래의 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/core/java/com/android/server/BootReceiver.java#157">SYSTEM_TOMBSTONE</a> 옵션은 tombstone 에 대한 오류에 대해 조회하는 명령이며, app crash는 앱의 설치 위치에 따라 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12436">system_app</a>_crash, 또는 <a href="https://android.googlesource.com/platform/frameworks/base/+/android-6.0.1_r46/services/core/java/com/android/server/am/ActivityManagerService.java#12439">data_app</a>_crash 등의 옵션으로 조회가&nbsp;가능하다.</p>
-<div class="highlight"><pre><span></span>$ adb shell dumpsys dropbox --print SYSTEM_TOMBSTONE
-Drop box contents: <span class="m">634</span> entries
-Searching <span class="k">for</span>: <span class="nv">SYSTEM_TOMBSTONE</span>
+<div class="highlight"><pre><span></span><code><span class="o">$</span><span class="w"> </span><span class="n">adb</span><span class="w"> </span><span class="n">shell</span><span class="w"> </span><span class="n">dumpsys</span><span class="w"> </span><span class="n">dropbox</span><span class="w"> </span><span class="o">--</span><span class="nb">print</span><span class="w"> </span><span class="n">SYSTEM_TOMBSTONE</span><span class="w"></span>
+<span class="n">Drop</span><span class="w"> </span><span class="n">box</span><span class="w"> </span><span class="n">contents</span><span class="p">:</span><span class="w"> </span><span class="mi">634</span><span class="w"> </span><span class="n">entries</span><span class="w"></span>
+<span class="n">Searching</span><span class="w"> </span><span class="k">for</span><span class="p">:</span><span class="w"> </span><span class="n">SYSTEM_TOMBSTONE</span><span class="w"></span>
 
-<span class="o">========================================</span>
-<span class="m">2016</span>-06-21 <span class="m">18</span>:21:15 SYSTEM_TOMBSTONE <span class="o">(</span>compressed text, <span class="m">6361</span> bytes<span class="o">)</span>
-Build: google/hammerhead/hammerhead:6.0.1/MOB30M/2862625:user/release-keys
-Hardware: hammerhead
-Revision: <span class="m">11</span>
-Bootloader: HHZ20f
-Radio: unknown
-Kernel: Linux version <span class="m">3</span>.4.0-g6a99a02 <span class="o">(</span>android-build@wpdt13.hot.corp.google.com<span class="o">)</span> <span class="o">(</span>gcc version <span class="m">4</span>.8 <span class="o">(</span>GCC<span class="o">)</span> <span class="o">)</span> <span class="c1">#1 SMP PREEMPT Wed Apr 20 00:08:32 UTC 2016</span>
+<span class="o">========================================</span><span class="w"></span>
+<span class="mi">2016</span><span class="o">-</span><span class="mi">06</span><span class="o">-</span><span class="mi">21</span><span class="w"> </span><span class="mi">18</span><span class="p">:</span><span class="mi">21</span><span class="p">:</span><span class="mi">15</span><span class="w"> </span><span class="n">SYSTEM_TOMBSTONE</span><span class="w"> </span><span class="p">(</span><span class="n">compressed</span><span class="w"> </span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="mi">6361</span><span class="w"> </span><span class="n">bytes</span><span class="p">)</span><span class="w"></span>
+<span class="n">Build</span><span class="p">:</span><span class="w"> </span><span class="n">google</span><span class="o">/</span><span class="n">hammerhead</span><span class="o">/</span><span class="n">hammerhead</span><span class="p">:</span><span class="mf">6.0</span><span class="o">.</span><span class="mi">1</span><span class="o">/</span><span class="n">MOB30M</span><span class="o">/</span><span class="mi">2862625</span><span class="p">:</span><span class="n">user</span><span class="o">/</span><span class="n">release</span><span class="o">-</span><span class="n">keys</span><span class="w"></span>
+<span class="n">Hardware</span><span class="p">:</span><span class="w"> </span><span class="n">hammerhead</span><span class="w"></span>
+<span class="n">Revision</span><span class="p">:</span><span class="w"> </span><span class="mi">11</span><span class="w"></span>
+<span class="n">Bootloader</span><span class="p">:</span><span class="w"> </span><span class="n">HHZ20f</span><span class="w"></span>
+<span class="n">Radio</span><span class="p">:</span><span class="w"> </span><span class="n">unknown</span><span class="w"></span>
+<span class="n">Kernel</span><span class="p">:</span><span class="w"> </span><span class="n">Linux</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="mf">3.4</span><span class="o">.</span><span class="mi">0</span><span class="o">-</span><span class="n">g6a99a02</span><span class="w"> </span><span class="p">(</span><span class="n">android</span><span class="o">-</span><span class="n">build</span><span class="err">@</span><span class="n">wpdt13</span><span class="o">.</span><span class="n">hot</span><span class="o">.</span><span class="n">corp</span><span class="o">.</span><span class="n">google</span><span class="o">.</span><span class="n">com</span><span class="p">)</span><span class="w"> </span><span class="p">(</span><span class="n">gcc</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="mf">4.8</span><span class="w"> </span><span class="p">(</span><span class="n">GCC</span><span class="p">)</span><span class="w"> </span><span class="p">)</span><span class="w"> </span><span class="c1">#1 SMP PREEMPT Wed Apr 20 00:08:32 UTC 2016</span><span class="w"></span>
 
-*** *** *** *** *** *** *** *** *** *** *** *** *** *** *** ***
-Build fingerprint: <span class="s1">&#39;google/hammerhead/hammerhead:6.0.1/MOB30M/2862625:user/release-keys&#39;</span>
-Revision: <span class="s1">&#39;11&#39;</span>
-ABI: <span class="s1">&#39;arm&#39;</span>
-pid: <span class="m">224</span>, tid: <span class="m">224</span>, name: mm-qcamera-daem  &gt;&gt;&gt; /system/bin/mm-qcamera-daemon <span class="o">&lt;&lt;&lt;</span>
-signal <span class="m">11</span> <span class="o">(</span>SIGSEGV<span class="o">)</span>, code <span class="m">1</span> <span class="o">(</span>SEGV_MAPERR<span class="o">)</span>, fault addr 0x357b9a70
-    r0 000000a8  r1 b48c1290  r2 <span class="m">00800000</span>  r3 b48c1299
-    r4 b48c1298  r5 357b9a60  r6 b6b55300  r7 b48c1298
-    r8 b48c0000  r9 000000a7  sl 000000a3  fp b48c1538
-    ip <span class="m">00000038</span>  sp bedae540  lr b6d78920  pc b6d42128  cpsr 800f0030
-    d0  2064656c69616620  d1  735f74696e695f73
-    d2  <span class="m">0000000000000073</span>  d3  <span class="m">0000000000000069</span>
-    d4  <span class="m">0000000600000001</span>  d5  c01e33f0c300a020
-    d6  c11a644000000000  d7  c300bd20c300bd64
-    d8  <span class="m">0000000000000000</span>  d9  <span class="m">0000000000000000</span>
-    d10 <span class="m">0000000000000000</span>  d11 <span class="m">0000000000000000</span>
-    d12 <span class="m">0000000000000000</span>  d13 <span class="m">0000000000000000</span>
-    d14 <span class="m">0000000000000000</span>  d15 <span class="m">0000000000000000</span>
-    d16 <span class="m">0000000000000000</span>  d17 <span class="m">0000000000000000</span>
-    d18 3fe0000000000000  d19 3fe0000000000000
-    d20 3fe0000000000000  d21 bfe0000000000000
-    d22 4053bd6de0000000  d23 3fe0000000000000
-    d24 4053dd6de0000000  d25 3ff30a3d70a3d70a
-    d26 3ff6a0902de00d1b  d27 40a65cae7d566cf4
-    d28 40b13c51eb851eb9  d29 406d038366516db1
-    d30 40ad038366516db1  d31 4072d11eb851eb85
-    scr <span class="m">20000011</span>
+<span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"> </span><span class="o">***</span><span class="w"></span>
+<span class="n">Build</span><span class="w"> </span><span class="n">fingerprint</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;google/hammerhead/hammerhead:6.0.1/MOB30M/2862625:user/release-keys&#39;</span><span class="w"></span>
+<span class="n">Revision</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;11&#39;</span><span class="w"></span>
+<span class="n">ABI</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;arm&#39;</span><span class="w"></span>
+<span class="n">pid</span><span class="p">:</span><span class="w"> </span><span class="mi">224</span><span class="p">,</span><span class="w"> </span><span class="n">tid</span><span class="p">:</span><span class="w"> </span><span class="mi">224</span><span class="p">,</span><span class="w"> </span><span class="n">name</span><span class="p">:</span><span class="w"> </span><span class="n">mm</span><span class="o">-</span><span class="n">qcamera</span><span class="o">-</span><span class="n">daem</span><span class="w">  </span><span class="o">&gt;&gt;&gt;</span><span class="w"> </span><span class="o">/</span><span class="n">system</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">mm</span><span class="o">-</span><span class="n">qcamera</span><span class="o">-</span><span class="n">daemon</span><span class="w"> </span><span class="o">&lt;&lt;&lt;</span><span class="w"></span>
+<span class="k">signal</span><span class="w"> </span><span class="mi">11</span><span class="w"> </span><span class="p">(</span><span class="n">SIGSEGV</span><span class="p">),</span><span class="w"> </span><span class="n">code</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">(</span><span class="n">SEGV_MAPERR</span><span class="p">),</span><span class="w"> </span><span class="n">fault</span><span class="w"> </span><span class="n">addr</span><span class="w"> </span><span class="mh">0x357b9a70</span><span class="w"></span>
+<span class="w">    </span><span class="n">r0</span><span class="w"> </span><span class="mi">000000</span><span class="n">a8</span><span class="w">  </span><span class="n">r1</span><span class="w"> </span><span class="n">b48c1290</span><span class="w">  </span><span class="n">r2</span><span class="w"> </span><span class="mi">00800000</span><span class="w">  </span><span class="n">r3</span><span class="w"> </span><span class="n">b48c1299</span><span class="w"></span>
+<span class="w">    </span><span class="n">r4</span><span class="w"> </span><span class="n">b48c1298</span><span class="w">  </span><span class="n">r5</span><span class="w"> </span><span class="mi">357</span><span class="n">b9a60</span><span class="w">  </span><span class="n">r6</span><span class="w"> </span><span class="n">b6b55300</span><span class="w">  </span><span class="n">r7</span><span class="w"> </span><span class="n">b48c1298</span><span class="w"></span>
+<span class="w">    </span><span class="n">r8</span><span class="w"> </span><span class="n">b48c0000</span><span class="w">  </span><span class="n">r9</span><span class="w"> </span><span class="mi">000000</span><span class="n">a7</span><span class="w">  </span><span class="n">sl</span><span class="w"> </span><span class="mi">000000</span><span class="n">a3</span><span class="w">  </span><span class="n">fp</span><span class="w"> </span><span class="n">b48c1538</span><span class="w"></span>
+<span class="w">    </span><span class="n">ip</span><span class="w"> </span><span class="mi">00000038</span><span class="w">  </span><span class="n">sp</span><span class="w"> </span><span class="n">bedae540</span><span class="w">  </span><span class="n">lr</span><span class="w"> </span><span class="n">b6d78920</span><span class="w">  </span><span class="n">pc</span><span class="w"> </span><span class="n">b6d42128</span><span class="w">  </span><span class="n">cpsr</span><span class="w"> </span><span class="mi">800</span><span class="n">f0030</span><span class="w"></span>
+<span class="w">    </span><span class="n">d0</span><span class="w">  </span><span class="mi">2064656</span><span class="n">c69616620</span><span class="w">  </span><span class="n">d1</span><span class="w">  </span><span class="mi">735</span><span class="n">f74696e695f73</span><span class="w"></span>
+<span class="w">    </span><span class="n">d2</span><span class="w">  </span><span class="mi">0000000000000073</span><span class="w">  </span><span class="n">d3</span><span class="w">  </span><span class="mi">0000000000000069</span><span class="w"></span>
+<span class="w">    </span><span class="n">d4</span><span class="w">  </span><span class="mi">0000000600000001</span><span class="w">  </span><span class="n">d5</span><span class="w">  </span><span class="n">c01e33f0c300a020</span><span class="w"></span>
+<span class="w">    </span><span class="n">d6</span><span class="w">  </span><span class="n">c11a644000000000</span><span class="w">  </span><span class="n">d7</span><span class="w">  </span><span class="n">c300bd20c300bd64</span><span class="w"></span>
+<span class="w">    </span><span class="n">d8</span><span class="w">  </span><span class="mi">0000000000000000</span><span class="w">  </span><span class="n">d9</span><span class="w">  </span><span class="mi">0000000000000000</span><span class="w"></span>
+<span class="w">    </span><span class="n">d10</span><span class="w"> </span><span class="mi">0000000000000000</span><span class="w">  </span><span class="n">d11</span><span class="w"> </span><span class="mi">0000000000000000</span><span class="w"></span>
+<span class="w">    </span><span class="n">d12</span><span class="w"> </span><span class="mi">0000000000000000</span><span class="w">  </span><span class="n">d13</span><span class="w"> </span><span class="mi">0000000000000000</span><span class="w"></span>
+<span class="w">    </span><span class="n">d14</span><span class="w"> </span><span class="mi">0000000000000000</span><span class="w">  </span><span class="n">d15</span><span class="w"> </span><span class="mi">0000000000000000</span><span class="w"></span>
+<span class="w">    </span><span class="n">d16</span><span class="w"> </span><span class="mi">0000000000000000</span><span class="w">  </span><span class="n">d17</span><span class="w"> </span><span class="mi">0000000000000000</span><span class="w"></span>
+<span class="w">    </span><span class="n">d18</span><span class="w"> </span><span class="mi">3</span><span class="n">fe0000000000000</span><span class="w">  </span><span class="n">d19</span><span class="w"> </span><span class="mi">3</span><span class="n">fe0000000000000</span><span class="w"></span>
+<span class="w">    </span><span class="n">d20</span><span class="w"> </span><span class="mi">3</span><span class="n">fe0000000000000</span><span class="w">  </span><span class="n">d21</span><span class="w"> </span><span class="n">bfe0000000000000</span><span class="w"></span>
+<span class="w">    </span><span class="n">d22</span><span class="w"> </span><span class="mi">4053</span><span class="n">bd6de0000000</span><span class="w">  </span><span class="n">d23</span><span class="w"> </span><span class="mi">3</span><span class="n">fe0000000000000</span><span class="w"></span>
+<span class="w">    </span><span class="n">d24</span><span class="w"> </span><span class="mi">4053</span><span class="n">dd6de0000000</span><span class="w">  </span><span class="n">d25</span><span class="w"> </span><span class="mi">3</span><span class="n">ff30a3d70a3d70a</span><span class="w"></span>
+<span class="w">    </span><span class="n">d26</span><span class="w"> </span><span class="mi">3</span><span class="n">ff6a0902de00d1b</span><span class="w">  </span><span class="n">d27</span><span class="w"> </span><span class="mi">40</span><span class="n">a65cae7d566cf4</span><span class="w"></span>
+<span class="w">    </span><span class="n">d28</span><span class="w"> </span><span class="mi">40</span><span class="n">b13c51eb851eb9</span><span class="w">  </span><span class="n">d29</span><span class="w"> </span><span class="mi">406</span><span class="n">d038366516db1</span><span class="w"></span>
+<span class="w">    </span><span class="n">d30</span><span class="w"> </span><span class="mi">40</span><span class="n">ad038366516db1</span><span class="w">  </span><span class="n">d31</span><span class="w"> </span><span class="mi">4072</span><span class="n">d11eb851eb85</span><span class="w"></span>
+<span class="w">    </span><span class="n">scr</span><span class="w"> </span><span class="mi">20000011</span><span class="w"></span>
 
-backtrace:
-    <span class="c1">#00 pc 0004b128  /system/lib/libc.so (arena_dalloc_bin_locked_impl.isra.27+299)</span>
-    <span class="c1">#01 pc 0005c32f  /system/lib/libc.so (je_tcache_bin_flush_small+206)</span>
-    <span class="c1">#02 pc 000553cb  /system/lib/libc.so (ifree+290)</span>
-    <span class="c1">#03 pc 00058257  /system/lib/libc.so (je_free+374)</span>
-    <span class="c1">#04 pc 000034d7  /system/vendor/lib/libmmcamera2_sensor_modules.so</span>
-    <span class="c1">#05 pc 00005853  /system/vendor/lib/libmmcamera2_sensor_modules.so</span>
-    <span class="c1">#06 pc 00007189  /system/vendor/lib/liboemcamera.so (mct_list_traverse+26)</span>
-    <span class="c1">#07 pc 00004d55  /system/vendor/lib/liboemcamera.so (mct_pipeline_start_session+16)</span>
-    <span class="c1">#08 pc 00002b3f  /system/vendor/lib/liboemcamera.so (mct_controller_new+50)</span>
-    <span class="c1">#09 pc 000016b3  /system/bin/mm-qcamera-daemon</span>
-    <span class="c1">#10 pc 00001205  /system/bin/mm-qcamera-daemon (main+520)</span>
-    <span class="c1">#11 pc 00017359  /system/lib/libc.so (__libc_init+44)</span>
-    <span class="c1">#12 pc 0000148c  /system/bin/mm-qcamera-daemon</span>
+<span class="n">backtrace</span><span class="p">:</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#00 pc 0004b128  /system/lib/libc.so (arena_dalloc_bin_locked_impl.isra.27+299)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#01 pc 0005c32f  /system/lib/libc.so (je_tcache_bin_flush_small+206)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#02 pc 000553cb  /system/lib/libc.so (ifree+290)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#03 pc 00058257  /system/lib/libc.so (je_free+374)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#04 pc 000034d7  /system/vendor/lib/libmmcamera2_sensor_modules.so</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#05 pc 00005853  /system/vendor/lib/libmmcamera2_sensor_modules.so</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#06 pc 00007189  /system/vendor/lib/liboemcamera.so (mct_list_traverse+26)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#07 pc 00004d55  /system/vendor/lib/liboemcamera.so (mct_pipeline_start_session+16)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#08 pc 00002b3f  /system/vendor/lib/liboemcamera.so (mct_controller_new+50)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#09 pc 000016b3  /system/bin/mm-qcamera-daemon</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#10 pc 00001205  /system/bin/mm-qcamera-daemon (main+520)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#11 pc 00017359  /system/lib/libc.so (__libc_init+44)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#12 pc 0000148c  /system/bin/mm-qcamera-daemon</span><span class="w"></span>
 
-stack:
-         bedae500  bedae4e4  <span class="o">[</span>stack<span class="o">]</span>
-         bedae504  bedae4e4  <span class="o">[</span>stack<span class="o">]</span>
-         bedae508  b6680000
-         bedae50c  b6d792f0
-         bedae510  b6d792e0
-         bedae514  <span class="m">00100000</span>
-         bedae518  <span class="m">00000000</span>
-         bedae51c  <span class="m">00000002</span>
-         bedae520  b6b556f8  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
-         bedae524  b6b55300  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
-         bedae528  b48c1394  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
-         bedae52c  b48c0000  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
-         bedae530  b6b556f8  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
-         bedae534  <span class="m">00000000</span>
-         bedae538  <span class="m">00000002</span>
-         bedae53c  b6d421f7  /system/lib/libc.so <span class="o">(</span>arena_dalloc_bin_locked_impl.isra.27+506<span class="o">)</span>
-    <span class="c1">#00  bedae540  00000001</span>
-         bedae544  b6d7c0e8  /system/lib/libc++.so
-         bedae548  b48fa048  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
-         bedae54c  b6b02048  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
-         bedae550  <span class="m">00000004</span>
-         bedae554  b6b40140  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
-         bedae558  <span class="m">00000004</span>
-         bedae55c  <span class="m">00000001</span>
-         bedae560  <span class="m">00000003</span>
-         bedae564  b6b55300  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
-         bedae568  b6b556f8  <span class="o">[</span>anon:libc_malloc<span class="o">]</span>
-         bedae56c  b6d53333  /system/lib/libc.so <span class="o">(</span>je_tcache_bin_flush_small+210<span class="o">)</span>
+<span class="n">stack</span><span class="p">:</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae500</span><span class="w">  </span><span class="n">bedae4e4</span><span class="w">  </span><span class="p">[</span><span class="n">stack</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae504</span><span class="w">  </span><span class="n">bedae4e4</span><span class="w">  </span><span class="p">[</span><span class="n">stack</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae508</span><span class="w">  </span><span class="n">b6680000</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae50c</span><span class="w">  </span><span class="n">b6d792f0</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae510</span><span class="w">  </span><span class="n">b6d792e0</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae514</span><span class="w">  </span><span class="mi">00100000</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae518</span><span class="w">  </span><span class="mi">00000000</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae51c</span><span class="w">  </span><span class="mi">00000002</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae520</span><span class="w">  </span><span class="n">b6b556f8</span><span class="w">  </span><span class="p">[</span><span class="n">anon</span><span class="p">:</span><span class="n">libc_malloc</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae524</span><span class="w">  </span><span class="n">b6b55300</span><span class="w">  </span><span class="p">[</span><span class="n">anon</span><span class="p">:</span><span class="n">libc_malloc</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae528</span><span class="w">  </span><span class="n">b48c1394</span><span class="w">  </span><span class="p">[</span><span class="n">anon</span><span class="p">:</span><span class="n">libc_malloc</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae52c</span><span class="w">  </span><span class="n">b48c0000</span><span class="w">  </span><span class="p">[</span><span class="n">anon</span><span class="p">:</span><span class="n">libc_malloc</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae530</span><span class="w">  </span><span class="n">b6b556f8</span><span class="w">  </span><span class="p">[</span><span class="n">anon</span><span class="p">:</span><span class="n">libc_malloc</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae534</span><span class="w">  </span><span class="mi">00000000</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae538</span><span class="w">  </span><span class="mi">00000002</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae53c</span><span class="w">  </span><span class="n">b6d421f7</span><span class="w">  </span><span class="o">/</span><span class="n">system</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">libc</span><span class="o">.</span><span class="n">so</span><span class="w"> </span><span class="p">(</span><span class="n">arena_dalloc_bin_locked_impl</span><span class="o">.</span><span class="n">isra</span><span class="o">.</span><span class="mi">27</span><span class="o">+</span><span class="mi">506</span><span class="p">)</span><span class="w"></span>
+<span class="w">    </span><span class="c1">#00  bedae540  00000001</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae544</span><span class="w">  </span><span class="n">b6d7c0e8</span><span class="w">  </span><span class="o">/</span><span class="n">system</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">libc</span><span class="o">++.</span><span class="n">so</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae548</span><span class="w">  </span><span class="n">b48fa048</span><span class="w">  </span><span class="p">[</span><span class="n">anon</span><span class="p">:</span><span class="n">libc_malloc</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae54c</span><span class="w">  </span><span class="n">b6b02048</span><span class="w">  </span><span class="p">[</span><span class="n">anon</span><span class="p">:</span><span class="n">libc_malloc</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae550</span><span class="w">  </span><span class="mi">00000004</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae554</span><span class="w">  </span><span class="n">b6b40140</span><span class="w">  </span><span class="p">[</span><span class="n">anon</span><span class="p">:</span><span class="n">libc_malloc</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae558</span><span class="w">  </span><span class="mi">00000004</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae55c</span><span class="w">  </span><span class="mi">00000001</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae560</span><span class="w">  </span><span class="mi">00000003</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae564</span><span class="w">  </span><span class="n">b6b55300</span><span class="w">  </span><span class="p">[</span><span class="n">anon</span><span class="p">:</span><span class="n">libc_malloc</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae568</span><span class="w">  </span><span class="n">b6b556f8</span><span class="w">  </span><span class="p">[</span><span class="n">anon</span><span class="p">:</span><span class="n">libc_malloc</span><span class="p">]</span><span class="w"></span>
+<span class="w">         </span><span class="n">bedae56c</span><span class="w">  </span><span class="n">b6d53333</span><span class="w">  </span><span class="o">/</span><span class="n">system</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">libc</span><span class="o">.</span><span class="n">so</span><span class="w"> </span><span class="p">(</span><span class="n">je_tcache_bin_flush_small</span><span class="o">+</span><span class="mi">210</span><span class="p">)</span><span class="w"></span>
 
-Tombstone written to: /data/tombstones/tombstone_09
-</pre></div>
+<span class="n">Tombstone</span><span class="w"> </span><span class="n">written</span><span class="w"> </span><span class="n">to</span><span class="p">:</span><span class="w"> </span><span class="o">/</span><span class="n">data</span><span class="o">/</span><span class="n">tombstones</span><span class="o">/</span><span class="n">tombstone_09</span><span class="w"></span>
+</code></pre></div>
   </div>
   <div class="tag-cloud">
     <p>
@@ -284,6 +332,8 @@ Tombstone written to: /data/tombstones/tombstone_09
 
 
 
+
+<!-- Disqus -->
 <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = 'ganadist-github-io';
@@ -294,28 +344,18 @@ Tombstone written to: /data/tombstones/tombstone_09
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
+<!-- End Disqus -->
 </article>
 
     <footer>
-<p>&copy; YOUNG HO CHA </p>
-<p>    Powered by <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a>
+<p>&copy;  </p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p>    </footer>
   </main>
 
-<!-- Google Analytics -->
-<script type="text/javascript">
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-120269954-1', 'auto');
-  ga('send', 'pageview');
-</script>
-<!-- End Google Analytics -->
 
 
 
@@ -329,5 +369,6 @@ Tombstone written to: /data/tombstones/tombstone_09
   "description": ""
 }
 </script>
+
 </body>
 </html>

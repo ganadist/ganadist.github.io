@@ -2,75 +2,124 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/stylesheet/style.min.css">
 
-  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/pygments/github.min.css">
-  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/font-awesome.min.css">
+
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://ganadist.github.io/theme/pygments/github.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/solid.css">
 
 
     <link href="https://ganadist.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Ganachoco's Blog Atom">
 
 
 
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="HandheldFriendly" content="True" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="" />
+<!-- Google Analytics -->
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+  ga('create', 'UA-120269954-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->  
+
+
+ 
 
 <meta name="author" content="YOUNG HO CHA" />
 <meta name="description" content="gerrit rest api binding for python" />
 <meta name="keywords" content="gerrit, python, rest, misc, opensource">
-<meta property="og:site_name" content="Ganachoco's Blog"/>
-<meta property="og:title" content="python 용 gerrit rest api binding"/>
-<meta property="og:description" content="gerrit rest api binding for python"/>
-<meta property="og:locale" content="en_US"/>
-<meta property="og:url" content="https://ganadist.github.io/2018_05_20_pygerrit.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2018-05-20 19:26:00+09:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="https://ganadist.github.io/author/young-ho-cha.html">
-<meta property="article:section" content="tech"/>
-<meta property="article:tag" content="gerrit"/>
-<meta property="article:tag" content="python"/>
-<meta property="article:tag" content="rest"/>
-<meta property="article:tag" content="misc"/>
-<meta property="article:tag" content="opensource"/>
-<meta property="og:image" content="">
+
+
+  <meta property="og:site_name" content="Ganachoco's Blog"/>
+  <meta property="og:title" content="python 용 gerrit rest api binding"/>
+  <meta property="og:description" content="gerrit rest api binding for python"/>
+  <meta property="og:locale" content="en_US"/>
+  <meta property="og:url" content="https://ganadist.github.io/2018_05_20_pygerrit.html"/>
+  <meta property="og:type" content="article"/>
+  <meta property="article:published_time" content="2018-05-20 19:26:00+09:00"/>
+  <meta property="article:modified_time" content=""/>
+  <meta property="article:author" content="https://ganadist.github.io/author/young-ho-cha.html">
+  <meta property="article:section" content="tech"/>
+  <meta property="article:tag" content="gerrit"/>
+  <meta property="article:tag" content="python"/>
+  <meta property="article:tag" content="rest"/>
+  <meta property="article:tag" content="misc"/>
+  <meta property="article:tag" content="opensource"/>
+  <meta property="og:image" content="">
 
   <title>Ganachoco's Blog &ndash; python 용 gerrit rest api binding</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
-      <a href="https://ganadist.github.io">
+      <a href="https://ganadist.github.io/">
         <img src="https://ganadist.github.io/theme/img/profile.png" alt="" title="">
       </a>
-      <h1><a href="https://ganadist.github.io"></a></h1>
+
+      <h1>
+        <a href="https://ganadist.github.io/"></a>
+      </h1>
+
 
 
       <nav>
         <ul class="list">
 
-          <li><a href="http://b.android.com" target="_blank">b.android.com</a></li>
-          <li><a href="https://d.android.com" target="_blank">d.android.com</a></li>
-          <li><a href="https://r.android.com" target="_blank">r.android.com</a></li>
-          <li><a href="https://s.android.com" target="_blank">s.android.com</a></li>
-          <li><a href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" target="_blank">Andy Figure</a></li>
+
+
+            <li>
+              <a target="_self" href="http://b.android.com" >b.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://d.android.com" >d.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://r.android.com" >r.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://s.android.com" >s.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" >Andy Figure</a>
+            </li>
         </ul>
       </nav>
 
       <ul class="social">
-        <li><a class="sc-github" href="http://github.com/ganadist" target="_blank"><i class="fa fa-github"></i></a></li>
-        <li><a class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank"><i class="fa fa-slideshare"></i></a></li>
-        <li><a class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+          <li>
+            <a  class="sc-github" href="http://github.com/ganadist" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank">
+              <i class="fab fa-slideshare"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
@@ -78,10 +127,10 @@
 
 <article class="single">
   <header>
+      
     <h1 id="2018_05_20_pygerrit">python 용 gerrit rest api&nbsp;binding</h1>
     <p>
-          Posted on 05/20/2018 in <a href="https://ganadist.github.io/category/tech.html">tech</a>
-
+      Posted on 05/20/2018 in <a href="https://ganadist.github.io/category/tech.html">tech</a>
 
     </p>
   </header>
@@ -107,6 +156,8 @@
 
 
 
+
+<!-- Disqus -->
 <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = 'ganadist-github-io';
@@ -117,28 +168,18 @@
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
+<!-- End Disqus -->
 </article>
 
     <footer>
-<p>&copy; YOUNG HO CHA </p>
-<p>    Powered by <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a>
+<p>&copy;  </p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p>    </footer>
   </main>
 
-<!-- Google Analytics -->
-<script type="text/javascript">
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-120269954-1', 'auto');
-  ga('send', 'pageview');
-</script>
-<!-- End Google Analytics -->
 
 
 
@@ -152,5 +193,6 @@
   "description": ""
 }
 </script>
+
 </body>
 </html>

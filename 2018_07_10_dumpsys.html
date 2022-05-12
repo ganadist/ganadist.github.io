@@ -2,185 +2,29 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/stylesheet/style.min.css">
 
-  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/pygments/github.min.css">
-  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/font-awesome.min.css">
+
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://ganadist.github.io/theme/pygments/github.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/solid.css">
 
 
     <link href="https://ganadist.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Ganachoco's Blog Atom">
 
 
-
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="HandheldFriendly" content="True" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="" />
-
-
-<meta name="author" content="YOUNG HO CHA" />
-<meta name="description" content="android dumpsys 사용하기" />
-<meta name="keywords" content="android">
-<meta property="og:site_name" content="Ganachoco's Blog"/>
-<meta property="og:title" content="android 의 dumpsys를 이용한 분석 방법"/>
-<meta property="og:description" content="android dumpsys 사용하기"/>
-<meta property="og:locale" content="en_US"/>
-<meta property="og:url" content="https://ganadist.github.io/2018_07_10_dumpsys.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2018-07-10 21:16:00+09:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="https://ganadist.github.io/author/young-ho-cha.html">
-<meta property="article:section" content="tech"/>
-<meta property="article:tag" content="android"/>
-<meta property="og:image" content="">
-
-  <title>Ganachoco's Blog &ndash; android 의 dumpsys를 이용한 분석 방법</title>
-
-</head>
-<body>
-  <aside>
-    <div>
-      <a href="https://ganadist.github.io">
-        <img src="https://ganadist.github.io/theme/img/profile.png" alt="" title="">
-      </a>
-      <h1><a href="https://ganadist.github.io"></a></h1>
-
-
-      <nav>
-        <ul class="list">
-
-          <li><a href="http://b.android.com" target="_blank">b.android.com</a></li>
-          <li><a href="https://d.android.com" target="_blank">d.android.com</a></li>
-          <li><a href="https://r.android.com" target="_blank">r.android.com</a></li>
-          <li><a href="https://s.android.com" target="_blank">s.android.com</a></li>
-          <li><a href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" target="_blank">Andy Figure</a></li>
-        </ul>
-      </nav>
-
-      <ul class="social">
-        <li><a class="sc-github" href="http://github.com/ganadist" target="_blank"><i class="fa fa-github"></i></a></li>
-        <li><a class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank"><i class="fa fa-slideshare"></i></a></li>
-        <li><a class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank"><i class="fa fa-linkedin"></i></a></li>
-      </ul>
-    </div>
-
-
-  </aside>
-  <main>
-
-
-<article class="single">
-  <header>
-    <h1 id="2018_07_10_dumpsys">android 의 dumpsys를 이용한 분석&nbsp;방법</h1>
-    <p>
-          Posted on 07/10/2018 in <a href="https://ganadist.github.io/category/tech.html">tech</a>
-
-
-    </p>
-  </header>
-
-
-  <div>
-    <p>얼마 전에 <a href="http://pluu.github.io/">과일님</a>이 <a href="https://yanolja.github.io/2018/07/Android-Why">쌩고생하며 디버깅했던 경험을 공유</a>해주었는데, 약간 더 곁들여서&nbsp;끄적여봅니다.</p>
-<h1>dumpsys</h1>
-<p><a href="https://developer.android.com/studio/command-line/dumpsys">dumpsys 명령어</a>는 IBinder의 <a href="http://bit.ly/2u8AZIY">dump 메소드</a>의 결과를 표준 출력으로 출력해주는 유용한 개발도구입니다. adb만 사용 가능한 상태면 손쉽게 기기의 상태를 확인해볼 수 있고, PC가 없더라도 <a href="https://developer.android.com/studio/debug/bug-report#bugreportdevice">개발자 옵션에 포함되어 있는 버그 신고</a> 기능을 이용해서 출력을 뽑아낼 수 있습니다. 그런데 아무 IBinder 객체에게 사용할 수 있는 것은 아니고, <a href="https://android.googlesource.com/platform/frameworks/native/+/master/cmds/servicemanager/">system service manager</a>에 등록된 항목에 한해서 가능합니다. system service manager에 등록된 IBinder객체는 다음의 명령을 이용해&nbsp;확인가능합니다.</p>
-<div class="highlight"><pre><span></span>## android 4.3 이전
-$ adb shell service list
-
-## android 4.4 이후
-$ adb shell dumpsys -l
-</pre></div>
-
-
-<p>출력물은 각 시스템 서비스의 dump 메소드의 구현을 확인하면 정확하게 어떤 값을 출력하는 지 알 수 있습니다. 예를 들면 다음과&nbsp;같습니다.</p>
-<ul>
-<li><a href="https://android.googlesource.com/platform/frameworks/base/+/079f03f/services/core/java/com/android/server/am/ActivityManagerService.java#15068">ActivityManagerService</a></li>
-<li><a href="https://android.googlesource.com/platform/frameworks/av/+/1ec73be/media/libmediaplayerservice/MediaPlayerService.cpp#433">MediaPlayserService</a></li>
-</ul>
-<h1>dumpsys activity&nbsp;service</h1>
-<p>그리고 <a href="https://developer.android.com/reference/android/app/Service">앱에서 작성하는 Service 클래스</a>에도 시스템 서비스와 유사하게 <a href="http://bit.ly/2L3Ty7D">dump 메소드 인터페이스가 제공</a>됩니다. 위에 이야기했듯이 dumpsys는 system service manager에 등록된 IBinder 객체에만 접근할 수 있기 때문에, 앱에서 작성한 서비스에서 정보를 얻기 위해서는 ActivityManagerService를 경유해야&nbsp;합니다.</p>
-<p>Android에서 ActivityManagerService는 앱에 포함된 activity, service, broadcast receiver, provider등을 관리해주며, 각 컴포넌트의 상태를 확인할 수 있는데요. dumpsys 명령을 이용하면 정말 상세하게 알 수&nbsp;있습니다.</p>
-<div class="highlight"><pre><span></span>$ adb shell dumpsys activity -h
-
-Activity manager dump options:
-  <span class="o">[</span>-a<span class="o">]</span> <span class="o">[</span>-c<span class="o">]</span> <span class="o">[</span>-p PACKAGE<span class="o">]</span> <span class="o">[</span>-h<span class="o">]</span> <span class="o">[</span>WHAT<span class="o">]</span> ...
-  WHAT may be one of:
-    a<span class="o">[</span>ctivities<span class="o">]</span>: activity stack state
-    r<span class="o">[</span>recents<span class="o">]</span>: recent activities state
-    b<span class="o">[</span>roadcasts<span class="o">]</span> <span class="o">[</span>PACKAGE_NAME<span class="o">]</span> <span class="o">[</span><span class="nb">history</span> <span class="o">[</span>-s<span class="o">]]</span>: broadcast state
-    broadcast-stats <span class="o">[</span>PACKAGE_NAME<span class="o">]</span>: aggregated broadcast statistics
-    i<span class="o">[</span>ntents<span class="o">]</span> <span class="o">[</span>PACKAGE_NAME<span class="o">]</span>: pending intent state
-    p<span class="o">[</span>rocesses<span class="o">]</span> <span class="o">[</span>PACKAGE_NAME<span class="o">]</span>: process state
-    o<span class="o">[</span>om<span class="o">]</span>: out of memory management
-    perm<span class="o">[</span>issions<span class="o">]</span>: URI permission grant state
-    prov<span class="o">[</span>iders<span class="o">]</span> <span class="o">[</span>COMP_SPEC ...<span class="o">]</span>: content provider state
-    provider <span class="o">[</span>COMP_SPEC<span class="o">]</span>: provider client-side state
-    s<span class="o">[</span>ervices<span class="o">]</span> <span class="o">[</span>COMP_SPEC ...<span class="o">]</span>: service state
-    as<span class="o">[</span>sociations<span class="o">]</span>: tracked app associations
-    settings: currently applied config settings
-    service <span class="o">[</span>COMP_SPEC<span class="o">]</span>: service client-side state
-    package <span class="o">[</span>PACKAGE_NAME<span class="o">]</span>: all state related to given package
-    all: dump all activities
-    top: dump the top activity
-  WHAT may also be a COMP_SPEC to dump activities.
-  COMP_SPEC may be a component name <span class="o">(</span>com.foo/.myApp<span class="o">)</span>,
-    a partial substring in a component name, a
-    hex object identifier.
-  -a: include all available server state.
-  -c: include client state.
-  -p: limit output to given package.
-  --checkin: output checkin format, resetting data.
-  --C: output checkin format, not resetting data.
-  --proto: output dump in protocol buffer format.
-</pre></div>
-
-
-<p>여기서 특정 앱의 service에 포함된 dump 메소드(<a href="https://android.googlesource.com/platform/frameworks/base/+/079f03f/packages/SystemUI/src/com/android/systemui/SystemUIService.java#47">SystemUI</a> 또는 <a href="https://android.googlesource.com/platform/packages/services/Telephony/+/67a453d/src/com/android/phone/TelephonyDebugService.java#51">TelephonyService</a>)의 출력 결과를 알고 싶다면 다음과 같이 명령을 실행하면&nbsp;됩니다.</p>
-<div class="highlight"><pre><span></span>$ adb shell dumpsys activity service com.android.systemui/.SystemUIService
-
-$ adb shell dumpsys activity service com.android.phone/.TelephonyDebugService
-</pre></div>
-
-
-<p>만약에 여러분이 작성한 앱의 서비스에서 다양한 디버깅 정보를 출력하고 싶다면, dump메소드를 채우면&nbsp;됩니다.</p>
-<h1>dumpsys activity&nbsp;broadcasts</h1>
-<p>intent broadcast 타이밍 때문에 고통받는 개발자들도 dumpsys를 이용하면 큰 도움이&nbsp;됩니다.</p>
-<p>다음의 명령을 이용하면 intent broadcast가 발생했던 시간, intent 내용 및 처리 시간과 receiver 등을 쉽게 확인해볼 수&nbsp;있습니다.</p>
-<div class="highlight"><pre><span></span>$ adb shell dumpsys activity broadcasts <span class="nb">history</span>
-</pre></div>
-  </div>
-  <div class="tag-cloud">
-    <p>
-      <a href="https://ganadist.github.io/tag/android.html">android</a>
-    </p>
-  </div>
-
-
-
-
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-    var disqus_shortname = 'ganadist-github-io';
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-</script>
-<noscript>
-        Please enable JavaScript to view comments.
-
-</noscript>
-</article>
-
-    <footer>
-<p>&copy; YOUNG HO CHA </p>
-<p>    Powered by <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a>
-</p>    </footer>
-  </main>
 
 <!-- Google Analytics -->
 <script type="text/javascript">
@@ -192,7 +36,201 @@ $ adb shell dumpsys activity service com.android.phone/.TelephonyDebugService
   ga('create', 'UA-120269954-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
+
+ 
+
+<meta name="author" content="YOUNG HO CHA" />
+<meta name="description" content="android dumpsys 사용하기" />
+<meta name="keywords" content="android">
+
+
+  <meta property="og:site_name" content="Ganachoco's Blog"/>
+  <meta property="og:title" content="android 의 dumpsys를 이용한 분석 방법"/>
+  <meta property="og:description" content="android dumpsys 사용하기"/>
+  <meta property="og:locale" content="en_US"/>
+  <meta property="og:url" content="https://ganadist.github.io/2018_07_10_dumpsys.html"/>
+  <meta property="og:type" content="article"/>
+  <meta property="article:published_time" content="2018-07-10 21:16:00+09:00"/>
+  <meta property="article:modified_time" content=""/>
+  <meta property="article:author" content="https://ganadist.github.io/author/young-ho-cha.html">
+  <meta property="article:section" content="tech"/>
+  <meta property="article:tag" content="android"/>
+  <meta property="og:image" content="">
+
+  <title>Ganachoco's Blog &ndash; android 의 dumpsys를 이용한 분석 방법</title>
+
+</head>
+<body class="light-theme">
+  <aside>
+    <div>
+      <a href="https://ganadist.github.io/">
+        <img src="https://ganadist.github.io/theme/img/profile.png" alt="" title="">
+      </a>
+
+      <h1>
+        <a href="https://ganadist.github.io/"></a>
+      </h1>
+
+
+
+      <nav>
+        <ul class="list">
+
+
+
+            <li>
+              <a target="_self" href="http://b.android.com" >b.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://d.android.com" >d.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://r.android.com" >r.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://s.android.com" >s.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" >Andy Figure</a>
+            </li>
+        </ul>
+      </nav>
+
+      <ul class="social">
+          <li>
+            <a  class="sc-github" href="http://github.com/ganadist" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank">
+              <i class="fab fa-slideshare"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
+      </ul>
+    </div>
+
+  </aside>
+  <main>
+
+
+<article class="single">
+  <header>
+      
+    <h1 id="2018_07_10_dumpsys">android 의 dumpsys를 이용한 분석&nbsp;방법</h1>
+    <p>
+      Posted on 07/10/2018 in <a href="https://ganadist.github.io/category/tech.html">tech</a>
+
+    </p>
+  </header>
+
+
+  <div>
+    <p>얼마 전에 <a href="http://pluu.github.io/">과일님</a>이 <a href="https://yanolja.github.io/2018/07/Android-Why">쌩고생하며 디버깅했던 경험을 공유</a>해주었는데, 약간 더 곁들여서&nbsp;끄적여봅니다.</p>
+<h1>dumpsys</h1>
+<p><a href="https://developer.android.com/studio/command-line/dumpsys">dumpsys 명령어</a>는 IBinder의 <a href="http://bit.ly/2u8AZIY">dump 메소드</a>의 결과를 표준 출력으로 출력해주는 유용한 개발도구입니다. adb만 사용 가능한 상태면 손쉽게 기기의 상태를 확인해볼 수 있고, PC가 없더라도 <a href="https://developer.android.com/studio/debug/bug-report#bugreportdevice">개발자 옵션에 포함되어 있는 버그 신고</a> 기능을 이용해서 출력을 뽑아낼 수 있습니다. 그런데 아무 IBinder 객체에게 사용할 수 있는 것은 아니고, <a href="https://android.googlesource.com/platform/frameworks/native/+/master/cmds/servicemanager/">system service manager</a>에 등록된 항목에 한해서 가능합니다. system service manager에 등록된 IBinder객체는 다음의 명령을 이용해&nbsp;확인가능합니다.</p>
+<div class="highlight"><pre><span></span><code>## android 4.3 이전
+$ adb shell service list
+
+## android 4.4 이후
+$ adb shell dumpsys -l
+</code></pre></div>
+
+<p>출력물은 각 시스템 서비스의 dump 메소드의 구현을 확인하면 정확하게 어떤 값을 출력하는 지 알 수 있습니다. 예를 들면 다음과&nbsp;같습니다.</p>
+<ul>
+<li><a href="https://android.googlesource.com/platform/frameworks/base/+/079f03f/services/core/java/com/android/server/am/ActivityManagerService.java#15068">ActivityManagerService</a></li>
+<li><a href="https://android.googlesource.com/platform/frameworks/av/+/1ec73be/media/libmediaplayerservice/MediaPlayerService.cpp#433">MediaPlayserService</a></li>
+</ul>
+<h1>dumpsys activity&nbsp;service</h1>
+<p>그리고 <a href="https://developer.android.com/reference/android/app/Service">앱에서 작성하는 Service 클래스</a>에도 시스템 서비스와 유사하게 <a href="http://bit.ly/2L3Ty7D">dump 메소드 인터페이스가 제공</a>됩니다. 위에 이야기했듯이 dumpsys는 system service manager에 등록된 IBinder 객체에만 접근할 수 있기 때문에, 앱에서 작성한 서비스에서 정보를 얻기 위해서는 ActivityManagerService를 경유해야&nbsp;합니다.</p>
+<p>Android에서 ActivityManagerService는 앱에 포함된 activity, service, broadcast receiver, provider등을 관리해주며, 각 컴포넌트의 상태를 확인할 수 있는데요. dumpsys 명령을 이용하면 정말 상세하게 알 수&nbsp;있습니다.</p>
+<div class="highlight"><pre><span></span><code><span class="err">$</span><span class="w"> </span><span class="n">adb</span><span class="w"> </span><span class="n">shell</span><span class="w"> </span><span class="n">dumpsys</span><span class="w"> </span><span class="n">activity</span><span class="w"> </span><span class="o">-</span><span class="n">h</span><span class="w"></span>
+
+<span class="n">Activity</span><span class="w"> </span><span class="n">manager</span><span class="w"> </span><span class="k">dump</span><span class="w"> </span><span class="nl">options</span><span class="p">:</span><span class="w"></span>
+<span class="w">  </span><span class="o">[</span><span class="n">-a</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">-c</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">-p PACKAGE</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">-h</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">WHAT</span><span class="o">]</span><span class="w"> </span><span class="p">...</span><span class="w"></span>
+<span class="w">  </span><span class="n">WHAT</span><span class="w"> </span><span class="n">may</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">one</span><span class="w"> </span><span class="k">of</span><span class="err">:</span><span class="w"></span>
+<span class="w">    </span><span class="n">a</span><span class="o">[</span><span class="n">ctivities</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">activity</span><span class="w"> </span><span class="n">stack</span><span class="w"> </span><span class="k">state</span><span class="w"></span>
+<span class="w">    </span><span class="n">r</span><span class="o">[</span><span class="n">recents</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">recent</span><span class="w"> </span><span class="n">activities</span><span class="w"> </span><span class="k">state</span><span class="w"></span>
+<span class="w">    </span><span class="n">b</span><span class="o">[</span><span class="n">roadcasts</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">PACKAGE_NAME</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">history [-s</span><span class="o">]</span><span class="err">]:</span><span class="w"> </span><span class="n">broadcast</span><span class="w"> </span><span class="k">state</span><span class="w"></span>
+<span class="w">    </span><span class="n">broadcast</span><span class="o">-</span><span class="n">stats</span><span class="w"> </span><span class="o">[</span><span class="n">PACKAGE_NAME</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">aggregated</span><span class="w"> </span><span class="n">broadcast</span><span class="w"> </span><span class="k">statistics</span><span class="w"></span>
+<span class="w">    </span><span class="n">i</span><span class="o">[</span><span class="n">ntents</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">PACKAGE_NAME</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">pending</span><span class="w"> </span><span class="n">intent</span><span class="w"> </span><span class="k">state</span><span class="w"></span>
+<span class="w">    </span><span class="n">p</span><span class="o">[</span><span class="n">rocesses</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">PACKAGE_NAME</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">process</span><span class="w"> </span><span class="k">state</span><span class="w"></span>
+<span class="w">    </span><span class="n">o</span><span class="o">[</span><span class="n">om</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="k">out</span><span class="w"> </span><span class="k">of</span><span class="w"> </span><span class="n">memory</span><span class="w"> </span><span class="n">management</span><span class="w"></span>
+<span class="w">    </span><span class="n">perm</span><span class="o">[</span><span class="n">issions</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">URI</span><span class="w"> </span><span class="n">permission</span><span class="w"> </span><span class="k">grant</span><span class="w"> </span><span class="k">state</span><span class="w"></span>
+<span class="w">    </span><span class="n">prov</span><span class="o">[</span><span class="n">iders</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">COMP_SPEC ...</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">content</span><span class="w"> </span><span class="n">provider</span><span class="w"> </span><span class="k">state</span><span class="w"></span>
+<span class="w">    </span><span class="n">provider</span><span class="w"> </span><span class="o">[</span><span class="n">COMP_SPEC</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">provider</span><span class="w"> </span><span class="n">client</span><span class="o">-</span><span class="n">side</span><span class="w"> </span><span class="k">state</span><span class="w"></span>
+<span class="w">    </span><span class="n">s</span><span class="o">[</span><span class="n">ervices</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">COMP_SPEC ...</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="k">state</span><span class="w"></span>
+<span class="w">    </span><span class="k">as</span><span class="o">[</span><span class="n">sociations</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">tracked</span><span class="w"> </span><span class="n">app</span><span class="w"> </span><span class="n">associations</span><span class="w"></span>
+<span class="w">    </span><span class="nl">settings</span><span class="p">:</span><span class="w"> </span><span class="n">currently</span><span class="w"> </span><span class="n">applied</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="n">settings</span><span class="w"></span>
+<span class="w">    </span><span class="n">service</span><span class="w"> </span><span class="o">[</span><span class="n">COMP_SPEC</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="n">service</span><span class="w"> </span><span class="n">client</span><span class="o">-</span><span class="n">side</span><span class="w"> </span><span class="k">state</span><span class="w"></span>
+<span class="w">    </span><span class="n">package</span><span class="w"> </span><span class="o">[</span><span class="n">PACKAGE_NAME</span><span class="o">]</span><span class="err">:</span><span class="w"> </span><span class="ow">all</span><span class="w"> </span><span class="k">state</span><span class="w"> </span><span class="n">related</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">given</span><span class="w"> </span><span class="n">package</span><span class="w"></span>
+<span class="w">    </span><span class="ow">all</span><span class="err">:</span><span class="w"> </span><span class="k">dump</span><span class="w"> </span><span class="ow">all</span><span class="w"> </span><span class="n">activities</span><span class="w"></span>
+<span class="w">    </span><span class="k">top</span><span class="err">:</span><span class="w"> </span><span class="k">dump</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="k">top</span><span class="w"> </span><span class="n">activity</span><span class="w"></span>
+<span class="w">  </span><span class="n">WHAT</span><span class="w"> </span><span class="n">may</span><span class="w"> </span><span class="n">also</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">COMP_SPEC</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="k">dump</span><span class="w"> </span><span class="n">activities</span><span class="p">.</span><span class="w"></span>
+<span class="w">  </span><span class="n">COMP_SPEC</span><span class="w"> </span><span class="n">may</span><span class="w"> </span><span class="n">be</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">component</span><span class="w"> </span><span class="n">name</span><span class="w"> </span><span class="p">(</span><span class="n">com</span><span class="p">.</span><span class="n">foo</span><span class="o">/</span><span class="p">.</span><span class="n">myApp</span><span class="p">),</span><span class="w"></span>
+<span class="w">    </span><span class="n">a</span><span class="w"> </span><span class="k">partial</span><span class="w"> </span><span class="nf">substring</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">a</span><span class="w"> </span><span class="n">component</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">a</span><span class="w"></span>
+<span class="w">    </span><span class="n">hex</span><span class="w"> </span><span class="k">object</span><span class="w"> </span><span class="n">identifier</span><span class="p">.</span><span class="w"></span>
+<span class="w">  </span><span class="o">-</span><span class="nl">a</span><span class="p">:</span><span class="w"> </span><span class="k">include</span><span class="w"> </span><span class="ow">all</span><span class="w"> </span><span class="n">available</span><span class="w"> </span><span class="n">server</span><span class="w"> </span><span class="k">state</span><span class="p">.</span><span class="w"></span>
+<span class="w">  </span><span class="o">-</span><span class="nl">c</span><span class="p">:</span><span class="w"> </span><span class="k">include</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="k">state</span><span class="p">.</span><span class="w"></span>
+<span class="w">  </span><span class="o">-</span><span class="nl">p</span><span class="p">:</span><span class="w"> </span><span class="k">limit</span><span class="w"> </span><span class="k">output</span><span class="w"> </span><span class="k">to</span><span class="w"> </span><span class="n">given</span><span class="w"> </span><span class="n">package</span><span class="p">.</span><span class="w"></span>
+<span class="w">  </span><span class="o">--</span><span class="nl">checkin</span><span class="p">:</span><span class="w"> </span><span class="k">output</span><span class="w"> </span><span class="n">checkin</span><span class="w"> </span><span class="nf">format</span><span class="p">,</span><span class="w"> </span><span class="n">resetting</span><span class="w"> </span><span class="k">data</span><span class="p">.</span><span class="w"></span>
+<span class="w">  </span><span class="o">--</span><span class="nl">C</span><span class="p">:</span><span class="w"> </span><span class="k">output</span><span class="w"> </span><span class="n">checkin</span><span class="w"> </span><span class="nf">format</span><span class="p">,</span><span class="w"> </span><span class="ow">not</span><span class="w"> </span><span class="n">resetting</span><span class="w"> </span><span class="k">data</span><span class="p">.</span><span class="w"></span>
+<span class="w">  </span><span class="c1">--proto: output dump in protocol buffer format.</span>
+</code></pre></div>
+
+<p>여기서 특정 앱의 service에 포함된 dump 메소드(<a href="https://android.googlesource.com/platform/frameworks/base/+/079f03f/packages/SystemUI/src/com/android/systemui/SystemUIService.java#47">SystemUI</a> 또는 <a href="https://android.googlesource.com/platform/packages/services/Telephony/+/67a453d/src/com/android/phone/TelephonyDebugService.java#51">TelephonyService</a>)의 출력 결과를 알고 싶다면 다음과 같이 명령을 실행하면&nbsp;됩니다.</p>
+<div class="highlight"><pre><span></span><code>$ adb shell dumpsys activity service com.android.systemui/.SystemUIService
+
+$ adb shell dumpsys activity service com.android.phone/.TelephonyDebugService
+</code></pre></div>
+
+<p>만약에 여러분이 작성한 앱의 서비스에서 다양한 디버깅 정보를 출력하고 싶다면, dump메소드를 채우면&nbsp;됩니다.</p>
+<h1>dumpsys activity&nbsp;broadcasts</h1>
+<p>intent broadcast 타이밍 때문에 고통받는 개발자들도 dumpsys를 이용하면 큰 도움이&nbsp;됩니다.</p>
+<p>다음의 명령을 이용하면 intent broadcast가 발생했던 시간, intent 내용 및 처리 시간과 receiver 등을 쉽게 확인해볼 수&nbsp;있습니다.</p>
+<div class="highlight"><pre><span></span><code>$ adb shell dumpsys activity broadcasts <span class="nb">history</span>
+</code></pre></div>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="https://ganadist.github.io/tag/android.html">android</a>
+    </p>
+  </div>
+
+
+
+
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'ganadist-github-io';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+    Please enable JavaScript to view comments.
+</noscript>
+<!-- End Disqus -->
+</article>
+
+    <footer>
+<p>&copy;  </p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+</p>    </footer>
+  </main>
+
 
 
 
@@ -206,5 +244,6 @@ $ adb shell dumpsys activity service com.android.phone/.TelephonyDebugService
   "description": ""
 }
 </script>
+
 </body>
 </html>

@@ -2,73 +2,122 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/stylesheet/style.min.css">
 
-  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/pygments/github.min.css">
-  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/font-awesome.min.css">
+
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://ganadist.github.io/theme/pygments/github.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/solid.css">
 
 
     <link href="https://ganadist.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Ganachoco's Blog Atom">
 
 
 
-  <meta charset="utf-8" />
-  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-  <meta name="HandheldFriendly" content="True" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="" />
+<!-- Google Analytics -->
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
+  ga('create', 'UA-120269954-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->  
+
+
+ 
 
 <meta name="author" content="YOUNG HO CHA" />
 <meta name="description" content="headless android runtime with docker" />
 <meta name="keywords" content="Android, Docker, NDK">
-<meta property="og:site_name" content="Ganachoco's Blog"/>
-<meta property="og:title" content="Docker로 ndk 바이너리 실행해보기"/>
-<meta property="og:description" content="headless android runtime with docker"/>
-<meta property="og:locale" content="en_US"/>
-<meta property="og:url" content="https://ganadist.github.io/2018_12_29_docker_qemu_user_arm.html"/>
-<meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2018-12-29 12:32:00+09:00"/>
-<meta property="article:modified_time" content=""/>
-<meta property="article:author" content="https://ganadist.github.io/author/young-ho-cha.html">
-<meta property="article:section" content="tech"/>
-<meta property="article:tag" content="Android"/>
-<meta property="article:tag" content="Docker"/>
-<meta property="article:tag" content="NDK"/>
-<meta property="og:image" content="">
+
+
+  <meta property="og:site_name" content="Ganachoco's Blog"/>
+  <meta property="og:title" content="Docker로 ndk 바이너리 실행해보기"/>
+  <meta property="og:description" content="headless android runtime with docker"/>
+  <meta property="og:locale" content="en_US"/>
+  <meta property="og:url" content="https://ganadist.github.io/2018_12_29_docker_qemu_user_arm.html"/>
+  <meta property="og:type" content="article"/>
+  <meta property="article:published_time" content="2018-12-29 12:32:00+09:00"/>
+  <meta property="article:modified_time" content=""/>
+  <meta property="article:author" content="https://ganadist.github.io/author/young-ho-cha.html">
+  <meta property="article:section" content="tech"/>
+  <meta property="article:tag" content="Android"/>
+  <meta property="article:tag" content="Docker"/>
+  <meta property="article:tag" content="NDK"/>
+  <meta property="og:image" content="">
 
   <title>Ganachoco's Blog &ndash; Docker로 ndk 바이너리 실행해보기</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
-      <a href="https://ganadist.github.io">
+      <a href="https://ganadist.github.io/">
         <img src="https://ganadist.github.io/theme/img/profile.png" alt="" title="">
       </a>
-      <h1><a href="https://ganadist.github.io"></a></h1>
+
+      <h1>
+        <a href="https://ganadist.github.io/"></a>
+      </h1>
+
 
 
       <nav>
         <ul class="list">
 
-          <li><a href="http://b.android.com" target="_blank">b.android.com</a></li>
-          <li><a href="https://d.android.com" target="_blank">d.android.com</a></li>
-          <li><a href="https://r.android.com" target="_blank">r.android.com</a></li>
-          <li><a href="https://s.android.com" target="_blank">s.android.com</a></li>
-          <li><a href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" target="_blank">Andy Figure</a></li>
+
+
+            <li>
+              <a target="_self" href="http://b.android.com" >b.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://d.android.com" >d.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://r.android.com" >r.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://s.android.com" >s.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" >Andy Figure</a>
+            </li>
         </ul>
       </nav>
 
       <ul class="social">
-        <li><a class="sc-github" href="http://github.com/ganadist" target="_blank"><i class="fa fa-github"></i></a></li>
-        <li><a class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank"><i class="fa fa-slideshare"></i></a></li>
-        <li><a class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+          <li>
+            <a  class="sc-github" href="http://github.com/ganadist" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank">
+              <i class="fab fa-slideshare"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
@@ -76,10 +125,10 @@
 
 <article class="single">
   <header>
+      
     <h1 id="2018_12_29_docker_qemu_user_arm">Docker로 ndk 바이너리&nbsp;실행해보기</h1>
     <p>
-          Posted on 12/29/2018 in <a href="https://ganadist.github.io/category/tech.html">tech</a>
-
+      Posted on 12/29/2018 in <a href="https://ganadist.github.io/category/tech.html">tech</a>
 
     </p>
   </header>
@@ -91,41 +140,37 @@
 <p>그리고 실행하는 방법을 단순화 하기 위해 Linux의 <a href="https://en.wikipedia.org/wiki/Binfmt_misc">binfmt_misc</a>를 이용해서, 실행하려는 파일의 헤더를 확인해 적절한 에물레이터에게 실행파일을 해석하게 하도록 하면, 거의 native환경과 유사하게 실행환경을 구성할 수&nbsp;있습니다.</p>
 <p>그런데 scratchbox와 유사하지만 최근 트렌드에 알맞게 chroot 대신 <a href="https://ownyourbits.com/2018/06/27/running-and-building-arm-docker-containers-in-x86/">docker를 이용해 이기종용 바이너리를 실행하는 환경을 구성하려는 시도</a>가 눈에 띄더군요. 해당 포스팅을 따라하면 쉽게 PC에서 arm용 데비안 환경을 구성할 수&nbsp;있습니다.</p>
 <p>이와 유사하게 android환경도 에물레이터 대신 docker를 이용해 구성할 수 없을까 싶어서 시도를 해보았습니다. docker 이미지는 Android <span class="caps">SDK</span> 에서 설치할 수 있는 에뮬레이터의 OS이미지를 이용하면 손쉽게 만들 수&nbsp;있습니다.</p>
-<div class="highlight"><pre><span></span><span class="err">$</span> <span class="n">mkdir</span> <span class="n">system</span>
+<div class="highlight"><pre><span></span><code><span class="err">$</span> <span class="n">mkdir</span> <span class="n">system</span>
 <span class="err">$</span> <span class="n">sudo</span> <span class="n">mount</span> <span class="err">$</span><span class="n">ANDROID_HOME</span><span class="o">/</span><span class="n">system</span><span class="o">-</span><span class="n">images</span><span class="o">/</span><span class="n">android</span><span class="o">-</span><span class="mi">19</span><span class="o">/</span><span class="n">default</span><span class="o">/</span><span class="n">armeabi</span><span class="o">-</span><span class="n">v7a</span><span class="o">/</span><span class="n">system</span><span class="o">.</span><span class="n">img</span> <span class="n">system</span>
 <span class="err">$</span> <span class="n">sudo</span> <span class="n">tar</span> <span class="n">cf</span> <span class="o">-</span> <span class="n">system</span> <span class="o">|</span> <span class="n">docker</span> <span class="kn">import</span> <span class="o">-</span> <span class="n">android</span><span class="o">-</span><span class="mi">19</span><span class="o">-</span><span class="n">armeabi</span><span class="o">-</span><span class="n">v7a</span>
 <span class="n">sha256</span><span class="p">:</span><span class="n">f7427ad5b84efaf1c862c69b66df55c3ad8b8bbb05660fece31bc29c8cbc4abe</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>그리고 qemu-user-static 바이너리와 binfmt_misc 설정을 완료하고 docker를 수행합니다. 데비안/우분투 사용자면, <a href="https://packages.debian.org/sid/qemu-user-static">qemu-user-static 패키지</a>만 설치하면 됩니다. 하지만 저는 archlinux를 사용하고 있어서, docker에서 debian 환경을 수행한 후, 해당 패키지를 설치하고 바이너리를 /opt/qemu-user 로 복사한 후, binfmt_misc 설정만 <a href="https://aur.archlinux.org/packages/binfmt-qemu-static/">binfmt-qemu-static aur</a>로 설치했습니다. 아직 docker이미지가 제대로 동작하는지 확인을 할 수가 없으니 busybox의 도움도&nbsp;받아보겠습니다.</p>
-<div class="highlight"><pre><span></span>$ docker run -it -v /bin/busybox:/bin/sh -v /opt/qemu-user/qemu-arm-static:/usr/bin/qemu-arm-static -v /tmp:/tmp --name kk --rm  android-19-armeabi-v7a /bin/sh
+<div class="highlight"><pre><span></span><code>$ docker run -it -v /bin/busybox:/bin/sh -v /opt/qemu-user/qemu-arm-static:/usr/bin/qemu-arm-static -v /tmp:/tmp --name kk --rm  android-19-armeabi-v7a /bin/sh
 
 <span class="c1"># uname -a</span>
 Linux fb479d7afe07 <span class="m">4</span>.19.12-arch1-1-ARCH <span class="c1">#1 SMP PREEMPT Fri Dec 21 13:56:54 UTC 2018 x86_64 GNU/Linux</span>
 <span class="c1"># /system/bin/ls</span>
 FATAL: kernel did not supply AT_SECURE
-</pre></div>
-
+</code></pre></div>
 
 <p>첫번째 uname 실행은 pc용 busybox가 docker 내부에서 정상동작하는지 확인하기 위해서 실행해봤습니다. 그리고 android에 포함된 toolbox의 ls를 수행했는데 커널에서 특정기능이 지원하지 않는다는 오류메세지가 발생했습니다. 여기서 커널은 실제 리눅스 커널이 아니라 qemu-user가 에물레이션 하는 커널일껍니다. 일단 <a href="http://androidxref.com/4.4.4_r1/search?q=kernel+did+not+supply+AT_SECURE&amp;project=bionic">해당 메세지를 어디서 출력하는지 알아보기 위해 검색</a>을 해보니, 런타임 링커에서 특정한 커널기능을 확인하는 부분이 있습니다. 일단 해당 부분을 검사하지 않도록 수정한 후 android를 빌드해서 새로 docker 이미지를&nbsp;만들었습니다.</p>
-<div class="highlight"><pre><span></span>$ repo init -u https://android.googlesource.com/platform/manifest -b kitkat-dev 
+<div class="highlight"><pre><span></span><code>$ repo init -u https://android.googlesource.com/platform/manifest -b kitkat-dev 
 $ repo sync --no-tags -c -j8
 $ <span class="nb">source</span> ./build/envsetup.sh
 $ lunch aosp_arm-userdebug
 $ make -j8 systemtarball
-</pre></div>
-
+</code></pre></div>
 
 <p>수정한 OS이미지로 docker 이미지를 생성한 후&nbsp;실행해보았습니다.</p>
-<div class="highlight"><pre><span></span><span class="err">$</span> <span class="n">docker</span> <span class="kn">import</span> <span class="err">$</span><span class="n">OUT</span><span class="o">/</span><span class="n">system</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">bz2</span> <span class="n">android</span><span class="o">-</span><span class="mi">19</span><span class="o">-</span><span class="n">armeabi</span><span class="o">-</span><span class="n">v7a</span>
+<div class="highlight"><pre><span></span><code><span class="err">$</span> <span class="n">docker</span> <span class="kn">import</span> <span class="err">$</span><span class="n">OUT</span><span class="o">/</span><span class="n">system</span><span class="o">.</span><span class="n">tar</span><span class="o">.</span><span class="n">bz2</span> <span class="n">android</span><span class="o">-</span><span class="mi">19</span><span class="o">-</span><span class="n">armeabi</span><span class="o">-</span><span class="n">v7a</span>
 <span class="c1"># /system/bin/ls</span>
 <span class="n">Segmentation</span> <span class="n">fault</span> <span class="p">(</span><span class="n">core</span> <span class="n">dumped</span><span class="p">)</span>
-</pre></div>
-
+</code></pre></div>
 
 <p>세그폴트 메세지를 보고 잠시 당황했었습니다만, gdb를 이용해 어디서 발생했는지&nbsp;확인해보았습니다.</p>
-<div class="highlight"><pre><span></span>$ prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7/bin/arm-linux-androideabi-gdb <span class="nv">$OUT</span>/system/bin/ls /tmp/qemu_ls_20181229-022527_7.core 
+<div class="highlight"><pre><span></span><code>$ prebuilts/gcc/linux-x86/arm/arm-linux-androideabi-4.7/bin/arm-linux-androideabi-gdb <span class="nv">$OUT</span>/system/bin/ls /tmp/qemu_ls_20181229-022527_7.core 
 GNU gdb <span class="o">(</span>GDB<span class="o">)</span> <span class="m">7</span>.6
 
 <span class="o">(</span>gdb<span class="o">)</span> <span class="nb">set</span> sysroot out/target/product/generic/symbols
@@ -133,95 +178,49 @@ GNU gdb <span class="o">(</span>GDB<span class="o">)</span> <span class="m">7</s
 <span class="o">(</span>gdb<span class="o">)</span> bt
 <span class="c1">#0  0xf676889e in find_property()</span>
 at bionic/libc/bionic/system_properties.c:403
-</pre></div>
-
+</code></pre></div>
 
 <p>일반적인 안드로이드 환경과 다르게 system property 값을 관리하는 init 프로세스가 동작하고 있지 않아서 property관련 동작이 잘못수행되고 있었습니다. 일단은 해당 동작이 segfault만 발생하지 않도록 대충 수습한 후,  docker이미지를 다시 만들어서 /system/bin/ls 를 수행하니 파일 목록이 정상적으로&nbsp;출력됩니다.</p>
 <p>좀 더 제대로 확인해보기 위해 다음과 같이 ndk용 코드를 간단하게&nbsp;작성해봤습니다.</p>
 <ul>
 <li>jni/Application.mk</li>
 </ul>
-<div class="gist">
-    <script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=Application.mk'></script>
-    <noscript>
-        <pre><code>APP_ABI = armeabi-v7a 
-APP_PLATFORM = android-19
-APP_STL = c++_static
-</code></pre>
-    </noscript>
-</div>
+<p>[gist:id=80acee57558d9c9503612078a3f656b2,file=Application.mk]</p>
 <ul>
 <li>jni/Android.mk</li>
 </ul>
-<div class="gist">
-    <script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=Android.mk'></script>
-    <noscript>
-        <pre><code>LOCAL_PATH := $(call my-dir)
-
-include $(CLEAR_VARS)
-
-LOCAL_MODULE := uname
-LOCAL_SRC_FILES := \
-	main.c
-
-include $(BUILD_EXECUTABLE)
-</code></pre>
-    </noscript>
-</div>
+<p>[gist:id=80acee57558d9c9503612078a3f656b2,file=Android.mk]</p>
 <ul>
 <li>jni/main.c</li>
 </ul>
-<div class="gist">
-    <script src='https://gist.github.com/80acee57558d9c9503612078a3f656b2.js?file=main.c'></script>
-    <noscript>
-        <pre><code>/*
- * vim: ts=4 sw=4 sts=4 et ai
- */
-
-#include <sys/utsname.h>
-#include <stdio.h>
-
-int main() {
-    struct utsname buf;
-    uname(&buf);
-    printf("sys:\t %s\n",buf.sysname);
-    printf("rel:\t %s\n",buf.release);
-    printf("ver:\t %s\n",buf.version);
-    printf("h/w:\t %s\n",buf.machine);
-
-    return 0;
-}
-</code></pre>
-    </noscript>
-</div>
+<p>[gist:id=80acee57558d9c9503612078a3f656b2,file=main.c]</p>
 <p>그리고 실행파일을 생성한 후 docker 내에서&nbsp;실행해보았습니다.</p>
-<div class="highlight"><pre><span></span>$ <span class="nv">$ANDROID_HOME</span>/ndk-bundle/ndk-build 
-<span class="o">[</span>armeabi-v7a<span class="o">]</span> Compile thumb  : uname &lt;<span class="o">=</span> main.c
-<span class="o">[</span>armeabi-v7a<span class="o">]</span> Executable     : uname
-<span class="o">[</span>armeabi-v7a<span class="o">]</span> Install        : <span class="nv">uname</span> <span class="o">=</span>&gt; libs/armeabi-v7a/uname
+<div class="highlight"><pre><span></span><code><span class="err">$</span><span class="w"> </span><span class="err">$</span><span class="n">ANDROID_HOME</span><span class="o">/</span><span class="n">ndk</span><span class="o">-</span><span class="n">bundle</span><span class="o">/</span><span class="n">ndk</span><span class="o">-</span><span class="n">build</span><span class="w"> </span>
+<span class="o">[</span><span class="n">armeabi-v7a</span><span class="o">]</span><span class="w"> </span><span class="n">Compile</span><span class="w"> </span><span class="n">thumb</span><span class="w">  </span><span class="err">:</span><span class="w"> </span><span class="n">uname</span><span class="w"> </span><span class="o">&lt;=</span><span class="w"> </span><span class="n">main</span><span class="p">.</span><span class="n">c</span><span class="w"></span>
+<span class="o">[</span><span class="n">armeabi-v7a</span><span class="o">]</span><span class="w"> </span><span class="n">Executable</span><span class="w">     </span><span class="err">:</span><span class="w"> </span><span class="n">uname</span><span class="w"></span>
+<span class="o">[</span><span class="n">armeabi-v7a</span><span class="o">]</span><span class="w"> </span><span class="n">Install</span><span class="w">        </span><span class="err">:</span><span class="w"> </span><span class="n">uname</span><span class="w"> </span><span class="o">=&gt;</span><span class="w"> </span><span class="n">libs</span><span class="o">/</span><span class="n">armeabi</span><span class="o">-</span><span class="n">v7a</span><span class="o">/</span><span class="n">uname</span><span class="w"></span>
 
-$ cp libs/armeabi-v7a/uname /tmp/
+<span class="err">$</span><span class="w"> </span><span class="n">cp</span><span class="w"> </span><span class="n">libs</span><span class="o">/</span><span class="n">armeabi</span><span class="o">-</span><span class="n">v7a</span><span class="o">/</span><span class="n">uname</span><span class="w"> </span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="w"></span>
 
-$ file /tmp/uname
-/tmp/uname: ELF <span class="m">32</span>-bit LSB shared object, ARM, EABI5 version <span class="m">1</span> <span class="o">(</span>SYSV<span class="o">)</span>, dynamically linked, interpreter /system/bin/linker, BuildID<span class="o">[</span>sha1<span class="o">]=</span>6d04cf954964d58ce83ee7f5996a70dab7cca880, stripped
+<span class="err">$</span><span class="w"> </span><span class="k">file</span><span class="w"> </span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">uname</span><span class="w"></span>
+<span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="nl">uname</span><span class="p">:</span><span class="w"> </span><span class="n">ELF</span><span class="w"> </span><span class="mi">32</span><span class="o">-</span><span class="nc">bit</span><span class="w"> </span><span class="n">LSB</span><span class="w"> </span><span class="n">shared</span><span class="w"> </span><span class="k">object</span><span class="p">,</span><span class="w"> </span><span class="n">ARM</span><span class="p">,</span><span class="w"> </span><span class="n">EABI5</span><span class="w"> </span><span class="n">version</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="p">(</span><span class="n">SYSV</span><span class="p">),</span><span class="w"> </span><span class="n">dynamically</span><span class="w"> </span><span class="n">linked</span><span class="p">,</span><span class="w"> </span><span class="n">interpreter</span><span class="w"> </span><span class="o">/</span><span class="k">system</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">linker</span><span class="p">,</span><span class="w"> </span><span class="n">BuildID</span><span class="o">[</span><span class="n">sha1</span><span class="o">]=</span><span class="mi">6</span><span class="n">d04cf954964d58ce83ee7f5996a70dab7cca880</span><span class="p">,</span><span class="w"> </span><span class="n">stripped</span><span class="w"></span>
 
-$ docker run -it -v /bin/busybox:/bin/sh -v /opt/qemu-user/qemu-arm-static:/usr/bin/qemu-arm-static -v /tmp:/tmp --name kk --rm  android-19-armeabi-v7a /bin/sh
+<span class="err">$</span><span class="w"> </span><span class="n">docker</span><span class="w"> </span><span class="n">run</span><span class="w"> </span><span class="o">-</span><span class="n">it</span><span class="w"> </span><span class="o">-</span><span class="n">v</span><span class="w"> </span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="nl">busybox</span><span class="p">:</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">sh</span><span class="w"> </span><span class="o">-</span><span class="n">v</span><span class="w"> </span><span class="o">/</span><span class="n">opt</span><span class="o">/</span><span class="n">qemu</span><span class="o">-</span><span class="k">user</span><span class="o">/</span><span class="n">qemu</span><span class="o">-</span><span class="n">arm</span><span class="o">-</span><span class="k">static</span><span class="err">:</span><span class="o">/</span><span class="n">usr</span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">qemu</span><span class="o">-</span><span class="n">arm</span><span class="o">-</span><span class="k">static</span><span class="w"> </span><span class="o">-</span><span class="n">v</span><span class="w"> </span><span class="o">/</span><span class="nl">tmp</span><span class="p">:</span><span class="o">/</span><span class="n">tmp</span><span class="w"> </span><span class="o">--</span><span class="n">name</span><span class="w"> </span><span class="n">kk</span><span class="w"> </span><span class="o">--</span><span class="n">rm</span><span class="w">  </span><span class="n">android</span><span class="o">-</span><span class="mi">19</span><span class="o">-</span><span class="n">armeabi</span><span class="o">-</span><span class="n">v7a</span><span class="w"> </span><span class="o">/</span><span class="n">bin</span><span class="o">/</span><span class="n">sh</span><span class="w"></span>
 
-<span class="c1"># /tmp/uname</span>
-sys:     Linux
-rel:     <span class="m">4</span>.19.12-arch1-1-ARCH
-ver:     <span class="c1">#1 SMP PREEMPT Fri Dec 21 13:56:54 UTC 2018</span>
-h/w:     armv7l
-</pre></div>
-
+<span class="err">#</span><span class="w"> </span><span class="o">/</span><span class="n">tmp</span><span class="o">/</span><span class="n">uname</span><span class="w"></span>
+<span class="nl">sys</span><span class="p">:</span><span class="w">     </span><span class="n">Linux</span><span class="w"></span>
+<span class="nl">rel</span><span class="p">:</span><span class="w">     </span><span class="mf">4.19.12</span><span class="o">-</span><span class="n">arch1</span><span class="o">-</span><span class="mi">1</span><span class="o">-</span><span class="n">ARCH</span><span class="w"></span>
+<span class="nl">ver</span><span class="p">:</span><span class="w">     </span><span class="n">#1</span><span class="w"> </span><span class="n">SMP</span><span class="w"> </span><span class="n">PREEMPT</span><span class="w"> </span><span class="n">Fri</span><span class="w"> </span><span class="k">Dec</span><span class="w"> </span><span class="mi">21</span><span class="w"> </span><span class="mi">13</span><span class="err">:</span><span class="mi">56</span><span class="err">:</span><span class="mi">54</span><span class="w"> </span><span class="n">UTC</span><span class="w"> </span><span class="mi">2018</span><span class="w"></span>
+<span class="n">h</span><span class="o">/</span><span class="nl">w</span><span class="p">:</span><span class="w">     </span><span class="n">armv7l</span><span class="w"></span>
+</code></pre></div>
 
 <p>이와 같이 arm용 android 실행파일에서 호출하는 <a href="http://man7.org/linux/man-pages/man2/uname.2.html">uname 시스템 콜</a>이 docker에서 정상적으로 동작하는 것을&nbsp;확인했습니다.</p>
 <p>이 환경에서는 일반적인 android app을 수행할 수는 없지만, cpu 연산만 필요로 하는 일부 동작(openssl, ffmpeg)등의 검증은 실제 하드웨어나 에물레이터 필요없이, jenkins와 같은 headless 환경에서 가능할 수 있을 것&nbsp;같습니다.</p>
 <p>이제 회사사람들을 꼬시는 일만&nbsp;남았&#8230;</p>
 <p>덤:
 <a href="https://gist.github.com/ganadist/72213f7c4cdf0f5efd99ec3d52287394">docker 이미지</a>를 <a href="https://cloud.docker.com/repository/docker/ganadist/android-docker/general">docker hub 에 업로드</a>해두었습니다. 사용해 보려면 다음과 같이 docker 명령을 실행하면&nbsp;됩니다.</p>
-<div class="highlight"><pre><span></span>$  docker run --privileged -it ganadist/android-docker:android-19-armeabi-v7a
-</pre></div>
+<div class="highlight"><pre><span></span><code>$  docker run --privileged -it ganadist/android-docker:android-19-armeabi-v7a
+</code></pre></div>
   </div>
   <div class="tag-cloud">
     <p>
@@ -234,6 +233,8 @@ h/w:     armv7l
 
 
 
+
+<!-- Disqus -->
 <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = 'ganadist-github-io';
@@ -244,28 +245,18 @@ h/w:     armv7l
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
+<!-- End Disqus -->
 </article>
 
     <footer>
-<p>&copy; YOUNG HO CHA </p>
-<p>    Powered by <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a>
+<p>&copy;  </p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p>    </footer>
   </main>
 
-<!-- Google Analytics -->
-<script type="text/javascript">
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-
-  ga('create', 'UA-120269954-1', 'auto');
-  ga('send', 'pageview');
-</script>
-<!-- End Google Analytics -->
 
 
 
@@ -279,5 +270,6 @@ h/w:     armv7l
   "description": ""
 }
 </script>
+
 </body>
 </html>

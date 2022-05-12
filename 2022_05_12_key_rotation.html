@@ -1,0 +1,297 @@
+
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="" />
+
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/stylesheet/style.min.css">
+
+
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://ganadist.github.io/theme/pygments/github.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://ganadist.github.io/theme/font-awesome/css/solid.css">
+
+
+    <link href="https://ganadist.github.io/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Ganachoco's Blog Atom">
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-120269954-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->  
+
+
+ 
+
+<meta name="author" content="YOUNG HO CHA" />
+<meta name="description" content="안드로이드 앱의 서명키 교체하기" />
+<meta name="keywords" content="GooglePlay, Android, Security">
+
+
+  <meta property="og:site_name" content="Ganachoco's Blog"/>
+  <meta property="og:title" content="안드로이드 앱의 서명키 교체하기"/>
+  <meta property="og:description" content="안드로이드 앱의 서명키 교체하기"/>
+  <meta property="og:locale" content="en_US"/>
+  <meta property="og:url" content="https://ganadist.github.io/2022_05_12_key_rotation.html"/>
+  <meta property="og:type" content="article"/>
+  <meta property="article:published_time" content="2022-05-12 20:54:00+09:00"/>
+  <meta property="article:modified_time" content=""/>
+  <meta property="article:author" content="https://ganadist.github.io/author/young-ho-cha.html">
+  <meta property="article:section" content="tech"/>
+  <meta property="article:tag" content="GooglePlay"/>
+  <meta property="article:tag" content="Android"/>
+  <meta property="article:tag" content="Security"/>
+  <meta property="og:image" content="">
+
+  <title>Ganachoco's Blog &ndash; 안드로이드 앱의 서명키 교체하기</title>
+
+</head>
+<body class="light-theme">
+  <aside>
+    <div>
+      <a href="https://ganadist.github.io/">
+        <img src="https://ganadist.github.io/theme/img/profile.png" alt="" title="">
+      </a>
+
+      <h1>
+        <a href="https://ganadist.github.io/"></a>
+      </h1>
+
+
+
+      <nav>
+        <ul class="list">
+
+
+
+            <li>
+              <a target="_self" href="http://b.android.com" >b.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://d.android.com" >d.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://r.android.com" >r.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://s.android.com" >s.android.com</a>
+            </li>
+            <li>
+              <a target="_self" href="https://shop.deadzebra.com/andy-green-edition-by-android-foundry/" >Andy Figure</a>
+            </li>
+        </ul>
+      </nav>
+
+      <ul class="social">
+          <li>
+            <a  class="sc-github" href="http://github.com/ganadist" target="_blank">
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-slideshare" href="https://www.slideshare.net/ganachoco/presentations" target="_blank">
+              <i class="fab fa-slideshare"></i>
+            </a>
+          </li>
+          <li>
+            <a  class="sc-linkedin" href="http://www.linkedin.com/in/ganadist" target="_blank">
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
+      </ul>
+    </div>
+
+  </aside>
+  <main>
+
+
+<article class="single">
+  <header>
+      
+    <h1 id="2022_05_12_key_rotation">안드로이드 앱의 서명키&nbsp;교체하기</h1>
+    <p>
+      Posted on 05/12/2022 in <a href="https://ganadist.github.io/category/tech.html">tech</a>
+
+    </p>
+  </header>
+
+
+  <div>
+    <p>어제 Google I/O의 세션중 Google Play Console에 새로 추가될 기능 중 <a href="https://youtu.be/d8mn0pmgvGw?t=328">서명키를 교체(Key Rotation)하는 것</a>이 곧 들어갈 것이라고 합니다.
+해당 기능은 예전에 Google이 <a href="https://android-developers.googleblog.com/2021/06/the-future-of-android-app-bundles-is.html">별도의 블로깅 포스트</a>에서 곧(?) 추가할 것이라고 한지 거의 1년만에 들어가게&nbsp;됩니다.</p>
+<p>Google이 Google Play Store(예전의 Android Market)을 운영한지 13년이 넘어가고 있는데요, 그 사이에 서명키를 안전하게 보관하고 있다면 다행이겠지만, 여러가지 이유로 서명키가 외부에 유출이 되었을 수&nbsp;있습니다.</p>
+<p>또한 서명키를 생성할 때, 현대 컴퓨팅환경에 알맞지 않은 취약한 알고리즘을 이용해 서명키를 작성할 수&nbsp;있습니다.</p>
+<p>서명키가 유출되거나 취약한 알고리즘을 이용한 서명키를 사용하는 경우, 악의적인 의도로 서명된 앱을 변조해서, 앱 사용자의 정보를 취득할 수 있는 위험이 있게 됩니다.
+이러한 경우에는 꼭 서명키를 교체해서, 앱의 보안을 강화해야&nbsp;합니다.</p>
+<p>기존에는 이러한 경우 서명키를 교체해야 했지만, 앱의 업그레이드 및 자동 업그레이드가 불가능 하기 때문에, 사용자들에게 수동으로 앱을 제거후 다시 설치해 달라고 부탁해야 했습니다.
+하지만 이번에 추가되는 서명키 교체(Key Rotation)은 그러한 불편한 없이, 자연스럽게 서명키를 교체하는 것이&nbsp;가능합니다.</p>
+<p>이 포스트에서는 Google Play Console 대신, 직접 서명키를 바꾸는 방법과 그 영향에 대해서 이야기&nbsp;해보겠습니다.</p>
+<p>원래 Android앱의 서명키는 Java에서 사용하던 서명 방식을 그대로 이용한 app signing scheme v1 에서 시작해서, 현재 app signing scheme v4 까지 발표되었는데요, <a href="https://developer.android.com/about/versions/pie/android-9.0#apk-key-rotation">서명키를 교체하는 기능</a>은 app signing scheme v3 에서 지원됩니다.
+즉 app signing scheme v3가 지원되는 <span class="caps">API</span> Level 28 (Android 9) 이상의 OS가 설치된 기기에서&nbsp;지원됩니다.</p>
+<p>서명 키 교체는 실질적으로 앱안에 예전의 서명키와 교체할 서명키가 같이 포함되고, 해당키 모두를 이용해 각각 서명됩니다.
+그리고 app signing scheme v3 가 지원되지 않는 예전 OS에서는 이전 서명키로 인식하고, Android 9 이상의 OS가 설치된 기기에서는 새로 추가한 서명키가&nbsp;인식됩니다.</p>
+<p>따라서 서명키의 fingerprint를 이용해 동작하는 API가 있다면, 기존의 서명키 fingerprint와 함께, 새로운 서명키의 fingerprint도 같이 등록해야&nbsp;합니다.</p>
+<p>일반적으로 서명키는 <a href="https://developer.android.com/studio/publish/app-signing#secure-shared-keystore">Android Gradle Plugin에서 제공하는 <span class="caps">DSL</span></a>을 이용해, 특정한 시스템에서만 실제 서명키를 이용하고, 개발환경에서는 별도의 개발용 서명키를 사용하는 것이&nbsp;안전합니다.</p>
+<p>하지만, 서명키 교체 기능은 현재 (Android Gradle Plugin 7.4 alpha01) version에서 지원이 되지 않고 있으며, 따라서 명령행에서 수동으로 수행해야&nbsp;합니다.</p>
+<p>혹시 Android Gradle Plugin을 통해 키교체 기능을  자동화 하고 싶은 분이 있다면, <a href="https://issuetracker.google.com/issues/160230884">Google의 이슈트래커에 등록된 이슈</a>를 <strong>참고하(고 별표를 열심히 눌러주)시기 바랍니다</strong>.<br>
+(이 포스팅을 작성하는&nbsp;이유입니다.)</p>
+<h2>준비물</h2>
+<ul>
+<li>Android <span class="caps">SDK</span> 와 build tools 30.0.0 또는 상위 버젼&nbsp;설치</li>
+<li>기존에 사용하던 인증서 파일(ex: old_release.keystore) 및&nbsp;인증정보 </li>
+<li>새로 사용할 인증서 파일(ex: new_release.keystore) 및&nbsp;인증정보</li>
+<li>앱 바이너리(apk)&nbsp;파일</li>
+</ul>
+<h2>서명 과정 및 확인&nbsp;방법</h2>
+<h3>lineage 정보&nbsp;생성</h3>
+<p>먼저 android build tools 에 포함된 <code>apksigner</code> 명령을 이용해 lineage (게임이 아닙니다) 정보를&nbsp;생성합니다. </p>
+<div class="highlight"><pre><span></span><code>apksigner rotate <span class="se">\</span>
+  --out lineage.dat <span class="se">\</span>
+  --old-signer --ks old_release.keystore --ks-key-alias <span class="s2">&quot;XXX&quot;</span> --ks-pass <span class="s2">&quot;pass:XXXX&quot;</span> <span class="se">\</span>
+  --set-installed-data <span class="nb">true</span> <span class="se">\</span>
+  --set-permission <span class="nb">true</span> <span class="se">\</span>
+  --set-rollback <span class="nb">false</span> <span class="se">\</span>
+  --new-signer --ks new_release.keystore --ks-key-alias <span class="s2">&quot;XXX&quot;</span> --ks-pass <span class="s2">&quot;pass:XXXX&quot;</span>    
+</code></pre></div>
+
+<p>해당 명령을 실행할 때,  새로 서명된 앱이 설치되면서 일부 동작에 대해 지정할 수&nbsp;있습니다.  </p>
+<ul>
+<li>&#8212;set-install-data : 기존에 사용하고 있던 앱 데이터를 그대로 유지할지&nbsp;결정</li>
+<li>&#8212;set-permission : 기존에 사용하고 있던 서명키 기반의 퍼미션을 유지할 지&nbsp;결정</li>
+<li>&#8212;set-rollback : 새로 서명한 키에서 원래서명키만 남긴 앱을 설치할 때, 서명키를 원복할지&nbsp;결정</li>
+</ul>
+<p>이 외에도 buildtool 버젼에 따라 apksigner에서 지정할 수 있는 옵션이 달라질 수 있습니다. 자세한 설명은 아래의 명령을 이용해 확인할 수&nbsp;있습니다.  </p>
+<div class="highlight"><pre><span></span><code>apksigner rotate --help
+  USAGE: apksigner rotate <span class="o">[</span>options<span class="o">]</span>
+
+  This takes the provided keys and creates a SigningCertificateLineage entry linking the old to the
+  new, <span class="k">for</span> use <span class="k">in</span> a key rotation scenario using APK Signature Scheme v3.
+  ...
+</code></pre></div>
+
+<h3>lineage 정보를 기반으로 2개의 서명키로 앱&nbsp;서명</h3>
+<p>위에서 생성한 lineage 정보와 기존의 서명키, 그리고 신규 서명키를 이용해 앱 서명을&nbsp;진행합니다.</p>
+<div class="highlight"><pre><span></span><code>apksigner sign <span class="se">\</span>
+  --ks old_release.keystore --ks-key-alias <span class="s2">&quot;XXX&quot;</span> --ks-pass <span class="s2">&quot;pass:XXXX&quot;</span> <span class="se">\</span>
+  --next-signer <span class="se">\</span>
+  --ks new_release.keystore --ks-key-alias <span class="s2">&quot;XXX&quot;</span> --ks-pass <span class="s2">&quot;pass:XXXX&quot;</span> <span class="se">\</span>
+  --lineage lineage.dat <span class="se">\</span>
+  --v3-signing-enabled <span class="nb">true</span> <span class="se">\</span>
+  app-release.apk
+</code></pre></div>
+
+<p>간단하다면 간단하지만, 의외로 귀찮은 작업입니다. 따라서, 위에서 언급한 구글 이슈트래커를 참고해서, 별표와 답장을 보내서, 기본 빌드 스크립트만을 이용해 손쉽게 해당 정보가 적용될 수 있도록 Google 개발자분들에게 용기(?)를 주도록&nbsp;해주세요.</p>
+<h3>서명키 확인&nbsp;방법</h3>
+<p>생성된 apk 는 다음과 같이 확인할 수&nbsp;있습니다.</p>
+<ul>
+<li>예전 OS를 위한 signing scheme v1/v2&nbsp;확인</li>
+</ul>
+<div class="highlight"><pre><span></span><code>jarsigner -verify -certs --verbose app-release.apk
+...
+- Signed by <span class="s2">&quot;CN=OLD Key, OU=My Team, O=My Company, L=My Location, ST=Seoul, C=KR&quot;</span>
+ Digest algorithm: SHA-256
+ Signature algorithm: SHA256withRSA, <span class="m">1024</span>-bit key <span class="o">(</span>weak<span class="o">)</span>
+</code></pre></div>
+
+<ul>
+<li>Android <span class="caps">OS</span> 8.1 이하 버젼에 설치시 아래와 같이 서명정보를 확인&nbsp;가능</li>
+</ul>
+<div class="highlight"><pre><span></span><code>adb shell dumpsys package com.example.myapplication <span class="p">|</span> grep signatures             
+    <span class="nv">signatures</span><span class="o">=</span>PackageSignatures<span class="o">{</span>7d9facf <span class="o">[</span>e76b236f<span class="o">]}</span>
+</code></pre></div>
+
+<ul>
+<li>신규 서명키 signing scheme v3&nbsp;확인</li>
+</ul>
+<div class="highlight"><pre><span></span><code>apksigner verify -print-certs app-release.apk
+   Signer <span class="c1">#1 certificate DN: CN=NEW Key, OU=New Team, O=My Company, L=My Location, ST=Pangyo, C=KR</span>
+   Signer <span class="c1">#1 certificate SHA-256 digest: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
+   Signer <span class="c1">#1 certificate SHA-1 digest: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
+   Signer <span class="c1">#1 certificate MD5 digest: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx</span>
+</code></pre></div>
+
+<ul>
+<li>Android <span class="caps">OS</span> 9 이상 버젼의 기기에 설치시 아래와 같이 서명정보를 확인&nbsp;가능</li>
+</ul>
+<div class="highlight"><pre><span></span><code>adb shell dumpsys package com.example.myapplication <span class="p">|</span> grep signatures
+  <span class="nv">signatures</span><span class="o">=</span>PackageSignatures<span class="o">{</span>2fa497a version:3, signatures:<span class="o">[</span>804a2fa7<span class="o">]</span>, past signatures:<span class="o">[</span>e76b236f flags: <span class="m">17</span>, 804a2fa7 flags: <span class="m">17</span><span class="o">]}</span>
+</code></pre></div>
+
+<h2>참고자료</h2>
+<ul>
+<li>https://developer.android.com/about/versions/pie/android-9.0#apk-key-rotation</li>
+<li>https://source.android.com/security/apksigning/v3?hl=en</li>
+<li>https://android-developers.googleblog.com/2021/06/the-future-of-android-app-bundles-is.html</li>
+<li>https://youtu.be/d8mn0pmgvGw</li>
+<li>https://issuetracker.google.com/issues/160230884</li>
+</ul>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="https://ganadist.github.io/tag/googleplay.html">GooglePlay</a>
+      <a href="https://ganadist.github.io/tag/android.html">Android</a>
+      <a href="https://ganadist.github.io/tag/security.html">Security</a>
+    </p>
+  </div>
+
+
+
+
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'ganadist-github-io';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+    Please enable JavaScript to view comments.
+</noscript>
+<!-- End Disqus -->
+</article>
+
+    <footer>
+<p>&copy;  </p>
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+</p>    </footer>
+  </main>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Ganachoco's Blog ",
+  "url" : "https://ganadist.github.io",
+  "image": "",
+  "description": ""
+}
+</script>
+
+</body>
+</html>
