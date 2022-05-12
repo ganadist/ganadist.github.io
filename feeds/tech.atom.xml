@@ -5,7 +5,7 @@
 &lt;p&gt;또한 서명키를 생성할 때, 현대 컴퓨팅환경에 알맞지 않은 취약한 알고리즘을 이용해 서명키를 작성할 수&amp;nbsp;있습니다.&lt;/p&gt;
 &lt;p&gt;서명키가 유출되거나 취약한 알고리즘을 이용한 서명키를 사용하는 경우, 악의적인 의도로 서명된 앱을 변조해서, 앱 사용자의 정보를 취득할 수 있는 위험이 있게 됩니다.
 이러한 경우에는 꼭 서명키를 교체해서, 앱의 보안을 강화해야&amp;nbsp;합니다.&lt;/p&gt;
-&lt;p&gt;기존에는 이러한 경우 (눈물을 머금고) 서명키를 직접 교체해야 했지만, 앱의 업그레이드가 불가능 하기 때문에, 사용자들에게 수동으로 앱을 제거후 다시 설치해 달라고 부탁해야 했습니다.
+&lt;p&gt;기존에는 이러한 경우 (눈물을 머금고) 서명키를 직접 교체해야 했지만, 앱의 업그레이드가 불가능 하기 때문에, 사용자들에게 수동으로 앱을 제거후 다시 설치해 달라고 부탁해야 했습니다. 혹은 Application ID를 새로 구성해서, 사용자를 처음부터 모으는 고행의 길을 선택해야 했습니다.
 하지만 이번에 추가되는 서명키 교체(Key Rotation)은 그러한 불편한 없이, 자연스럽게 서명키를 교체하는 것이&amp;nbsp;가능합니다.&lt;/p&gt;
 &lt;p&gt;이 포스트에서는 Google Play Console 대신, 직접 서명키를 바꾸는 방법과 그 영향에 대해서 이야기&amp;nbsp;해보겠습니다.&lt;/p&gt;
 &lt;p&gt;원래 Android앱의 서명키는 Java에서 사용하던 서명 방식을 그대로 이용한 app signing scheme v1 에서 시작해서, 현재 app signing scheme v4 까지 발표되었는데요, &lt;a href="https://developer.android.com/about/versions/pie/android-9.0#apk-key-rotation"&gt;서명키를 교체하는 기능&lt;/a&gt;은 app signing scheme v3 에서 지원됩니다.
