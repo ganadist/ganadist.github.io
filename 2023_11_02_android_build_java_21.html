@@ -166,7 +166,7 @@ AIDL은 <span class="caps">AIDL</span> Compiler를 통해 Java코드로 변환�
 자세한 사항은 https://issuetracker.google.com/issues/294422895 를 참고하시기&nbsp;바랍니다.</p>
 <h2>Android Gradle&nbsp;Plugin</h2>
 <p>Android Gradle 8.3 은 현재 Canary 11까지 출시되었으며, 정식버젼이 나오려면 3-4달은 기다려야 합니다.<br>
-Java 21에서 안드로이드 플랫폼 API를 참조하는 과정에서 jlink라는 도구를 이용하는데, <a href="https://bugs.openjdk.org/browse/JDK-8304913">해당 도구의 동작 사양이 변경</a>되는 바람에 Java 21을 사용하기 어려워 졌는데요.<br>
+Java 21에서 안드로이드 플랫폼 API를 참조하는 과정에서 <a href="https://docs.oracle.com/en/java/javase/17/docs/specs/man/jlink.html">jlink라는 도구</a>를 이용하는데, <a href="https://bugs.openjdk.org/browse/JDK-8304913">해당 도구의 동작 사양이 변경</a>되는 바람에 Java 21을 사용하기 어려워 졌는데요.<br>
 해당 변경사항에 대한 대응이 <a href="https://android.googlesource.com/platform/tools/base/+/d6e8d6119">Android Gradle Plugin 8.3-alpha03 에 적용</a>되었습니다.
 그 이전의 Android Gradle Plugin버젼을 사용하면 오류가 발생되는데, 그렇다고 아직 호환성 문제가 발생할 수 있는 Android Gradle Plugin의 alpha버젼을 도입하는 것도 어려울 가능성이 높습니다.<br>
 그래서 이전 Android Gradle Plugin버젼에서 사용할 수 있도록 <a href="https://gist.github.com/ganadist/3e38cfe88fe1346c46ca1ee964e45dd9#file-labs-openjdk-21-diff">jlink를 수정</a>한 <a href="https://github.com/ganadist/graalvm-ce-builds/releases/tag/2023-10-24">JDK를 만들어 보았습니다</a>.</p>
@@ -187,7 +187,7 @@ Java 21에서 안드로이드 플랫폼 API를 참조하는 과정에서 jlink�
 </ul>
 </li>
 <li><a href="https://github.com/ganadist/VersionCodeDemo/blob/b80b1c3/build-logic/convention/src/main/kotlin/com/myapplication/android/builder/Java.kt#L7-L13"><span class="caps">AIDL</span> Compiler&nbsp;설정</a></li>
-<li><a href="https://github.com/ganadist/VersionCodeDemo/blob/b80b1c3/gradle/build_requires_checker.gradle#L18-L20">Java 21사용시, Java 버젼에 대한&nbsp;경고</a></li>
+<li><a href="https://github.com/ganadist/VersionCodeDemo/blob/b80b1c3/gradle/build_requires_checker.gradle#L42-L44">Java 21사용시, Java 버젼에 대한&nbsp;경고</a></li>
 </ul>
   </div>
   <div class="tag-cloud">
